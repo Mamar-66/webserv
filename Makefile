@@ -8,6 +8,7 @@ SRC_PATH	=	srcs/
 OBJ_PATH	=	objs/
 
 SRC	=	main.cpp \
+		serveur/serveur.cpp
 
 SRCS	=	$(addprefix $(SRC_PATH), $(SRC))
 
@@ -19,6 +20,7 @@ all:	$(OBJ_PATH) $(NAME)
 
 $(OBJ_PATH):
 			mkdir -p $(OBJ_PATH)
+			mkdir -p $(OBJ_PATH)/serveur
 
 $(NAME):	$(OBJS)
 	@echo "\033[0;33m\nCOMPILING \033[31m Webserv \033[0;33m ...\n"
