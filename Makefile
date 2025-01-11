@@ -1,28 +1,33 @@
 NAME	=	Webserv
-CC	=	c++
-
+CC		=	c++
 CFLAGS	=	-Wall -Werror -Wextra -std=c++98 -g
-
 
 SRC_PATH	=	srcs/
 OBJ_PATH	=	objs/
 
 SRC	=	main.cpp \
-		serveur/serveur.cpp
+		serveur/serveur.cpp \
+		clients/client.cpp \
+		get_next_line/get_next_line.cpp \
+		get_next_line/get_next_line_utils.cpp
 
 SRCS	=	$(addprefix $(SRC_PATH), $(SRC))
 
 OBJS	=	$(SRCS:$(SRC_PATH)%.cpp=$(OBJ_PATH)%.o)
 
-INCS	=	-I	./includes/
+INCS	=	-I ./includes/
 
-all:	$(OBJ_PATH) $(NAME)
+CFLAGS_C =	-Wall -Werror -Wextra -g
+
+all: $(OBJ_PATH) $(NAME)
 
 $(OBJ_PATH):
 			mkdir -p $(OBJ_PATH)
 			mkdir -p $(OBJ_PATH)/serveur
+			mkdir -p $(OBJ_PATH)/clients
+			mkdir -p $(OBJ_PATH)/get_next_line
 
-$(NAME):	$(OBJS)
+$(NAME): $(OBJS)
 	@echo "\033[0;33m\nCOMPILING \033[31m Webserv \033[0;33m ...\n"
 	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
 	@echo "\033[32m ./Webserv created\n"
@@ -33,9 +38,9 @@ $(OBJ_PATH)%.o: $(SRC_PATH)%.cpp
 clean:
 		rm -rf $(OBJ_PATH)
 
-fclean:	clean
+fclean: clean
 		rm -rf $(NAME)
 
-re:	fclean all
+re: fclean all
 
-.PHONY:	all clean fclean re
+.PHONY: all clean fclean re

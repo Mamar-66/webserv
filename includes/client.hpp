@@ -6,21 +6,46 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/09 19:21:04 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/11 15:12:25 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 	#define CLIENT_HPP
 
-	class client
-	{
-		private :
+	#include <sys/socket.h>
+	#include <unistd.h>
+	#include <poll.h>
+
+	#include <iostream>
+	#include <sstream>
+	#include <cstring>
 
 
-		public :
-		
+			/* COLOR */
+	#define RED "\033[31m"
+	#define ORANGE "\033[38;5;208m"
+	#define GREEN "\033[32m"
+	#define BLUE "\033[34m"
+	#define RESET "\033[0m"
+	#define BOLD "\033[1m"
+	#define UNDERLINE "\033[4m"
+
+class client
+{
+	private:
+		int socket_fd;
+
+	public:
+		client(int fdsocket);
+		~client();
+
+		std::string input;
+		pollfd pfd;
+
+		// std::list<pollfd> pfd;
 	};
 
+	client *creat_client(int fd_serveur);
 
 #endif

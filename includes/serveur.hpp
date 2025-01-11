@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:06:45 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/10 21:38:51 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/11 13:19:07 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,9 @@
 
 #include "client.hpp"
 
-#include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <poll.h>
 
 #include <iostream>
 #include <string>
@@ -29,7 +29,7 @@
 #define PORT 8080
 #define MAX_CLIENTS 10
 
-/* COLOR */
+		/* COLOR */
 #define RED "\033[31m"
 #define ORANGE "\033[38;5;208m"
 #define GREEN "\033[32m"
@@ -49,6 +49,11 @@ private:
 public:
 	serveur();
 	~serveur();
+	
+	pollfd pfd;
+	// std::list<pollfd> pfd;
+
+	int getFD();
 };
 
 void routine_servor();

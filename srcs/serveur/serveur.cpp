@@ -28,6 +28,11 @@ serveur::serveur()
 		oss << errno;
 		throw std::runtime_error(RED "Error listen\nCode error : " + oss.str() + "\nError code value : " + std::string(strerror(errno)));
 	}
+
+	this->pfd.fd = this->socket_fd;
+	this->pfd.events = POLLIN;
+	this->pfd.revents = 0;
+
 	std::cout << ORANGE "hello constructor from serveur\n" GREEN "server listen . . .\n" RESET << std::endl;
 }
 
@@ -37,6 +42,11 @@ serveur::~serveur()
 	std::cout << ORANGE "destructor serveur" RESET << std::endl;
 }
 
+int		serveur::getFD()
+{
+	return this->socket_fd;
+}
+
 void routine_servor()
 {
 	try
@@ -44,7 +54,17 @@ void routine_servor()
 		serveur server;
 		// while (true)
 		// {
-		// }
+			if (poll(&server.pfd, 1, -1) && server.pfd.revents == POLLIN)
+			{
+				client	*new_client = creat_client(server.getFD());
+				if (!new_client)
+				{
+					std::cerr << RED "error creat whit new client" RESET << std::endl;
+					// continue;
+				}
+				delete new_client;
+			// }
+		}
 	}
 	catch (const std::exception &e)
 	{
