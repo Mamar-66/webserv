@@ -6,16 +6,19 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/11 15:12:25 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/14 20:17:29 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 	#define CLIENT_HPP
 
+	#include "utiles.hpp"
+
 	#include <sys/socket.h>
 	#include <unistd.h>
 	#include <poll.h>
+	#include <fcntl.h>
 
 	#include <iostream>
 	#include <sstream>

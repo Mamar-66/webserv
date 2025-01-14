@@ -52,18 +52,19 @@ void routine_servor()
 	try
 	{
 		serveur server;
-		// while (true)
-		// {
+		while (true)
+		{
 			if (poll(&server.pfd, 1, -1) && server.pfd.revents == POLLIN)
 			{
 				client	*new_client = creat_client(server.getFD());
 				if (!new_client)
 				{
 					std::cerr << RED "error creat whit new client" RESET << std::endl;
-					// continue;
+					continue;
 				}
+				std::cout << new_client->input << std::endl;
 				delete new_client;
-			// }
+			}
 		}
 	}
 	catch (const std::exception &e)

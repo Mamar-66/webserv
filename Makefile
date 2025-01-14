@@ -6,10 +6,10 @@ SRC_PATH	=	srcs/
 OBJ_PATH	=	objs/
 
 SRC	=	main.cpp \
+		utiles/utiles.cpp \
 		serveur/serveur.cpp \
-		clients/client.cpp \
-		get_next_line/get_next_line.cpp \
-		get_next_line/get_next_line_utils.cpp
+		clients/client.cpp 
+
 
 SRCS	=	$(addprefix $(SRC_PATH), $(SRC))
 
@@ -25,7 +25,7 @@ $(OBJ_PATH):
 			mkdir -p $(OBJ_PATH)
 			mkdir -p $(OBJ_PATH)/serveur
 			mkdir -p $(OBJ_PATH)/clients
-			mkdir -p $(OBJ_PATH)/get_next_line
+			mkdir -p $(OBJ_PATH)/utiles
 
 $(NAME): $(OBJS)
 	@echo "\033[0;33m\nCOMPILING \033[31m Webserv \033[0;33m ...\n"
