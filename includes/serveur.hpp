@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:06:45 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/11 13:19:07 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/21 18:01:37 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,24 +38,29 @@
 #define BOLD "\033[1m"
 #define UNDERLINE "\033[4m"
 
+typedef struct s_config
+{
+	
+}	t_config;
+
 class serveur
 {
-private:
-	std::list<client> clients;
-	sockaddr_in server_addr;
+	private:
+		std::list<client> clients;
+		sockaddr_in server_addr;
 
-	int socket_fd;
+		int socket_fd;
 
-public:
-	serveur();
-	~serveur();
+	public:
+		serveur();
+		~serveur();
 	
-	pollfd pfd;
-	// std::list<pollfd> pfd;
+		pollfd pfd;
+		// std::list<pollfd> pfd;
 
-	int getFD();
+		int getFD();
 };
 
-void routine_servor();
+	void routine_servor();
 
 #endif
