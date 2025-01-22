@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:06:45 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/21 18:01:37 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/22 16:20:13 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define SERVEUR_HPP
 
 #include "client.hpp"
+#include "config.hpp"
 
 #include <netinet/in.h>
 #include <unistd.h>
@@ -26,7 +27,6 @@
 #include <errno.h>
 #include <sstream>
 
-#define PORT 8080
 #define MAX_CLIENTS 10
 
 		/* COLOR */
@@ -38,12 +38,7 @@
 #define BOLD "\033[1m"
 #define UNDERLINE "\033[4m"
 
-typedef struct s_config
-{
-	
-}	t_config;
-
-class serveur
+class serveur : public config
 {
 	private:
 		std::list<client> clients;
@@ -51,16 +46,25 @@ class serveur
 
 		int socket_fd;
 
+		void 	addConfig(const std::string &strConfig);
+		void	creatSocket();
+		void	bindSocket();
+		void	stratListening();
+
 	public:
-		serveur();
-		~serveur();
+		// serveur();
+		serveur(const std::string &strConfig);
+		virtual ~serveur();
 	
 		pollfd pfd;
 		// std::list<pollfd> pfd;
 
-		int getFD();
+		int 			getFD();
+		std::string		return_word_after(const std::string &word, const std::string &str);
+		int				stringToInt(const std::string &str);
 };
 
 	void routine_servor();
+	std::vector<serveur> creat_servor(std::vector<std::string> &cut_str_serv);
 
 #endif

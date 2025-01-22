@@ -1,32 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   client.hpp                                         :+:      :+:    :+:   */
+/*   config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/22 11:24:49 by omfelk           ###   ########.fr       */
+/*   Created: 2025/01/22 11:54:40 by omfelk            #+#    #+#             */
+/*   Updated: 2025/01/22 15:02:58 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLIENT_HPP
-	#define CLIENT_HPP
+#ifndef	config_hpp
+	#define	config_hpp
 
-	#include "utiles.hpp"
-
-	#include <sys/socket.h>
-	#include <unistd.h>
-	#include <poll.h>
-	#include <fcntl.h>
-
+	#include <string>
 	#include <iostream>
+	#include <vector>
+	#include <fstream>
 	#include <sstream>
-	#include <cstring>
-	#include <ctime>
 
-
-			/* COLOR */
+		/* COLOR */
 	#define RED "\033[31m"
 	#define ORANGE "\033[38;5;208m"
 	#define GREEN "\033[32m"
@@ -35,22 +28,18 @@
 	#define BOLD "\033[1m"
 	#define UNDERLINE "\033[4m"
 
-class client
-{
-	private:
-		int socket_fd;
-		std::time_t startTime;
+	class config
+	{
+		protected :
+			int port;
+			std::string host;
+			std::string host_name;
 
-	public:
-		client(int fdsocket);
-		~client();
-
-		std::string input;
-		pollfd pfd;
-
-		// std::list<pollfd> pfd;
+		public :
+			config();
+			~config();
 	};
 
-	client *creat_client(int fd_serveur);
+	std::vector<std::string> cut_conf_serv(const int argc, char *configFile);
 
 #endif

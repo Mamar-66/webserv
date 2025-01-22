@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/21 15:57:48 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/22 11:24:44 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,11 @@ client::client(int fdsocket) : socket_fd(fdsocket)
 	this->pfd.events = POLLIN;
 	this->pfd.revents = 0;
 
-	std::cout << GREEN "creat client fd : " << this->socket_fd << RESET << std::endl;
+	this->startTime = std::time(NULL);
+	if (this->startTime == -1)
+		throw std::runtime_error(RED "Failed to get the current time" RESET);
+
+	std::cout << GREEN "creat client fd : " << this->socket_fd << "time = " << this->startTime << RESET << std::endl;
 }
 
 client::~client()

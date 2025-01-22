@@ -1,33 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   creat_servors.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/06 16:29:52 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/22 15:44:06 by omfelk           ###   ########.fr       */
+/*   Created: 2025/01/22 15:10:10 by omfelk            #+#    #+#             */
+/*   Updated: 2025/01/22 15:53:04 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/serveur.hpp"
-#include "../includes/config.hpp"
+#include "../../includes/serveur.hpp"
 
-int main(int argc, char **argv)
+std::vector<serveur> creat_servor(std::vector<std::string> &cut_str_serv)
 {
-	(void)argc;
-	(void)argv;
-	try 
-	{
-		std::vector<std::string> cut_str_serv = cut_conf_serv(argc, argv[1]);
-		std::vector<serveur> servors = creat_servor(cut_str_serv);
-		// routine_servor();
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << e.what() <<  RESET << std::endl;
-		return 1;
-	}
+	std::vector<serveur> servors;
 
-	return 1;
+	// std::vector<std::string>::iterator it;
+
+	// for (it = cut_str_serv.begin(); it != cut_str_serv.end(); ++it)
+	// 	std::cout << *it << std::endl;
+
+	std::vector<std::string>::iterator itt;
+
+	itt = cut_str_serv.begin();
+
+	serveur server(*itt);
+	
+
+	return servors;
 }
