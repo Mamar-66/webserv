@@ -51,23 +51,24 @@ void serveur::stratListening()
 void serveur::addConfig(const std::string &strConfig)
 {
 	std::string p = return_word_after("listen", strConfig);
-	int 		number = 0;	
 	if (p.empty())
 		throw std::runtime_error(RED "Error config file for chearch listen");
 
 	try
 	{
-		number = stringToInt(p);
+		this->port = stringToInt(p);
+		this->host_name = return_word_after("server_name", strConfig);
+		this->host = return_word_after("host", strConfig);
+		// p = return_word_after("client_max_body_size", strConfig);
+		// this->client_max_body_size = stringToInt(p);
 	}
 	catch(const std::exception& e)
 	{
 		throw;
 	}
-	
-	this->port = number;
 
-	std::cout << strConfig << std::endl;
-	std::cout << this->port << std::endl;
+	// std::cout << strConfig << std::endl;
+	// std::cout << this->port << std::endl;
 }
 
 serveur::serveur(const std::string &strConfig)
@@ -94,6 +95,7 @@ serveur::serveur(const std::string &strConfig)
 serveur::~serveur()
 {
 	close(this->socket_fd);
+	// delete this;
 	std::cout << ORANGE "destructor serveur" RESET << std::endl;
 }
 

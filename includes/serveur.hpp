@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:06:45 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/22 16:20:13 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/23 16:59:00 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ class serveur : public config
 		int				stringToInt(const std::string &str);
 };
 
-	void routine_servor();
-	std::vector<serveur> creat_servor(std::vector<std::string> &cut_str_serv);
+	void					routine_servor(std::vector<serveur> &servor);
+	std::vector<serveur>	creat_servor(std::vector<std::string> &cut_str_serv);
 
 #endif

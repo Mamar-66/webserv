@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 16:29:52 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/22 15:44:06 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/24 10:53:08 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,11 @@
 
 int main(int argc, char **argv)
 {
-	(void)argc;
-	(void)argv;
 	try 
 	{
 		std::vector<std::string> cut_str_serv = cut_conf_serv(argc, argv[1]);
 		std::vector<serveur> servors = creat_servor(cut_str_serv);
-		// routine_servor();
+		routine_servor(servors);
 	}
 	catch (const std::exception &e)
 	{

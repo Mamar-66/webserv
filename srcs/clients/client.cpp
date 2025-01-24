@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/22 11:24:44 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/24 10:37:04 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ client	*creat_client(int fd_serveur)
 
 	const char *message = "HTTP/1.1 200 OK\r\n"
 						  "Content-Type: text/html\r\n"
-						  "Content-Length: 32\r\n"
+						  "Content-Length: 34\r\n"
 						  "Connection: close\r\n"
 						  "\r\n"
 						  "<html><body><h1>Hello from server!</h1></body></html>";

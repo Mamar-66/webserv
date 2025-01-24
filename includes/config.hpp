@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 11:54:40 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/22 15:02:58 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/24 12:06:51 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,10 @@
 	class config
 	{
 		protected :
-			int port;
+			int 		port;
 			std::string host;
 			std::string host_name;
+			// int 		client_max_body_size;
 
 		public :
 			config();
