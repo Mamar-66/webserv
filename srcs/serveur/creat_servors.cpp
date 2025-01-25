@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:10:10 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/24 12:05:14 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/25 18:52:42 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,14 +28,15 @@ std::vector<serveur> creat_servor(std::vector<std::string> &cut_str_serv)
 
 	std::vector<std::string>::iterator it;
 	int i = 0;
+	int size = cut_str_serv.size() - 1;
 
 	try
 	{
 		for (it = cut_str_serv.begin(); it != cut_str_serv.end(); ++it)
 		{
 			std::cout << *it << "i = " << i++ << std::endl;
-			// server = ;
-
+			if (i >= size)
+				break;
 			servors.push_back(*malloc_serv(*it));
 		}
 	}
