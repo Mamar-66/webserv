@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:10:10 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/25 18:52:42 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/26 16:34:49 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@ serveur *malloc_serv(std::string &str)
 std::vector<serveur> creat_servor(std::vector<std::string> &cut_str_serv)
 {
 	std::vector<serveur> 	servors;
-	// serveur					*server;
 
 	std::vector<std::string>::iterator it;
 	int i = 0;

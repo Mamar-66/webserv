@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/22 11:24:49 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/26 17:23:41 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 
 	#include <iostream>
 	#include <sstream>
+	#include <fstream>
 	#include <cstring>
 	#include <ctime>
 
@@ -46,7 +47,8 @@ class client
 		~client();
 
 		std::string input;
-		pollfd pfd;
+		std::string output;
+		pollfd		pfd;
 
 		// std::list<pollfd> pfd;
 	};

@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/24 12:07:07 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/26 17:03:47 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ void routine_servor(std::vector<serveur> &servor)
 	{
 		std::vector<serveur>::iterator it = servor.begin();
 
-		std::cout << it->getFD() << std::endl;
 		while (true)
 		{
 			if (poll(&it->pfd, 1, -1) && it->pfd.revents == POLLIN)
@@ -30,7 +29,7 @@ void routine_servor(std::vector<serveur> &servor)
 					continue;
 				}
 				std::cout << new_client->input << std::endl;
-				delete new_client;
+				//delete new_client;
 			}
 		}
 	}
