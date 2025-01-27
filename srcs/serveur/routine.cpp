@@ -1,0 +1,56 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   routine.cpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
+/*   Updated: 2025/01/27 13:01:09 by omfelk           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../../includes/serveur.hpp"
+
+void routine_servor(std::vector<serveur> &servor)
+{
+	try
+	{
+		std::vector<serveur>::iterator itserv = servor.begin();
+
+		while (true)
+		{
+			int readpoll = poll(itserv->pfd, MAX_CLIENTS + 1, -1);
+			if (readpoll < 0)
+				throw std::runtime_error(RED "Error poll = -1");
+
+			for (int i = 0; i <= MAX_CLIENTS; i++)
+			{
+				
+				if (itserv->pfd[i].revents && POLLIN)
+				{
+					if (itserv->pfd[i].fd == itserv->getFD())
+					{
+						client *new_client = creat_client(itserv->getFD());
+						if (!new_client)
+						{
+							std::cerr << RED "error creat whit new client" RESET << std::endl;
+							continue;
+					}
+					std::cout << new_client->input << std::endl;
+					}
+					else
+					{
+						
+						std::cout << "client existed" << std::endl;
+					}
+				}
+			}
+
+		}
+	}
+	catch (const std::exception &e)
+	{
+		throw;
+	}
+}
