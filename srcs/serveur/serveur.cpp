@@ -43,9 +43,18 @@ void serveur::stratListening()
 		throw std::runtime_error(RED "Error listen\nCode error : " + oss.str() + "\nError code value : " + std::string(strerror(errno)));
 	}
 
-	this->pfd.fd = this->socket_fd;
-	this->pfd.events = POLLIN;
-	this->pfd.revents = 0;
+	this->pfd = new struct pollfd[MAX_CLIENTS + 1];
+
+	for (int i = 0; i <= MAX_CLIENTS; i++)
+	{
+		this->pfd[i].fd = -1;
+		this->pfd[i].events = 0;
+		this->pfd[i].revents = 0;
+	}
+
+	this->pfd[0].fd = this->socket_fd;
+	this->pfd[0].events = POLLIN;
+	this->pfd[0].revents = 0;
 }
 
 void serveur::addConfig(const std::string &strConfig)
@@ -95,6 +104,7 @@ serveur::serveur(const std::string &strConfig)
 serveur::~serveur()
 {
 	close(this->socket_fd);
+	delete[] this->pfd;
 	// delete this;
 	std::cout << ORANGE "destructor serveur" RESET << std::endl;
 }

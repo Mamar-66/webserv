@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:06:45 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/23 16:59:00 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/27 12:46:40 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ class serveur : public config
 		serveur(const std::string &strConfig);
 		virtual ~serveur();
 	
-		pollfd pfd;
+		pollfd *pfd;
 		// std::list<pollfd> pfd;
 
 		int 			getFD();
