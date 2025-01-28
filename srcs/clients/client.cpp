@@ -6,12 +6,16 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/27 11:08:24 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/28 13:33:56 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/client.hpp"
 
+client::client()
+{
+	
+}
 client::client(int fdsocket) : socket_fd(fdsocket)
 {
 	this->pfd.fd = this->socket_fd;
@@ -54,20 +58,29 @@ std::string read_request(int &fd_client)
 	return return_str;
 } 
 
-client	*creat_client(int fd_serveur)
+void	creat_client(int fd_serveur, serveur &servor)
 {
 	int tmp_fd_client = accept(fd_serveur, NULL, NULL);
-	std::cout << "tmp fd " << tmp_fd_client << std::endl;
-	if (tmp_fd_client < 0)
-	{
-		std::cerr << RED "error creat client" RESET << std::endl;
-		return NULL;
-	}
-	client* new_client = new client(tmp_fd_client);
-	if (!new_client)
-		return NULL;
 
-	new_client->input = read_request(tmp_fd_client);
+	std::cout << "tmp fd " << tmp_fd_client << std::endl;
+
+	if (tmp_fd_client < 0)
+		throw std::runtime_error(RED "error creat client");
+
+	servor.clients[tmp_fd_client] = client(tmp_fd_client);
+
+	std::cout << servor.clients[tmp_fd_client].input << std::endl;
+	for (int i = 1; i <= MAX_CLIENTS; i++)
+	{
+		if (servor.pfd[i].fd == -1)
+		{
+			servor.pfd[i].fd = tmp_fd_client;
+			servor.pfd[i].events = POLLIN;
+			break;
+		}
+	}
+
+		/* reponce */
 
 	char path[] = "/home/mamar/42/webserv/html/index.html";
 
@@ -101,8 +114,6 @@ client	*creat_client(int fd_serveur)
 	if (bytes_sent == -1)
 	{
 		std::cerr << "Erreur lors de la lecture" << std::endl;
-		return NULL;
 	}
 
-	return new_client;
 }

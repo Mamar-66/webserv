@@ -6,13 +6,13 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/27 13:01:09 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/28 13:24:28 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/serveur.hpp"
 
-void routine_servor(std::vector<serveur> &servor)
+void	routine_servor(std::vector<serveur> &servor)
 {
 	try
 	{
@@ -31,13 +31,8 @@ void routine_servor(std::vector<serveur> &servor)
 				{
 					if (itserv->pfd[i].fd == itserv->getFD())
 					{
-						client *new_client = creat_client(itserv->getFD());
-						if (!new_client)
-						{
-							std::cerr << RED "error creat whit new client" RESET << std::endl;
-							continue;
-					}
-					std::cout << new_client->input << std::endl;
+						creat_client(itserv->getFD(), *itserv);
+							
 					}
 					else
 					{
