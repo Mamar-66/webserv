@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:04:12 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/25 18:50:18 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/28 14:55:41 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,6 @@ std::vector<std::string> cut_conf_serv(const int argc, char *configFile)
 	{
 		try
 		{
-			write(1, "ok\n", 3);
 			return_parss.push_back(cut_serv(file));
 		}
 		catch(const std::exception& e)

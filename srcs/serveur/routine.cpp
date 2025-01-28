@@ -6,13 +6,13 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/27 13:01:09 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/28 15:46:29 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/serveur.hpp"
 
-void routine_servor(std::vector<serveur> &servor)
+void	routine_servor(std::vector<serveur> &servor)
 {
 	try
 	{
@@ -27,26 +27,19 @@ void routine_servor(std::vector<serveur> &servor)
 			for (int i = 0; i <= MAX_CLIENTS; i++)
 			{
 				
-				if (itserv->pfd[i].revents && POLLIN)
+				std::cout << "i = " << i << std::endl;
+				if (itserv->pfd[i].revents & POLLIN)
 				{
 					if (itserv->pfd[i].fd == itserv->getFD())
 					{
-						client *new_client = creat_client(itserv->getFD());
-						if (!new_client)
-						{
-							std::cerr << RED "error creat whit new client" RESET << std::endl;
-							continue;
-					}
-					std::cout << new_client->input << std::endl;
+						creat_client(itserv->getFD(), *itserv);
 					}
 					else
 					{
-						
-						std::cout << "client existed" << std::endl;
+						client_existed(itserv->pfd[i].fd, *itserv);
 					}
 				}
 			}
-
 		}
 	}
 	catch (const std::exception &e)

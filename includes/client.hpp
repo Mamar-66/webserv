@@ -6,14 +6,15 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/27 11:09:22 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/28 15:17:20 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 	#define CLIENT_HPP
 
-	#include "utiles.hpp"
+	//#include "utiles.hpp"
+	#include "serveur.hpp"
 
 	#include <sys/socket.h>
 	#include <unistd.h>
@@ -36,23 +37,29 @@
 	#define BOLD "\033[1m"
 	#define UNDERLINE "\033[4m"
 
-class client
-{
-	private:
-		int socket_fd;
-		std::time_t startTime;
+	class serveur;
 
-	public:
-		client(int fdsocket);
-		~client();
+	class client
+	{
+		private:
+			int	socket_fd;
+			std::time_t startTime;
 
-		std::string input;
-		std::string output;
-		pollfd		pfd;
+		public:
+			client();
+			client(int fdsocket);
+			~client();
 
-		// std::list<pollfd> pfd;
+			std::string input;
+			std::string output;
+			pollfd		pfd;
+
+			int getFD();
+
+			// std::list<pollfd> pfd;
 	};
 
-	client *creat_client(int fd_serveur);
+	void	creat_client(int fd_serveur, serveur &servor);
+	void	client_existed(int &fd_client, serveur &servor);
 
 #endif
