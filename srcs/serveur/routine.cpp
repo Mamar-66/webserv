@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/28 13:24:28 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/28 15:46:29 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,21 +27,19 @@ void	routine_servor(std::vector<serveur> &servor)
 			for (int i = 0; i <= MAX_CLIENTS; i++)
 			{
 				
-				if (itserv->pfd[i].revents && POLLIN)
+				std::cout << "i = " << i << std::endl;
+				if (itserv->pfd[i].revents & POLLIN)
 				{
 					if (itserv->pfd[i].fd == itserv->getFD())
 					{
 						creat_client(itserv->getFD(), *itserv);
-							
 					}
 					else
 					{
-						
-						std::cout << "client existed" << std::endl;
+						client_existed(itserv->pfd[i].fd, *itserv);
 					}
 				}
 			}
-
 		}
 	}
 	catch (const std::exception &e)

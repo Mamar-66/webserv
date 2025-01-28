@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/28 13:34:39 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/28 15:17:20 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@
 	class client
 	{
 		private:
-			int socket_fd;
+			int	socket_fd;
 			std::time_t startTime;
 
 		public:
@@ -54,9 +54,12 @@
 			std::string output;
 			pollfd		pfd;
 
+			int getFD();
+
 			// std::list<pollfd> pfd;
 	};
 
 	void	creat_client(int fd_serveur, serveur &servor);
+	void	client_existed(int &fd_client, serveur &servor);
 
 #endif
