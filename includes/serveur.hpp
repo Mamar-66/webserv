@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:06:45 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/28 14:33:05 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/30 12:25:37 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,18 +53,13 @@
 			void	stratListening();
 
 		public:
-			//serveur();
 			serveur(const std::string &strConfig);
 			virtual ~serveur();
 
-			std::map<int, client*> clients;
-
-			pollfd *pfd;
-			// std::list<pollfd> pfd;
-
-			int 			getFD();
 			std::string		return_word_after(const std::string &word, const std::string &str);
+			int 			getFD();
 			int				stringToInt(const std::string &str);
+			pollfd			pfd;
 	};
 
 	void					routine_servor(std::vector<serveur> &servor);
