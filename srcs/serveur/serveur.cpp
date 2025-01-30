@@ -43,18 +43,9 @@ void serveur::stratListening()
 		throw std::runtime_error(RED "Error listen\nCode error : " + oss.str() + "\nError code value : " + std::string(strerror(errno)));
 	}
 
-	this->pfd = new struct pollfd[MAX_CLIENTS + 1];
-
-	for (int i = 0; i <= MAX_CLIENTS; i++)
-	{
-		this->pfd[i].fd = -1;
-		this->pfd[i].events = 0;
-		this->pfd[i].revents = 0;
-	}
-
-	this->pfd[0].fd = this->socket_fd;
-	this->pfd[0].events = POLLIN;
-	this->pfd[0].revents = 0;
+	this->pfd.fd = this->socket_fd;
+	this->pfd.events = POLLIN;
+	this->pfd.revents = 0;
 }
 
 void serveur::addConfig(const std::string &strConfig)
@@ -68,16 +59,11 @@ void serveur::addConfig(const std::string &strConfig)
 		this->port = stringToInt(p);
 		this->host_name = return_word_after("server_name", strConfig);
 		this->host = return_word_after("host", strConfig);
-		// p = return_word_after("client_max_body_size", strConfig);
-		// this->client_max_body_size = stringToInt(p);
 	}
 	catch(const std::exception& e)
 	{
 		throw;
 	}
-
-	// std::cout << strConfig << std::endl;
-	// std::cout << this->port << std::endl;
 }
 
 serveur::serveur(const std::string &strConfig)
@@ -104,7 +90,7 @@ serveur::serveur(const std::string &strConfig)
 serveur::~serveur()
 {
 	close(this->socket_fd);
-	delete[] this->pfd;
+	//delete[] this->pfd;
 	// delete this;
 	std::cout << ORANGE "destructor serveur" RESET << std::endl;
 }
