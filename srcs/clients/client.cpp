@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/30 12:24:45 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/30 15:26:04 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ int	client::getFD()
 	return return_str;
 } 
 
-void	creat_client(int fd_serveur)
+void	     creat_client(int fd_serveur)
 {
 	std::cout << ORANGE "creat client" RESET << std::endl;
 
