@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Request Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input, textarea, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        textarea {
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <h1>HTTP Request Tester</h1>
+    <div class="container">
+        <!-- GET Request Form -->
+        <div class="form-group">
+            <h2>GET Request</h2>
+            <form id="get-form" onsubmit="handleRequest(event, 'GET')">
+                <label for="get-data">Enter Value for GET Request</label>
+                <input type="text" id="get-data" placeholder="Enter value for the request">
+                <button type="submit">Send GET Request</button>
+            </form>
+        </div>
+
+        <!-- POST Request Form -->
+        <div class="form-group">
+            <h2>POST Request</h2>
+            <form id="post-form" onsubmit="handleRequest(event, 'POST')">
+                <label for="post-data">Enter Data for POST Request</label>
+                <textarea id="post-data" placeholder="Enter data to send in POST request"></textarea>
+                <button type="submit">Send POST Request</button>
+            </form>
+        </div>
+
+        <!-- PUT Request Form -->
+        <div class="form-group">
+            <h2>PUT Request</h2>
+            <form id="put-form" onsubmit="handleRequest(event, 'PUT')">
+                <label for="put-data">Enter Data to Update (PUT)</label>
+                <textarea id="put-data" placeholder="Enter data to update"></textarea>
+                <button type="submit">Send PUT Request</button>
+            </form>
+        </div>
+
+        <!-- DELETE Request Form -->
+        <div class="form-group">
+            <h2>DELETE Request</h2>
+            <form id="delete-form" onsubmit="handleRequest(event, 'DELETE')">
+                <label for="delete-data">Enter Resource to Delete</label>
+                <input type="text" id="delete-data" placeholder="Enter resource ID to delete">
+                <button type="submit">Send DELETE Request</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function handleRequest(event, method) {
+            event.preventDefault();
+
+            let form, inputData;
+            
+            // Selon la mÃ©thode, rÃ©cupÃ©rer les donnÃ©es
+            if (method === 'GET') {
+                inputData = document.getElementById('get-data').value;
+                form = document.getElementById('get-form');
+            } else if (method === 'POST') {
+                inputData = document.getElementById('post-data').value;
+                form = document.getElementById('post-form');
+            } else if (method === 'PUT') {
+                inputData = document.getElementById('put-data').value;
+                form = document.getElementById('put-form');
+            } else if (method === 'DELETE') {
+                inputData = document.getElementById('delete-data').value;
+                form = document.getElementById('delete-form');
+            }
+
+            // Construire l'URL pour GET ou DELETE (par exemple: /resourceID)
+            let url = '/';
+            if (method === 'GET' || method === 'DELETE') {
+                url += encodeURIComponent(inputData);
+            }
+
+            // Construire le body pour POST et PUT
+            const payload = method === 'POST' || method === 'PUT' ? { data: inputData } : null;
+
+            // Effectuer la requÃªte
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: payload ? JSON.stringify(payload) : null, // Utiliser JSON.stringify si payload existe
+            };
+
+            fetch(url, options)
+                .then(response => response.text())
+                .then(data => {
+                    // Ne pas afficher de popup, rÃ©initialiser le champ
+                    if (method === 'GET') {
+                        document.getElementById('get-data').value = ''; // RÃ©initialiser le champ GET
+                    } else if (method === 'POST') {
+                        document.getElementById('post-data').value = ''; // RÃ©initialiser le champ POST
+                    } else if (method === 'PUT') {
+                        document.getElementById('put-data').value = ''; // RÃ©initialiser le champ PUT
+                    } else if (method === 'DELETE') {
+                        document.getElementById('delete-data').value = ''; // RÃ©initialiser le champ DELETE
+                    }
+                    // On ne fait rien ici (pas de popup) mais tu peux Ã©ventuellement afficher un message sur la page si tu veux.
+                })
+                .catch(error => {
+                    // GÃ©rer les erreurs sans afficher de popup
+                    console.error('Request error: ', error);
+                    // On peut laisser les champs comme ils sont ou aussi les vider, si souhaitÃ©.
+                });
+        }
+    </script>
+</body>
+</html>

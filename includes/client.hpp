@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/30 12:21:51 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/31 17:11:46 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 	#include <sstream>
 	#include <fstream>
 	#include <cstring>
+	#include <cstdlib>
 	#include <ctime>
 
 

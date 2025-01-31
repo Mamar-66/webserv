@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/30 15:26:04 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/31 17:22:18 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,26 @@ int	client::getFD()
 	return return_str;
 } 
 
+std::string url_decode(const std::string &url) {
+    std::string decoded = "";
+    for (size_t i = 0; i < url.length(); ++i) {
+        if (url[i] == '%' && i + 2 < url.length()) {
+            std::string hex = url.substr(i + 1, 2);
+            char decoded_char = 0;
+            if ((hex[0] >= '0' && hex[0] <= '9') || (hex[0] >= 'A' && hex[0] <= 'F') || (hex[0] >= 'a' && hex[0] <= 'f')) {
+                if ((hex[1] >= '0' && hex[1] <= '9') || (hex[1] >= 'A' && hex[1] <= 'F') || (hex[1] >= 'a' && hex[1] <= 'f')) {
+                    decoded_char = static_cast<char>(::strtol(hex.c_str(), NULL, 16)); // Décoder l'hexadécimal
+                    decoded += decoded_char;
+                    i += 2;
+                    continue;
+                }
+            }
+        }
+        decoded += url[i];
+    }
+    return decoded;
+}
+
 void	     creat_client(int fd_serveur)
 {
 	std::cout << ORANGE "creat client" RESET << std::endl;
@@ -70,11 +90,13 @@ void	     creat_client(int fd_serveur)
 
 	new_client.input = read_request(tmp_fd_client); 
 
-	std::cout << new_client.input << std::endl;
+	std::cout << url_decode(new_client.input) << std::endl;
+	//std::cout << new_client.input << std::endl;
 
 	/* reponce */
 
-	char path[] = "./html/index.html";
+	//char path[] = "./html/errors/error_404.html";
+	char path[] = "./html/test.html";
 
 	std::ifstream file(path);
 	if (!file.is_open())
