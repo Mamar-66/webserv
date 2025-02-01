@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>WEBSERV</title>
+	<link rel="icon" href="https://as1.ftcdn.net/jpg/01/26/67/06/1000_F_126670692_3Z6XMzg9RtmT5HEQrYYj07rkzdPws4cm.jpg" type="image/x-icon">
+	<style>
+		/* Applique un arrière-plan à toute la page */
+		body {
+			margin: 0;
+			padding: 0;
+			font-family: Arial, sans-serif;
+			height: 100vh;
+		}
+
+		/* Définir un fond d'écran */
+		.background {
+			background-image: url('https://images3.alphacoders.com/967/96765.jpg');
+			background-size: cover;
+			background-position: center;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			color: white;
+			text-align: center;
+		}
+
+
+		/* Style du titre */
+     	h1 {
+            color: #ff7043; /* Orange doux */
+            font-size: 3em;
+            font-family: 'Arial', sans-serif;
+            text-shadow: 2px 2px 4px rgb(255, 81, 0);
+        }
+
+
+		/* Conteneur pour les images */
+		.image-container {
+			display: flex;
+			justify-content: center;
+			gap: 20px;
+		}
+
+		/* Style des images cliquables */
+		.clickable-img {
+			width: 150px;
+			height: auto;
+			border-radius: 10px;
+			transition: transform 0.3s ease;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+		}
+
+		/* Effet au survol de l'image */
+		.clickable-img:hover {
+			transform: scale(1.1);
+		}
+
+		/* Ajoute un effet à l'image au clic */
+		.clickable-img:active {
+			transform: scale(0.9);
+		}
+	</style>
+</head>
+
+<body>
+	<div class="background">
+		<h1>WEBSERV</h1>
+		<div class="image-container">
+			<a href="cgi">
+				<!-- <img src="https://yt3.googleusercontent.com/5dFS-YKtQGgEIFu2vNsLGZR9JkMMDn6IYroy3A7CApoz70DoOUiMlipWyI3GaZgPdkKnYfXARmI=s900-c-k-c0x00ffffff-no-rj" alt="cgi" class="clickable-img"> -->
+				<img src="./img/cgi.jpg" alt="cgi" class="clickable-img">
+			</a>
+			<a href="test.html">
+				<!-- <img src="https://dev-tester.com/content/images/2019/10/dev-tester-twitter-post.png" alt="testeur" class="clickable-img"> -->
+				<img src="/html/img/testeur.png" alt="testeur" class="clickable-img">
+			<!-- </a>
+			<a href="https://www.example.com" target="_blank">
+				<img src="image3.jpg" alt="Image 3" class="clickable-img">
+			</a> -->
+		</div>
+	</div>
+</body>
+
+</html>
