@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/31 17:22:18 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/01 11:48:42 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,8 +95,8 @@ void	     creat_client(int fd_serveur)
 
 	/* reponce */
 
-	//char path[] = "./html/errors/error_404.html";
-	char path[] = "./html/test.html";
+	char path[] = "./html/errors/errors_400/error_404.html";
+	//char path[] = "./html/test.html";
 
 	std::ifstream file(path);
 	if (!file.is_open())
