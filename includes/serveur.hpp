@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:06:45 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/30 12:25:37 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/02 17:03:28 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,23 +43,27 @@
 	class serveur : public config
 	{
 		private:
-			sockaddr_in server_addr;
+			sockaddr_in		server_addr;
+			int				socket_fd;
 
-			int socket_fd;
-
-			void 	addConfig(const std::string &strConfig);
-			void	creatSocket();
-			void	bindSocket();
-			void	stratListening();
+			void 			addConfig(const std::string &strConfig);
+			void			creatSocket();
+			void			bindSocket();
+			void			stratListening();
 
 		public:
 			serveur(const std::string &strConfig);
 			virtual ~serveur();
 
-			std::string		return_word_after(const std::string &word, const std::string &str);
-			int 			getFD();
-			int				stringToInt(const std::string &str);
+					/* GETTER */
+			const int 		&getFD();
+
+
 			pollfd			pfd;
+
+
+			std::string		return_word_after(const std::string &word, const std::string &str);
+			int				stringToInt(const std::string &str);
 	};
 
 	void					routine_servor(std::vector<serveur> &servor);

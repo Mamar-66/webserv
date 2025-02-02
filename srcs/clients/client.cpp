@@ -6,18 +6,18 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/01 21:32:13 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/02 17:40:01 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/client.hpp"
 
+/* -------------------------------------------------------- */
+/* --------------CONSTRUCTOR / DESTRUCTOR------------------ */
+/* -------------------------------------------------------- */
+
 client::client(int fdsocket) : socket_fd(fdsocket)
 {
-	this->pfd.fd = this->socket_fd;
-	this->pfd.events = POLLIN;
-	this->pfd.revents = 0;
-
 	this->startTime = std::time(NULL);
 	if (this->startTime == -1)
 		throw std::runtime_error(RED "Failed to get the current time" RESET);
@@ -32,11 +32,68 @@ client::~client()
 	std::cout << RED "delete client fd : " << this->socket_fd << RESET << std::endl;
 }
 
-int	client::getFD()
+/* -------------------------------------------------------- */
+/* -------------------- GETTER ---------------------------- */
+/* -------------------------------------------------------- */
+
+const int	&client::getFD()
 {
 	return this->socket_fd;
 }
-	std::string read_request(int &fd_client)
+
+const std::time_t	&client::getStartTime()
+{
+	return this->startTime;
+}
+
+const std::string&	client::getInput(void)
+{
+	return this->input;
+}
+
+const std::string&	client::getOutput(void)
+{
+	return this->output;
+}
+
+/* -------------------------------------------------------- */
+/* -------------------- SETTER ---------------------------- */
+/* -------------------------------------------------------- */
+
+void	client::setInput(const std::string& str)
+{
+	this->input = str;
+}
+
+void	client::setOutput(const std::string& str)
+{
+	this->output = str;
+}
+
+
+/* --------------------------------------------------- */
+
+std::string url_decode(const std::string &url) {
+    std::string decoded = "";
+    for (size_t i = 0; i < url.length(); ++i) {
+        if (url[i] == '%' && i + 2 < url.length()) {
+            std::string hex = url.substr(i + 1, 2);
+            char decoded_char = 0;
+            if ((hex[0] >= '0' && hex[0] <= '9') || (hex[0] >= 'A' && hex[0] <= 'F') || (hex[0] >= 'a' && hex[0] <= 'f')) {
+                if ((hex[1] >= '0' && hex[1] <= '9') || (hex[1] >= 'A' && hex[1] <= 'F') || (hex[1] >= 'a' && hex[1] <= 'f')) {
+                    decoded_char = static_cast<char>(::strtol(hex.c_str(), NULL, 16));
+                    decoded += decoded_char;
+                    i += 2;
+                    continue;
+                }
+            }
+        }
+        decoded += url[i];
+    }
+    return decoded;
+}
+
+std::string read_request(int &fd_client)
 {
 	std::string	return_str;
 	char 		buff[2048];
@@ -55,28 +112,9 @@ int	client::getFD()
 
 	} while (byte_read > 0);
 
-	return return_str;
+	return url_decode(return_str);
 } 
 
-std::string url_decode(const std::string &url) {
-    std::string decoded = "";
-    for (size_t i = 0; i < url.length(); ++i) {
-        if (url[i] == '%' && i + 2 < url.length()) {
-            std::string hex = url.substr(i + 1, 2);
-            char decoded_char = 0;
-            if ((hex[0] >= '0' && hex[0] <= '9') || (hex[0] >= 'A' && hex[0] <= 'F') || (hex[0] >= 'a' && hex[0] <= 'f')) {
-                if ((hex[1] >= '0' && hex[1] <= '9') || (hex[1] >= 'A' && hex[1] <= 'F') || (hex[1] >= 'a' && hex[1] <= 'f')) {
-                    decoded_char = static_cast<char>(::strtol(hex.c_str(), NULL, 16)); // Décoder l'hexadécimal
-                    decoded += decoded_char;
-                    i += 2;
-                    continue;
-                }
-            }
-        }
-        decoded += url[i];
-    }
-    return decoded;
-}
 
 void	     creat_client(int fd_serveur)
 {
@@ -88,10 +126,9 @@ void	     creat_client(int fd_serveur)
 
 	client	new_client = client(tmp_fd_client);
 
-	new_client.input = read_request(tmp_fd_client); 
+	new_client.setInput(read_request(tmp_fd_client)); 
 
-	std::cout << url_decode(new_client.input) << std::endl;
-	//std::cout << new_client.input << std::endl;
+	std::cout << new_client.getInput() << std::endl;
 
 	/* reponce */
 
@@ -126,8 +163,10 @@ void	     creat_client(int fd_serveur)
 		"Content-Length: " + content_length + "\r\n"
 		"\r\n" + file_content;
 
+	new_client.setOutput(message);
+
 	// Envoi du message au client
-	ssize_t bytes_sent = send(tmp_fd_client, message.c_str(), message.size(), 0);
+	ssize_t bytes_sent = send(new_client.getFD(), new_client.getOutput().c_str(), new_client.getOutput().size(), 0);
 	if (bytes_sent == -1)
 	{
 		std::cerr << "Erreur lors de la lecture" << std::endl;
