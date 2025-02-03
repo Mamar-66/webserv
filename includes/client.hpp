@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/02 17:02:29 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/03 11:40:55 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,9 +60,11 @@
 						/* SETTER */
 			void				setInput(const std::string& str);
 			void				setOutput(const std::string& str);
+
+			pollfd			clien_pollfd;
 	};
 
-	void		creat_client(int fd_serveur);
-	//void		client_existed(int &fd_client, serveur &servor);
+	void	creat_client(serveur &servor);
+	void	responding(serveur &servor);
 
 #endif

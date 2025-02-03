@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:06:45 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/02 17:03:28 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/03 12:58:37 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,8 +59,8 @@
 			const int 		&getFD();
 
 
-			pollfd			pfd;
-
+			pollfd					pfd;
+			std::vector<client*>	client;
 
 			std::string		return_word_after(const std::string &word, const std::string &str);
 			int				stringToInt(const std::string &str);

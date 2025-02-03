@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/02 17:40:01 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/03 16:47:14 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,10 @@ client::client(int fdsocket) : socket_fd(fdsocket)
 	this->startTime = std::time(NULL);
 	if (this->startTime == -1)
 		throw std::runtime_error(RED "Failed to get the current time" RESET);
+
+	this->clien_pollfd.fd = this->socket_fd;
+	this->clien_pollfd.events = POLLOUT;
+	this->clien_pollfd.revents = 0;
 
 	std::cout << GREEN "creat client fd : " << this->socket_fd << "time = " << this->startTime << RESET << std::endl;
 }
@@ -93,7 +97,7 @@ std::string url_decode(const std::string &url) {
     return decoded;
 }
 
-std::string read_request(int &fd_client)
+std::string read_request(const int &fd_client)
 {
 	std::string	return_str;
 	char 		buff[2048];
@@ -116,19 +120,32 @@ std::string read_request(int &fd_client)
 } 
 
 
-void	     creat_client(int fd_serveur)
+void	creat_client(serveur &servor)
 {
-	std::cout << ORANGE "creat client" RESET << std::endl;
+	client *new_client = NULL;
 
-	int tmp_fd_client = accept(fd_serveur, NULL, NULL);
-	if (tmp_fd_client < 0)
-		throw std::runtime_error(RED "error creat client");
+	std::cout << ORANGE "server listen . . ." RESET << std::endl;
+	int timlaps = -1;
+	if (!servor.client.empty())
+		timlaps = 1000;
 
-	client	new_client = client(tmp_fd_client);
+	int readpoll = poll(&servor.pfd, 1, timlaps);
+	if (readpoll < 0)
+		throw std::runtime_error(RED "Error poll = -1");
+	if (servor.pfd.revents & POLLIN)
+	{
+		int tmp_fd_client = accept(servor.getFD(), NULL, NULL);
+		if (tmp_fd_client < 0)
+			throw std::runtime_error(RED "error creat client");
 
-	new_client.setInput(read_request(tmp_fd_client)); 
+		std::cout << ORANGE "creat client" RESET << std::endl;
 
-	std::cout << new_client.getInput() << std::endl;
+		new_client = new client(tmp_fd_client);
+
+		new_client->setInput(read_request(new_client->getFD()));
+		servor.client.push_back(new_client);
+	}
+
 
 	/* reponce */
 
@@ -145,7 +162,7 @@ void	     creat_client(int fd_serveur)
     	    "Content-Length: 13\r\n"
     	    "\r\n"
     	    "404 Not Found";
-    	send(tmp_fd_client, error_response.c_str(), error_response.size(), 0);
+    	send(new_client->getFD(), error_response.c_str(), error_response.size(), 0);
 	}
 
 	std::string file_content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
@@ -163,61 +180,33 @@ void	     creat_client(int fd_serveur)
 		"Content-Length: " + content_length + "\r\n"
 		"\r\n" + file_content;
 
-	new_client.setOutput(message);
+	/* ---------- fin reponse ---------------- */
+	if (new_client)
+		new_client->setOutput(message); // put send in class
 
-	// Envoi du message au client
-	ssize_t bytes_sent = send(new_client.getFD(), new_client.getOutput().c_str(), new_client.getOutput().size(), 0);
-	if (bytes_sent == -1)
-	{
-		std::cerr << "Erreur lors de la lecture" << std::endl;
-	}
 }
 
-//void	client_existed(int &fd_client, serveur &servor)
-//{
-//	std::cout << ORANGE "client existed" RESET << std::endl;
+void	responding(serveur &servor)
+{
+	if (!servor.client.empty())
+	{
+		std::vector<client*>::iterator	cl = servor.client.begin();
+		int readpoll  = poll(&(*cl)->clien_pollfd, 1, 300);
+		if (readpoll < 0)
+			throw std::runtime_error(RED "Error poll = -1");
+		
+		if ((*cl)->clien_pollfd.revents & POLLOUT)
+		{
+			std::cout <<ORANGE "input = " BLUE << (*cl)->getInput() << RESET << std::endl;
 
-//	servor.clients[fd_client]->input = read_request(fd_client);
-
-//	std::cout << servor.clients[fd_client]->input << std::endl;
-
-
-
-//		/* reponce */
-
-//	char path[] = "./html/index.html";
-
-//	std::ifstream file(path);
-//	if (!file.is_open())
-//	{
-//		std::string error_response =
-//			"HTTP/1.1 404 Not Found\r\n"
-//			"Content-Type: text/plain\r\n"
-//			"Content-Length: 13\r\n"
-//			"\r\n"
-//			"404 Not Found";
-//		send(fd_client, error_response.c_str(), error_response.size(), 0);
-//	}
-
-//	std::string file_content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-//	file.close();
-
-//	std::ostringstream oss;
-//	oss << file_content.size();
-//	std::string content_length = oss.str();
-
-//	std::string message =
-//		"HTTP/1.1 200 OK\r\n"
-//		"Content-Type: text/html\r\n"
-//		"Content-Length: " +
-//		content_length + "\r\n"
-//						 "\r\n" +
-//		file_content;
-
-//	// Envoi du message au client
-//	ssize_t bytes_sent = send(fd_client, message.c_str(), message.size(), 0);
-//	if (bytes_sent == -1)
-//	{
-//		std::cerr << "Erreur lors de la lecture" << std::endl;
-//	}
-//}
+			ssize_t bytes_sent = send((*cl)->getFD(), (*cl)->getOutput().c_str(), (*cl)->getOutput().size(), 0);
+			if (bytes_sent == -1)
+			{
+				std::cerr << "Erreur lors de la lecture" << std::endl;
+			}
+			std::cout << GREEN "reponse : ok" RESET << std::endl;
+			delete *cl;
+			servor.client.erase(cl);
+		}
+	}
+}

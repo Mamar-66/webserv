@@ -80,13 +80,13 @@ serveur::serveur(const std::string &strConfig)
 		throw;
 	}
 
-	std::cout << ORANGE "hello constructor from serveur\n" GREEN "server listen . . .\n" RESET << std::endl;
+	std::cout << ORANGE "hello constructor from serveur" RESET << std::endl;
 }
 
 serveur::~serveur()
 {
 	close(this->socket_fd);
-	//delete[] this->pfd;
+	// delete[] this->pfd;
 	// delete this;
 	std::cout << ORANGE "destructor serveur" RESET << std::endl;
 }
