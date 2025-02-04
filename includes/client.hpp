@@ -6,14 +6,13 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/30 12:21:51 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/03 11:40:55 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 	#define CLIENT_HPP
 
-	//#include "utiles.hpp"
 	#include "serveur.hpp"
 
 	#include <sys/socket.h>
@@ -25,6 +24,7 @@
 	#include <sstream>
 	#include <fstream>
 	#include <cstring>
+	#include <cstdlib>
 	#include <ctime>
 
 
@@ -44,20 +44,27 @@
 		private:
 			int				socket_fd;
 			std::time_t 	startTime;
+			std::string 	input;
+			std::string 	output;
 
 		public:
-			client();
 			client(int fdsocket);
 			~client();
 
-			std::string 	input;
-			std::string 	output;
-			pollfd			pfd;
+						/* GETTER */
+			const int			&getFD(void);
+			const std::time_t	&getStartTime();
+			const std::string	&getInput(void);
+			const std::string	&getOutput(void);
 
-			int				getFD();
+						/* SETTER */
+			void				setInput(const std::string& str);
+			void				setOutput(const std::string& str);
+
+			pollfd			clien_pollfd;
 	};
 
-	void		creat_client(int fd_serveur);
-	//void		client_existed(int &fd_client, serveur &servor);
+	void	creat_client(serveur &servor);
+	void	responding(serveur &servor);
 
 #endif

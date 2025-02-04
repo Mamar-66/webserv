@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/30 12:26:13 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/03 11:40:38 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,17 +20,8 @@ void	routine_servor(std::vector<serveur> &servor)
 
 		while (true)
 		{
-			int readpoll = poll(&itserv->pfd, 1, -1);
-			if (readpoll < 0)
-				throw std::runtime_error(RED "Error poll = -1");
-
-			if (itserv->pfd.revents & POLLIN)
-			{
-				if (itserv->pfd.fd == itserv->getFD())
-				{
-					creat_client(itserv->getFD());
-				}
-			}
+			creat_client(*itserv);
+			responding(*itserv);
 		}
 	}
 	catch (const std::exception &e)

@@ -6,21 +6,25 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/30 12:24:45 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/04 09:57:51 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/client.hpp"
 
+/* -------------------------------------------------------- */
+/* --------------CONSTRUCTOR / DESTRUCTOR------------------ */
+/* -------------------------------------------------------- */
+
 client::client(int fdsocket) : socket_fd(fdsocket)
 {
-	this->pfd.fd = this->socket_fd;
-	this->pfd.events = POLLIN;
-	this->pfd.revents = 0;
-
 	this->startTime = std::time(NULL);
 	if (this->startTime == -1)
 		throw std::runtime_error(RED "Failed to get the current time" RESET);
+
+	this->clien_pollfd.fd = this->socket_fd;
+	this->clien_pollfd.events = POLLOUT;
+	this->clien_pollfd.revents = 0;
 
 	std::cout << GREEN "creat client fd : " << this->socket_fd << "time = " << this->startTime << RESET << std::endl;
 }
@@ -32,11 +36,68 @@ client::~client()
 	std::cout << RED "delete client fd : " << this->socket_fd << RESET << std::endl;
 }
 
-int	client::getFD()
+/* -------------------------------------------------------- */
+/* -------------------- GETTER ---------------------------- */
+/* -------------------------------------------------------- */
+
+const int	&client::getFD()
 {
 	return this->socket_fd;
 }
-	std::string read_request(int &fd_client)
+
+const std::time_t	&client::getStartTime()
+{
+	return this->startTime;
+}
+
+const std::string&	client::getInput(void)
+{
+	return this->input;
+}
+
+const std::string&	client::getOutput(void)
+{
+	return this->output;
+}
+
+/* -------------------------------------------------------- */
+/* -------------------- SETTER ---------------------------- */
+/* -------------------------------------------------------- */
+
+void	client::setInput(const std::string& str)
+{
+	this->input = str;
+}
+
+void	client::setOutput(const std::string& str)
+{
+	this->output = str;
+}
+
+
+/* --------------------------------------------------- */
+
+std::string url_decode(const std::string &url) {
+    std::string decoded = "";
+    for (size_t i = 0; i < url.length(); ++i) {
+        if (url[i] == '%' && i + 2 < url.length()) {
+            std::string hex = url.substr(i + 1, 2);
+            char decoded_char = 0;
+            if ((hex[0] >= '0' && hex[0] <= '9') || (hex[0] >= 'A' && hex[0] <= 'F') || (hex[0] >= 'a' && hex[0] <= 'f')) {
+                if ((hex[1] >= '0' && hex[1] <= '9') || (hex[1] >= 'A' && hex[1] <= 'F') || (hex[1] >= 'a' && hex[1] <= 'f')) {
+                    decoded_char = static_cast<char>(::strtol(hex.c_str(), NULL, 16));
+                    decoded += decoded_char;
+                    i += 2;
+                    continue;
+                }
+            }
+        }
+        decoded += url[i];
+    }
+    return decoded;
+}
+
+std::string read_request(const int &fd_client)
 {
 	std::string	return_str;
 	char 		buff[2048];
@@ -55,108 +116,96 @@ int	client::getFD()
 
 	} while (byte_read > 0);
 
-	return return_str;
-} 
+	return url_decode(return_str);
+}
 
-void	creat_client(int fd_serveur)
+std::string raph(std::string pathh);
+
+void creat_client(serveur &servor)
 {
-	std::cout << ORANGE "creat client" RESET << std::endl;
+	client *new_client = NULL;
 
-	int tmp_fd_client = accept(fd_serveur, NULL, NULL);
-	if (tmp_fd_client < 0)
-		throw std::runtime_error(RED "error creat client");
+	std::cout << ORANGE "server listen . . ." RESET << std::endl;
+	int timlaps = -1;
+	if (!servor.client.empty())
+		timlaps = 1000;
 
-	client	new_client = client(tmp_fd_client);
+	int readpoll = poll(&servor.pfd, 1, timlaps);
+	if (readpoll < 0)
+		throw std::runtime_error(RED "Error poll = -1");
+	if (servor.pfd.revents & POLLIN)
+	{
+		int tmp_fd_client = accept(servor.getFD(), NULL, NULL);
+		if (tmp_fd_client < 0)
+			throw std::runtime_error(RED "error creat client");
 
-	new_client.input = read_request(tmp_fd_client); 
+		std::cout << ORANGE "creat client" RESET << std::endl;
 
-	std::cout << new_client.input << std::endl;
+		new_client = new client(tmp_fd_client);
 
+		new_client->setInput(read_request(new_client->getFD()));
+		servor.client.push_back(new_client);
+		new_client->setOutput(raph("./html/index.html"));
+	}
+}
+
+void	responding(serveur &servor)
+{
+	if (!servor.client.empty())
+	{
+		std::vector<client*>::iterator	cl = servor.client.begin();
+		int readpoll  = poll(&(*cl)->clien_pollfd, 1, 300);
+		if (readpoll < 0)
+			throw std::runtime_error(RED "Error poll = -1");
+		
+		if ((*cl)->clien_pollfd.revents & POLLOUT)
+		{
+			std::cout <<ORANGE "input = " BLUE << (*cl)->getInput() << RESET << std::endl;
+
+			ssize_t bytes_sent = send((*cl)->getFD(), (*cl)->getOutput().c_str(), (*cl)->getOutput().size(), 0);
+			if (bytes_sent == -1)
+			{
+				std::cerr << "Erreur lors de la lecture" << std::endl;
+			}
+			std::cout << GREEN "reponse : ok" RESET << std::endl;
+			delete *cl;
+			servor.client.erase(cl);
+		}
+	}
+}
+
+std::string	raph(std::string pathh)
+{
 	/* reponce */
 
-	char path[] = "./html/index.html";
+	std::string path = pathh;
 
-	std::ifstream file(path);
+	std::ifstream file(path.c_str());
 	if (!file.is_open())
 	{
-    	std::string error_response = 
-    	    "HTTP/1.1 404 Not Found\r\n"
-    	    "Content-Type: text/plain\r\n"
-    	    "Content-Length: 13\r\n"
-    	    "\r\n"
-    	    "404 Not Found";
-    	send(tmp_fd_client, error_response.c_str(), error_response.size(), 0);
+		std::string error_response =
+			"HTTP/1.1 404 Not Found\r\n"
+			"Content-Type: text/plain\r\n"
+			"Content-Length: 13\r\n"
+			"\r\n"
+			"404 Not Found";
+		send(4, error_response.c_str(), error_response.size(), 0);
 	}
 
 	std::string file_content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-    file.close();
+	file.close();
 
 	std::ostringstream oss;
-    oss << file_content.size();
-    std::string content_length = oss.str();
+	oss << file_content.size();
+	std::string content_length = oss.str();
 
 	std::string message =
 		"HTTP/1.1 200 OK\r\n"
 		"Content-Type: text/html\r\n"
 		"Connection: keep-alive\r\n"
 		"Keep-Alive: timeout: 15, max: 100\r\n"
-		"Content-Length: " + content_length + "\r\n"
+		"Content-Length: " +
+		content_length + "\r\n"
 		"\r\n" + file_content;
-
-	// Envoi du message au client
-	ssize_t bytes_sent = send(tmp_fd_client, message.c_str(), message.size(), 0);
-	if (bytes_sent == -1)
-	{
-		std::cerr << "Erreur lors de la lecture" << std::endl;
-	}
-
+	return message;
 }
-
-//void	client_existed(int &fd_client, serveur &servor)
-//{
-//	std::cout << ORANGE "client existed" RESET << std::endl;
-
-//	servor.clients[fd_client]->input = read_request(fd_client);
-
-//	std::cout << servor.clients[fd_client]->input << std::endl;
-
-
-
-//		/* reponce */
-
-//	char path[] = "./html/index.html";
-
-//	std::ifstream file(path);
-//	if (!file.is_open())
-//	{
-//		std::string error_response =
-//			"HTTP/1.1 404 Not Found\r\n"
-//			"Content-Type: text/plain\r\n"
-//			"Content-Length: 13\r\n"
-//			"\r\n"
-//			"404 Not Found";
-//		send(fd_client, error_response.c_str(), error_response.size(), 0);
-//	}
-
-//	std::string file_content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-//	file.close();
-
-//	std::ostringstream oss;
-//	oss << file_content.size();
-//	std::string content_length = oss.str();
-
-//	std::string message =
-//		"HTTP/1.1 200 OK\r\n"
-//		"Content-Type: text/html\r\n"
-//		"Content-Length: " +
-//		content_length + "\r\n"
-//						 "\r\n" +
-//		file_content;
-
-//	// Envoi du message au client
-//	ssize_t bytes_sent = send(fd_client, message.c_str(), message.size(), 0);
-//	if (bytes_sent == -1)
-//	{
-//		std::cerr << "Erreur lors de la lecture" << std::endl;
-//	}
-//}

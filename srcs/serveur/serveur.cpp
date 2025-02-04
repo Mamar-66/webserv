@@ -2,7 +2,7 @@
 #include "../../includes/serveur.hpp"
 
 /* -------------------------------------------------------- */
-/* ----------------------CONSTRUCTOR----------------------- */
+/* --------------- CONSTRUCTOR / DESTRUCTOR --------------- */
 /* -------------------------------------------------------- */
 
 void serveur::creatSocket()
@@ -80,25 +80,27 @@ serveur::serveur(const std::string &strConfig)
 		throw;
 	}
 
-	std::cout << ORANGE "hello constructor from serveur\n" GREEN "server listen . . .\n" RESET << std::endl;
+	std::cout << ORANGE "hello constructor from serveur" RESET << std::endl;
 }
-
-/* -------------------------------------------------------- */
-/* -------------------------------------------------------- */
-/* -------------------------------------------------------- */
 
 serveur::~serveur()
 {
 	close(this->socket_fd);
-	//delete[] this->pfd;
+	// delete[] this->pfd;
 	// delete this;
 	std::cout << ORANGE "destructor serveur" RESET << std::endl;
 }
 
-int		serveur::getFD()
+/* -------------------------------------------------------- */
+/* ----------------------- GETTER ------------------------- */
+/* -------------------------------------------------------- */
+
+const int	&serveur::getFD()
 {
 	return this->socket_fd;
 }
+
+/* -------------------------------------------------- */
 
 std::string serveur::return_word_after(const std::string &word, const std::string &str)
 {
