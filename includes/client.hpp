@@ -64,7 +64,7 @@
 			pollfd			clien_pollfd;
 	};
 
-	void	creat_client(serveur &servor);
+	void	creat_client(serveur &servor, char **env);
 	void	responding(serveur &servor);
 
 #endif

@@ -66,7 +66,7 @@
 			int				stringToInt(const std::string &str);
 	};
 
-	void					routine_servor(std::vector<serveur> &servor);
+	void					routine_servor(std::vector<serveur> &servor, char **env);
 	std::vector<serveur>	creat_servor(std::vector<std::string> &cut_str_serv);
 
 #endif
