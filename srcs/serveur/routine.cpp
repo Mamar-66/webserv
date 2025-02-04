@@ -12,7 +12,7 @@
 
 #include "../../includes/serveur.hpp"
 
-void	routine_servor(std::vector<serveur> &servor)
+void	routine_servor(std::vector<serveur> &servor, char **env)
 {
 	try
 	{
@@ -20,7 +20,7 @@ void	routine_servor(std::vector<serveur> &servor)
 
 		while (true)
 		{
-			creat_client(*itserv);
+			creat_client(*itserv, env);
 			responding(*itserv);
 		}
 	}

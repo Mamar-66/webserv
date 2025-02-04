@@ -12,7 +12,9 @@ SRC	=	main.cpp \
 		serveur/creat_servors.cpp \
 		clients/client.cpp \
 		config/config.cpp \
-		config/parssing.cpp 
+		config/parssing.cpp \
+		RequestHandler/Parser.cpp \
+		RequestHandler/utils.cpp 
 
 
 SRCS	=	$(addprefix $(SRC_PATH), $(SRC))
@@ -28,6 +30,7 @@ all: $(OBJ_PATH) $(NAME) $(CGI_tester)
 
 $(OBJ_PATH):
 			mkdir -p $(OBJ_PATH)
+			mkdir -p $(OBJ_PATH)/RequestHandler
 			mkdir -p $(OBJ_PATH)/serveur
 			mkdir -p $(OBJ_PATH)/clients
 			mkdir -p $(OBJ_PATH)/config
