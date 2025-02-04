@@ -13,13 +13,13 @@
 #include "../includes/serveur.hpp"
 #include "../includes/config.hpp"
 
-int main(int argc, char **argv)
+int main(int argc, char **argv, char **env)
 {
 	try 
 	{
 		std::vector<std::string> cut_str_serv = cut_conf_serv(argc, argv[1]);
 		std::vector<serveur> servors = creat_servor(cut_str_serv);
-		routine_servor(servors);
+		routine_servor(servors, env);
 	}
 	catch (const std::exception &e)
 	{
@@ -29,3 +29,4 @@ int main(int argc, char **argv)
 
 	return 1;
 }
+

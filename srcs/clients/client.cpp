@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "../../includes/client.hpp"
+#include "../../includes/Parser.hpp"
 
 /* -------------------------------------------------------- */
 /* --------------CONSTRUCTOR / DESTRUCTOR------------------ */
@@ -116,12 +117,13 @@ std::string read_request(const int &fd_client)
 
 	} while (byte_read > 0);
 
+	std::cout << RED "return str" RESET << return_str << std::endl;
 	return url_decode(return_str);
 }
 
-std::string raph(std::string pathh);
 
-void creat_client(serveur &servor)
+
+void creat_client(serveur &servor, char** env)
 {
 	client *new_client = NULL;
 
@@ -136,16 +138,21 @@ void creat_client(serveur &servor)
 	if (servor.pfd.revents & POLLIN)
 	{
 		int tmp_fd_client = accept(servor.getFD(), NULL, NULL);
+		write(2, "OK1\n", 4);
 		if (tmp_fd_client < 0)
 			throw std::runtime_error(RED "error creat client");
 
+		write(2, "OK2\n", 4);
 		std::cout << ORANGE "creat client" RESET << std::endl;
 
 		new_client = new client(tmp_fd_client);
+		write(2, "OK3\n", 4);
 
 		new_client->setInput(read_request(new_client->getFD()));
+		write(2, "OK4\n", 4);
+		new_client->setOutput(raph(new_client->getInput(), env));
+		std::cout << RED << new_client->getOutput() << RESET << std::endl;
 		servor.client.push_back(new_client);
-		new_client->setOutput(raph("./html/index.html"));
 	}
 }
 
@@ -174,38 +181,27 @@ void	responding(serveur &servor)
 	}
 }
 
-std::string	raph(std::string pathh)
+
+
+std::string	raph(const std::string& input, char** env)
 {
 	/* reponce */
-
-	std::string path = pathh;
-
-	std::ifstream file(path.c_str());
-	if (!file.is_open())
-	{
-		std::string error_response =
-			"HTTP/1.1 404 Not Found\r\n"
-			"Content-Type: text/plain\r\n"
-			"Content-Length: 13\r\n"
-			"\r\n"
-			"404 Not Found";
-		send(4, error_response.c_str(), error_response.size(), 0);
-	}
-
-	std::string file_content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-	file.close();
-
-	std::ostringstream oss;
-	oss << file_content.size();
-	std::string content_length = oss.str();
-
-	std::string message =
-		"HTTP/1.1 200 OK\r\n"
-		"Content-Type: text/html\r\n"
-		"Connection: keep-alive\r\n"
-		"Keep-Alive: timeout: 15, max: 100\r\n"
-		"Content-Length: " +
-		content_length + "\r\n"
-		"\r\n" + file_content;
-	return message;
+	RequestIn test(input, env);
+    std::cout << test.getCode() << std::endl;
+    std::cout << "---------------" << std::endl;
+    if (test.getCode() == 200) {
+        test.checkErrorHTTPHeaders();
+        std::cout << test.getCode() << std::endl;
+    }
+    std::cout << test.getCode() << std::endl;
+    if (test.getCode() == 200) {
+        test.checkErrorHTTPBody();
+        std::cout << test.getCode() << std::endl;
+    }
+    if (test.getCode() == 200) {
+        test.parseBody();
+        std::cout << test.getCode() << std::endl;
+    }
+    std::string response = test.makeResponse();
+	return response;
 }
