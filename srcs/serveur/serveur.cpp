@@ -80,6 +80,8 @@ serveur::serveur(const std::string &strConfig)
 		throw;
 	}
 
+	this->all_pollfd.push_back(this->pfd);
+
 	std::cout << ORANGE "hello constructor from serveur" RESET << std::endl;
 }
 

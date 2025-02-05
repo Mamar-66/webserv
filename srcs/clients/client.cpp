@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/04 09:57:51 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/05 08:41:37 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,11 @@ const std::string&	client::getOutput(void)
 	return this->output;
 }
 
+const bool &client::getStatusCgi()
+{
+	return this->is_cgi;
+}
+
 /* -------------------------------------------------------- */
 /* -------------------- SETTER ---------------------------- */
 /* -------------------------------------------------------- */
@@ -75,6 +80,10 @@ void	client::setOutput(const std::string& str)
 	this->output = str;
 }
 
+void	client::setStatusCgiTrue()
+{
+	this->is_cgi = true;
+}
 
 /* --------------------------------------------------- */
 
@@ -122,63 +131,47 @@ std::string read_request(const int &fd_client)
 }
 
 
-
 void creat_client(serveur &servor, char** env)
 {
 	client *new_client = NULL;
 
-	std::cout << ORANGE "server listen . . ." RESET << std::endl;
-	int timlaps = -1;
-	if (!servor.client.empty())
-		timlaps = 1000;
+	int tmp_fd_client = accept(servor.getFD(), NULL, NULL);
+	if (tmp_fd_client < 0)
+		throw std::runtime_error(RED "error frem accept");
 
-	int readpoll = poll(&servor.pfd, 1, timlaps);
-	if (readpoll < 0)
-		throw std::runtime_error(RED "Error poll = -1");
-	if (servor.pfd.revents & POLLIN)
-	{
-		int tmp_fd_client = accept(servor.getFD(), NULL, NULL);
-		write(2, "OK1\n", 4);
-		if (tmp_fd_client < 0)
-			throw std::runtime_error(RED "error creat client");
+	std::cout << ORANGE "creat client" RESET << std::endl;
 
-		write(2, "OK2\n", 4);
-		std::cout << ORANGE "creat client" RESET << std::endl;
+	new_client = new client(tmp_fd_client);
+	if (!new_client)
+		throw std::runtime_error(RED "error from 'new clien'");
 
-		new_client = new client(tmp_fd_client);
-		write(2, "OK3\n", 4);
+	new_client->setInput(read_request(new_client->getFD()));
+	new_client->setOutput(raph(new_client->getInput(), env));
 
-		new_client->setInput(read_request(new_client->getFD()));
-		write(2, "OK4\n", 4);
-		new_client->setOutput(raph(new_client->getInput(), env));
-		std::cout << RED << new_client->getOutput() << RESET << std::endl;
-		servor.client.push_back(new_client);
-	}
+	servor.clients[new_client->getFD()] = new_client;
+	servor.all_pollfd.push_back(new_client->clien_pollfd);
 }
 
-void	responding(serveur &servor)
+void	responding(serveur &servor, int &fd)
 {
-	if (!servor.client.empty())
-	{
-		std::vector<client*>::iterator	cl = servor.client.begin();
-		int readpoll  = poll(&(*cl)->clien_pollfd, 1, 300);
-		if (readpoll < 0)
-			throw std::runtime_error(RED "Error poll = -1");
-		
-		if ((*cl)->clien_pollfd.revents & POLLOUT)
-		{
-			std::cout <<ORANGE "input = " BLUE << (*cl)->getInput() << RESET << std::endl;
+	client *cl = servor.clients[fd];
+	std::string output = cl->getOutput();
 
-			ssize_t bytes_sent = send((*cl)->getFD(), (*cl)->getOutput().c_str(), (*cl)->getOutput().size(), 0);
-			if (bytes_sent == -1)
-			{
-				std::cerr << "Erreur lors de la lecture" << std::endl;
-			}
-			std::cout << GREEN "reponse : ok" RESET << std::endl;
-			delete *cl;
-			servor.client.erase(cl);
-		}
+	if(!cl->getStatusCgi())
+	{
+		std::cout <<ORANGE "input = " BLUE << cl->getInput() << RESET << std::endl;
+		
+		ssize_t bytes_sent = send(cl->getFD(), output.c_str(), output.size(), 0);
+		if (bytes_sent == -1)
+			throw::std::runtime_error(RED "Erreur from send");
+		
+		std::cout << GREEN "reponse : ok" RESET << std::endl;
+		
 	}
+
+
+			//delete *cl;
+			//servor.client.erase(cl);
 }
 
 
