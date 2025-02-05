@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/05 10:47:21 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/05 11:33:15 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,22 +24,18 @@ void	monitoring(serveur &servor, char **env)
 
 	for (std::vector<pollfd>::iterator itcl = tmp_pollfd.begin(); itcl != tmp_pollfd.end(); ++itcl)
 	{
-		if (itcl->revents & POLLIN)
+		if (itcl->fd == servor.getFD() && itcl->revents & POLLIN)
 		{
-			if(itcl->fd == servor.getFD())
+			try
 			{
-				try
-				{
-					creat_client(servor, env);
-				}
-				catch(const std::exception& e)
-				{
-					throw;
-				}
-				
+				creat_client(servor, env);
+			}
+			catch(const std::exception& e)
+			{
+				throw;
 			}
 		}
-		if(itcl->revents & POLLOUT)
+		if(itcl->fd != servor.getFD() && itcl->revents & POLLOUT)
 		{
 			try
 			{
