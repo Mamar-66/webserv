@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/05 08:41:37 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/05 11:01:12 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,10 +166,16 @@ void	responding(serveur &servor, int &fd)
 			throw::std::runtime_error(RED "Erreur from send");
 		
 		std::cout << GREEN "reponse : ok" RESET << std::endl;
-		
+
+		std::vector<pollfd>::iterator it = servor.all_pollfd.begin();
+
+		for(; it->fd != cl->getFD();)
+			++it;
+
+		servor.all_pollfd.erase(it);
+		delete servor.clients[fd];
+		servor.clients.erase(fd);
 	}
-
-
 			//delete *cl;
 			//servor.client.erase(cl);
 }
