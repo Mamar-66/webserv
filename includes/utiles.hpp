@@ -1,32 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   utiles.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/06 16:29:52 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/25 18:06:51 by omfelk           ###   ########.fr       */
+/*   Created: 2025/01/14 17:38:33 by omfelk            #+#    #+#             */
+/*   Updated: 2025/01/24 12:06:42 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/serveur.hpp"
-#include "../includes/config.hpp"
+#ifndef UTILES_HPP
+	#define UTILES_HPP
 
-int main(int argc, char **argv, char **env)
-{
-	try 
-	{
-		std::vector<std::string> cut_str_serv = cut_conf_serv(argc, argv[1]);
-		std::vector<serveur> servors = creat_servor(cut_str_serv);
-		routine_servor(servors, env);
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << e.what() <<  RESET << std::endl;
-		return 1;
-	}
+	#include <unistd.h>
 
-	return 1;
-}
+	#include <cstring>
 
+	char *ft_strjoin_cpp(char const *s1, char const *s2);
+
+#endif

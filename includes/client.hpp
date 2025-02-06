@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/03 11:40:55 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/06 10:39:10 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,10 +42,11 @@
 	class client
 	{
 		private:
-			int				socket_fd;
 			std::time_t 	startTime;
 			std::string 	input;
 			std::string 	output;
+			int				socket_fd;
+			bool			is_cgi;
 
 		public:
 			client(int fdsocket);
@@ -56,15 +57,17 @@
 			const std::time_t	&getStartTime();
 			const std::string	&getInput(void);
 			const std::string	&getOutput(void);
+			const bool			&getStatusCgi();
 
-						/* SETTER */
+			/* SETTER */
 			void				setInput(const std::string& str);
 			void				setOutput(const std::string& str);
+			void				setStatusCgiTrue();
 
 			pollfd			clien_pollfd;
 	};
 
 	void	creat_client(serveur &servor, char **env);
-	void	responding(serveur &servor);
+	void	responding(serveur &servor, int &fd);
 
 #endif

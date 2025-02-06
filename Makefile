@@ -14,8 +14,7 @@ SRC	=	main.cpp \
 		config/config.cpp \
 		config/parssing.cpp \
 		RequestHandler/Parser.cpp \
-		RequestHandler/utils.cpp \
-		config/Location.cpp
+		RequestHandler/utils.cpp 
 
 
 SRCS	=	$(addprefix $(SRC_PATH), $(SRC))

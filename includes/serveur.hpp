@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:06:45 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/03 12:58:37 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/05 10:32:53 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 
 	#include "client.hpp"
 	#include "config.hpp"
-	#include "Location.hpp"
 
 	#include <netinet/in.h>
 	#include <unistd.h>
@@ -47,10 +46,10 @@
 			sockaddr_in		server_addr;
 			int				socket_fd;
 
-			void 	addConfig(const std::string &strConfig, config &myconfig, std::map<std::string, Location> &location);
-			void	creatSocket(config &myconfig, std::map<std::string, Location> &location);
-			void	bindSocket();
-			void	stratListening();
+			void 			addConfig(const std::string &strConfig);
+			void			creatSocket();
+			void			bindSocket();
+			void			stratListening();
 
 		public:
 			serveur(const std::string &strConfig);
@@ -61,7 +60,8 @@
 
 
 			pollfd					pfd;
-			std::vector<client*>	client;
+			std::map<int, client*>	clients;
+			std::vector<pollfd>		all_pollfd;
 
 			std::string		return_word_after(const std::string &word, const std::string &str);
 			int				stringToInt(const std::string &str);
