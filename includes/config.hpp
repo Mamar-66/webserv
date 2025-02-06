@@ -10,37 +10,75 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef	config_hpp
-	#define	config_hpp
+#ifndef CONFIG_HPP
+# define CONFIG_HPP
 
-	#include <string>
-	#include <iostream>
-	#include <vector>
-	#include <fstream>
-	#include <sstream>
+#include <iostream>
+#include <vector>
+#include <sstream>
+#include <cstdlib>
+#include <string>
+#include <climits>
+#include <sstream>
 
-		/* COLOR */
-	#define RED "\033[31m"
-	#define ORANGE "\033[38;5;208m"
-	#define GREEN "\033[32m"
-	#define BLUE "\033[34m"
-	#define RESET "\033[0m"
-	#define BOLD "\033[1m"
-	#define UNDERLINE "\033[4m"
+class config
+{
+    public:
+		config();
+		config &operator=(const config &other);
+		config(const config &other);
+		virtual ~config();
+		void	getconfig(std::string& fileContent);
+		void	getPort(std::string& fileContent);
+		void	getconfigName(std::string& fileContent);
+		void	getHost(std::string& fileContent);
+		void	getRoot(std::string& fileContent);
+		void	getIndex(std::string& fileContent);
+		void	initError_page(std::string& fileContent);
+		void	initAutoindex(std::string& fileContent);
+		void	initClient(std::string& fileContent);
+		void	initPart(std::string& fileContent);
+		void	initContrpart(std::string& fileContent);
+		bool						op;
+		int							port;
+		std::string	config_name;
+		std::vector<std::string>	host;
+		std::string	root;
+		std::string	index;
+		std::vector<std::string>	error_page;
+		std::string	autoindex;
+		int			client_max_body_size;
+    private:
+};
 
-	class config
-	{
-		protected :
-			int 		port;
-			std::string host;
-			std::string host_name;
-			// int 		client_max_body_size;
+inline int countWords(const std::string& str) {
+    std::istringstream stream(str);
+    std::string word;
+    int wordCount = 0;
 
-		public :
-			config();
-			~config();
-	};
+    while (stream >> word) {
+        wordCount++;
+    }
+    
+    return wordCount;
+}
 
-	std::vector<std::string> cut_conf_serv(const int argc, char *configFile);
+inline std::vector<std::string> split(const std::string &str, char delimiter) {
+    std::vector<std::string> tokens;
+    std::string::size_type start = 0;
+    std::string::size_type end = str.find(delimiter);
 
-#endif
+    while (end != std::string::npos) {
+        tokens.push_back(str.substr(start, end - start));
+        start = end + 1;
+        end = str.find(delimiter, start);
+    }
+    tokens.push_back(str.substr(start));
+
+    return tokens;
+}
+
+std::vector<std::string> cut_conf_serv(const int argc, char *configFile);
+
+
+# endif
