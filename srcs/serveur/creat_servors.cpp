@@ -27,13 +27,12 @@ std::vector<serveur> creat_servor(std::vector<std::string> &cut_str_serv)
 
 	std::vector<std::string>::iterator it;
 	int i = 0;
-	int size = cut_str_serv.size() - 1;
-
+	int size = cut_str_serv.size() + 1;
 	try
 	{
 		for (it = cut_str_serv.begin(); it != cut_str_serv.end(); ++it)
 		{
-			std::cout << *it << "i = " << i++ << std::endl;
+			//std::cout << *it << "i = " << i++ << std::endl;
 			if (i >= size)
 				break;
 			servors.push_back(*malloc_serv(*it));

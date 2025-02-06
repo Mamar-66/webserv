@@ -1,11 +1,12 @@
 
 #include "../../includes/serveur.hpp"
+#include "Location.hpp"
 
 /* -------------------------------------------------------- */
 /* ----------------------CONSTRUCTOR----------------------- */
 /* -------------------------------------------------------- */
 
-void serveur::creatSocket()
+void serveur::creatSocket(config &myconfig, std::map<std::string, Location> &location)
 {
 	this->socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	std::ostringstream oss;
@@ -15,11 +16,11 @@ void serveur::creatSocket()
 		oss << errno;
 		throw std::runtime_error(RED "Error create socket server\nCode error : " + oss.str() + "\nError code value : " + std::string(strerror(errno)));
 	}
-
+	(void)location;
 	memset(&this->server_addr, 0, sizeof(this->server_addr));
 	this->server_addr.sin_family = AF_INET;
 	this->server_addr.sin_addr.s_addr = INADDR_ANY;
-	this->server_addr.sin_port = htons(this->port);
+	this->server_addr.sin_port = htons(myconfig.port);
 }
 
 void serveur::bindSocket()
@@ -57,35 +58,52 @@ void serveur::stratListening()
 	this->pfd[0].revents = 0;
 }
 
-void serveur::addConfig(const std::string &strConfig)
-{
-	std::string p = return_word_after("listen", strConfig);
-	if (p.empty())
-		throw std::runtime_error(RED "Error config file for chearch listen");
+// void serveur::addConfig(const std::string &strConfig)
+// {
+// 	std::string p = return_word_after("listen", strConfig);
+// 	if (p.empty())
+// 		throw std::runtime_error(RED "Error config file for chearch listen");
 
-	try
-	{
-		this->port = stringToInt(p);
-		this->host_name = return_word_after("server_name", strConfig);
-		this->host = return_word_after("host", strConfig);
-		// p = return_word_after("client_max_body_size", strConfig);
-		// this->client_max_body_size = stringToInt(p);
-	}
-	catch(const std::exception& e)
-	{
-		throw;
-	}
+// 	try
+// 	{
+// 		this->port = stringToInt(p);
+// 		this->config_name = return_word_after("server_name", strConfig);
+// 		this->host = return_word_after("host", strConfig);
+// 		// p = return_word_after("client_max_body_size", strConfig);
+// 		// this->client_max_body_size = stringToInt(p);
+// 	}
+// 	catch(const std::exception& e)
+// 	{
+// 		throw;
+// 	}
 
-	// std::cout << strConfig << std::endl;
-	// std::cout << this->port << std::endl;
-}
+// 	// std::cout << strConfig << std::endl;
+// 	// std::cout << this->port << std::endl;
+// }
 
 serveur::serveur(const std::string &strConfig)
 {
 	try
 	{
-		this->addConfig(strConfig);
-		this->creatSocket();
+		config myconfig;
+		std::string current;
+		std::map<std::string, Location> location;
+		std::vector<std::string> lines = splitLines(strConfig);
+		location = parseLocations(lines, current);
+   		for (size_t i = 0; i < lines.size(); ++i)
+		{
+			lines[i] = normalizeSpaces(lines[i]);
+			if (myconfig.op == true && location[current].op == true)
+					parsconfigL(lines[i], location, current);
+			else
+					parsconfig(myconfig, lines[i], location, current);
+		}
+		if (location[current].op == true || myconfig.op == true)
+				throw std::runtime_error("Error : missing '{' or '}'");
+		if (myconfig.config_name.empty() || myconfig.port == 0)
+			throw std::runtime_error("Error : it is mandatory to have the Server Port and Name, server");
+		// this->addConfig(strConfig);
+		this->creatSocket(myconfig, location);
 		this->bindSocket();
 		this->stratListening();
 	}

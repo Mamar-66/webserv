@@ -125,7 +125,7 @@ void	creat_client(int fd_serveur, serveur &servor)
 	ssize_t bytes_sent = send(tmp_fd_client, message.c_str(), message.size(), 0);
 	if (bytes_sent == -1)
 	{
-		std::cerr << "Erreur lors de la lecture" << std::endl;
+		std::cerr << "Error lors de la lecture" << std::endl;
 	}
 
 }
@@ -175,6 +175,6 @@ void	client_existed(int &fd_client, serveur &servor)
 	ssize_t bytes_sent = send(fd_client, message.c_str(), message.size(), 0);
 	if (bytes_sent == -1)
 	{
-		std::cerr << "Erreur lors de la lecture" << std::endl;
+		std::cerr << "Error lors de la lecture" << std::endl;
 	}
 }

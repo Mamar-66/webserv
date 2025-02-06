@@ -12,7 +12,8 @@ SRC	=	main.cpp \
 		serveur/creat_servors.cpp \
 		clients/client.cpp \
 		config/config.cpp \
-		config/parssing.cpp 
+		config/parssing.cpp \
+		config/Location.cpp
 
 
 SRCS	=	$(addprefix $(SRC_PATH), $(SRC))

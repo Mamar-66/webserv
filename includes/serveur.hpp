@@ -15,6 +15,7 @@
 
 	#include "client.hpp"
 	#include "config.hpp"
+	#include "Location.hpp"
 
 	#include <netinet/in.h>
 	#include <unistd.h>
@@ -48,7 +49,7 @@
 			int socket_fd;
 
 			void 	addConfig(const std::string &strConfig);
-			void	creatSocket();
+			void	creatSocket(config &myconfig, std::map<std::string, Location> &location);
 			void	bindSocket();
 			void	stratListening();
 

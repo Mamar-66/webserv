@@ -17,9 +17,9 @@ int main(int argc, char **argv)
 {
 	try 
 	{
-		std::vector<std::string> cut_str_serv = cut_conf_serv(argc, argv[1]);
+		std::vector<std::string> cut_str_serv = cut_conf_serv(argc, argv[1]); //un vecteur[] un serveur
 		std::vector<serveur> servors = creat_servor(cut_str_serv);
-		routine_servor(servors);
+		//routine_servor(servors);
 	}
 	catch (const std::exception &e)
 	{
