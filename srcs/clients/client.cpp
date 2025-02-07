@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/06 12:30:12 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/06 20:14:57 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,14 @@ client::client(int fdsocket) : socket_fd(fdsocket), is_cgi(false)
 
 client::~client()
 {
-	close(this->socket_fd);
+	if (this->socket_fd != -1)
+	{
+		close(this->socket_fd);
+		std::cout << RED "delete client whith close fd : " << this->socket_fd << RESET << std::endl;
+	}
+	else
+		std::cout << RED "delete client warning don't close fd : " << this->socket_fd << RESET << std::endl;
 
-	std::cout << RED "delete client fd : " << this->socket_fd << RESET << std::endl;
 }
 
 /* -------------------------------------------------------- */
@@ -113,10 +118,23 @@ std::string read_request(const int &fd_client)
 	char 		buff[2048];
 	short		byte_read;
 
+    int flags = fcntl(fd_client, F_GETFL, 0);
+    if (flags == -1)
+	{
+        perror("fcntl");
+        return "";
+	}
+	flags |= O_NONBLOCK;
+    if (fcntl(fd_client, F_SETFL, flags) == -1) {
+        perror("fcntl");
+    }
+	
 	do
 	{
 		std::memset(buff, 0, sizeof(buff));
 		byte_read = read(fd_client, buff, sizeof(buff));
+		if (byte_read < 0)
+			std::cerr << RED "Error from read" RESET << std::endl;
 
 		int actual_flag = fcntl(fd_client, F_GETFL, 0);
 		fcntl(fd_client, F_SETFL, actual_flag | O_NONBLOCK);
@@ -126,7 +144,6 @@ std::string read_request(const int &fd_client)
 
 	} while (byte_read > 0);
 
-	std::cout << RED "return str" RESET << return_str << std::endl;
 	return url_decode(return_str);
 }
 
@@ -146,44 +163,66 @@ void creat_client(serveur &servor, char** env)
 		throw std::runtime_error(RED "error from 'new clien'");
 
 	new_client->setInput(read_request(new_client->getFD()));
+	if (new_client->getInput().empty())
+	{
+		delete new_client;
+		return;
+	}
 	new_client->setOutput(raph(new_client->getInput(), env));
 
 	servor.clients[new_client->getFD()] = new_client;
 	servor.all_pollfd.push_back(new_client->clien_pollfd);
 }
 
-void	responding(serveur &servor, int &fd)
+void responding(serveur &servor, int &fd)
 {
-	client *cl = servor.clients[fd];
-	std::string output = cl->getOutput();
+    std::cout << "Client prêt à recevoir" << std::endl;
 
-	if(!cl->getStatusCgi())
-	{
-		std::cout <<ORANGE "input = " BLUE << cl->getInput() << RESET << std::endl;
+    client *cl = servor.clients[fd];
+    std::string output = cl->getOutput();
 
-		ssize_t bytes_sent = send(cl->getFD(), output.c_str(), output.size(), MSG_DONTWAIT);
-		if (bytes_sent == -1)
-			throw::std::runtime_error(RED "Erreur from send");
-		
-		std::cout << GREEN "reponse : ok" RESET << std::endl;
+    if (!cl->getStatusCgi())
+    {
+        std::cout << ORANGE "Input = " BLUE << cl->getInput() << RESET << std::endl;
 
-		std::vector<pollfd>::iterator it = servor.all_pollfd.begin();
+        ssize_t bytes_sent = send(cl->getFD(), output.c_str(), output.size(), 0);
+        if (bytes_sent == -1)
+        {
+            throw std::runtime_error(RED "Erreur lors de l'envoi des données");
+        }
 
-		for(; it->fd != cl->getFD();)
-			++it;
+        std::cout << GREEN "Réponse : OK" RESET << std::endl;
+
+        std::vector<pollfd>::iterator it = servor.all_pollfd.begin();
+		std::cout << "------------------------------------------" << std::endl;
+		std::cout << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" << std::endl;
+		std::cout << servor.all_pollfd.size() << std::endl;
+		std::cout << servor.clients.size() << std::endl;
+		std::cout << servor.all_pollfd[0].revents << std::endl;
+		std::cout << "------------------------------------------" << std::endl;
+
+        for (; it != servor.all_pollfd.end(); ++it)
+        {
+
+            if (it->fd == cl->getFD())
+            {
+                servor.all_pollfd.erase(it);
+                break;
+            }
+        }
+
+        delete servor.clients[fd];
+        servor.clients.erase(fd);
 
 
-		if (servor.clients.count(fd))
-		{
-			close(it->fd);
-			it = servor.all_pollfd.erase(it);
-			delete servor.clients[fd];
-			servor.clients.erase(fd);
-		}
+		std::cout << "------------------------------------------" << std::endl;
+		std::cout << "ppppppppppppppppppppppppppppppppppppppppppp" << std::endl;
+		std::cout << servor.all_pollfd.size() << std::endl;
+		std::cout << servor.clients.size() << std::endl;
+		std::cout << servor.all_pollfd[0].revents << std::endl;
+		std::cout << "------------------------------------------" << std::endl;
 	}
 }
-
-
 
 std::string	raph(const std::string& input, char** env)
 {

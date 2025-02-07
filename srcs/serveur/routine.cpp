@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/06 14:51:54 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/06 19:41:28 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,14 @@ void	monitoring(serveur &servor, char **env)
 {
 	std::cout << ORANGE "server listen . . ." RESET << std::endl;
 
-	size_t size = servor.all_pollfd.size();
-	for (size_t i = 0; i < size; ++i)
+	for (size_t i = 0; i < servor.all_pollfd.size(); ++i)
 	{
-		int readpoll = poll(servor.all_pollfd.data(), size, -1);
+		servor.all_pollfd[i].revents = 0;
+		std::cout << "aaaaaaaa" << servor.all_pollfd[0].revents << std::endl;
+		int readpoll = poll(servor.all_pollfd.data(), servor.all_pollfd.size(), -1);
 		if (readpoll < 0)
 			throw std::runtime_error(RED "Error poll = -1");
+		std::cout << "ppppppppp" << servor.all_pollfd[0].revents << std::endl;
 
 		if (servor.all_pollfd[i].fd == servor.getFD() && servor.all_pollfd[i].revents & POLLIN)
 		{
@@ -35,11 +37,8 @@ void	monitoring(serveur &servor, char **env)
 				throw;
 			}
 		}
-
-		if (servor.all_pollfd[i].fd != servor.getFD() && servor.all_pollfd[i].revents & POLLOUT)
+		else if(servor.all_pollfd[i].fd != servor.getFD() && servor.all_pollfd[i].revents & POLLOUT)
 		{
-			std::cout << GREEN << "simon" << RESET << std::endl;
-
 			try
 			{
 				responding(servor, servor.all_pollfd[i].fd);
@@ -48,6 +47,12 @@ void	monitoring(serveur &servor, char **env)
 			{
 				throw;
 			}
+		}
+		else if (servor.all_pollfd[i].revents & POLLERR || servor.all_pollfd[i].revents & POLLHUP || servor.all_pollfd[i].revents & POLLNVAL)
+    	{
+        	std::cout << "Client FD " << servor.all_pollfd[i].fd << " déconnecté.\n";
+        	close(servor.all_pollfd[i].fd);
+			throw std::runtime_error("ee");
 		}
 	}
 }

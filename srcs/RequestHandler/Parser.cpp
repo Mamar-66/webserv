@@ -312,7 +312,7 @@ std::vector<std::string> RequestIn::GetResponse( void /* ParseConfig& config */ 
         vectorElems.push_back("Content-Length: ");
         vectorElems.push_back(intToString(static_cast<int>(htmlResponse.size()) - 1));
         vectorElems.push_back("\r\n");
-        vectorElems.push_back("Connexion: ");
+        vectorElems.push_back("Connection: ");
         vectorElems.push_back("close\r\n");
         vectorElems.push_back("Date: ");
         vectorElems.push_back(getHttpDate());
@@ -329,7 +329,7 @@ std::vector<std::string> RequestIn::GetResponse( void /* ParseConfig& config */ 
         vectorElems.push_back("Content-Length: ");
         vectorElems.push_back(intToString(static_cast<int>(htmlResponse.size()) - 1));
         vectorElems.push_back("\r\n");
-        vectorElems.push_back("Connexion: ");
+        vectorElems.push_back("Connection: ");
         vectorElems.push_back("close\r\n");
         vectorElems.push_back("Date: ");
         vectorElems.push_back(getHttpDate());

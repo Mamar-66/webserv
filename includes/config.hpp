@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 11:54:40 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/06 14:45:45 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/01/24 12:06:51 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@
 			int 		port;
 			std::string host;
 			std::string host_name;
+			// int 		client_max_body_size;
 
 		public :
 			config();
