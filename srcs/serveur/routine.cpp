@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/07 11:32:51 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/07 17:41:09 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void	monitoring(serveur &servor, char **env)
 	for (size_t i = 0; i < servor.all_pollfd.size(); ++i)
 	{
 		servor.all_pollfd[i].revents = 0;
-		int readpoll = poll(servor.all_pollfd.data(), servor.all_pollfd.size(), -1);
+		int readpoll = poll(servor.all_pollfd.data(), servor.all_pollfd.size(), 100);
 		if (readpoll < 0)
 			throw std::runtime_error(RED "Error poll = -1");
 
@@ -50,7 +50,7 @@ void	monitoring(serveur &servor, char **env)
     	{
         	std::cout << "Client FD " << servor.all_pollfd[i].fd << " déconnecté.\n";
         	close(servor.all_pollfd[i].fd);
-			throw std::runtime_error("ee");
+			
 		}
 	}
 }
@@ -63,8 +63,13 @@ void	routine_servor(std::vector<serveur> &servor, char **env)
 
 		while (true)
 		{
+			if (itserv == servor.end())
+				itserv = servor.begin();
+
 			monitoring(*itserv, env);
-			std::cout << BLUE "iiiiiiiiiiiiiiiiiiiiiiiiiiiii" RESET << std::endl;
+
+			itserv++;
+			std::cout << BLUE << itserv->getFD() << RESET << std::endl;
 		}
 	}
 	catch (const std::exception &e)

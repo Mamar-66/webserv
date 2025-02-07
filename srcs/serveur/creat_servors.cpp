@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:10:10 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/26 16:34:49 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/07 17:36:23 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,33 +14,43 @@
 
 serveur *malloc_serv(std::string &str)
 {
-	serveur *server = new serveur(str);
-	if (!server)
-		throw std::runtime_error("Error creat servor");
+	serveur *servor = NULL;
 
-	return server;
+	std::cout << str << std::endl;
+
+	try
+	{
+		servor = new serveur(str);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << RESET << std::endl;
+		return NULL;
+	}
+
+	return servor;
 }
 
 std::vector<serveur> creat_servor(std::vector<std::string> &cut_str_serv)
 {
 	std::vector<serveur> 	servors;
+	serveur 				*servor;
 
-	std::vector<std::string>::iterator it;
-	int i = 0;
+	std::vector<std::string>::iterator it = cut_str_serv.begin();
+
 	int size = cut_str_serv.size();
 
-	try
+	std::cout << size << std::endl;
+
+	for (it = cut_str_serv.begin(); it != cut_str_serv.end(); ++it)
 	{
-		for (it = cut_str_serv.begin(); it != cut_str_serv.end(); ++it)
-		{
-			if (++i >= size)
-				break;
-			servors.push_back(*malloc_serv(*it));
-		}
-	}
-	catch(const std::exception& e)
-	{
-		throw;
+		if (size-- <= 0)
+			break;
+		servor = malloc_serv(*it);
+		if (servor == NULL)
+			std::cout << "NULL" << std::endl;
+		else
+			servors.push_back(*servor);
 	}
 
 	return servors;
