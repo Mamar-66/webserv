@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/06 20:14:57 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/07 11:50:23 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,23 +121,22 @@ std::string read_request(const int &fd_client)
     int flags = fcntl(fd_client, F_GETFL, 0);
     if (flags == -1)
 	{
-        perror("fcntl");
-        return "";
+		std::cerr << "error from fcntl flag" << std::endl;
+		return "-1";
 	}
 	flags |= O_NONBLOCK;
-    if (fcntl(fd_client, F_SETFL, flags) == -1) {
-        perror("fcntl");
-    }
-	
+    if (fcntl(fd_client, F_SETFL, flags) == -1)
+	{
+        std::cerr << "error from fcntl change flag" << std::endl;
+		return "-1"; 
+	}
+
 	do
 	{
 		std::memset(buff, 0, sizeof(buff));
 		byte_read = read(fd_client, buff, sizeof(buff));
 		if (byte_read < 0)
 			std::cerr << RED "Error from read" RESET << std::endl;
-
-		int actual_flag = fcntl(fd_client, F_GETFL, 0);
-		fcntl(fd_client, F_SETFL, actual_flag | O_NONBLOCK);
 
 		if (byte_read > 0)
             return_str.append(buff, byte_read);
@@ -158,16 +157,20 @@ void creat_client(serveur &servor, char** env)
 
 	std::cout << ORANGE "creat client" RESET << std::endl;
 
+	std::string read_text = read_request(tmp_fd_client);
+	if (read_text == "-1")
+		return;
+
 	new_client = new client(tmp_fd_client);
 	if (!new_client)
 		throw std::runtime_error(RED "error from 'new clien'");
 
-	new_client->setInput(read_request(new_client->getFD()));
-	if (new_client->getInput().empty())
+	if (read_text.empty())
 	{
 		delete new_client;
 		return;
 	}
+	new_client->setInput(read_text);
 	new_client->setOutput(raph(new_client->getInput(), env));
 
 	servor.clients[new_client->getFD()] = new_client;
@@ -194,12 +197,6 @@ void responding(serveur &servor, int &fd)
         std::cout << GREEN "Réponse : OK" RESET << std::endl;
 
         std::vector<pollfd>::iterator it = servor.all_pollfd.begin();
-		std::cout << "------------------------------------------" << std::endl;
-		std::cout << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" << std::endl;
-		std::cout << servor.all_pollfd.size() << std::endl;
-		std::cout << servor.clients.size() << std::endl;
-		std::cout << servor.all_pollfd[0].revents << std::endl;
-		std::cout << "------------------------------------------" << std::endl;
 
         for (; it != servor.all_pollfd.end(); ++it)
         {
@@ -213,14 +210,6 @@ void responding(serveur &servor, int &fd)
 
         delete servor.clients[fd];
         servor.clients.erase(fd);
-
-
-		std::cout << "------------------------------------------" << std::endl;
-		std::cout << "ppppppppppppppppppppppppppppppppppppppppppp" << std::endl;
-		std::cout << servor.all_pollfd.size() << std::endl;
-		std::cout << servor.clients.size() << std::endl;
-		std::cout << servor.all_pollfd[0].revents << std::endl;
-		std::cout << "------------------------------------------" << std::endl;
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/06 19:41:28 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/07 11:32:51 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,9 @@ void	monitoring(serveur &servor, char **env)
 	for (size_t i = 0; i < servor.all_pollfd.size(); ++i)
 	{
 		servor.all_pollfd[i].revents = 0;
-		std::cout << "aaaaaaaa" << servor.all_pollfd[0].revents << std::endl;
 		int readpoll = poll(servor.all_pollfd.data(), servor.all_pollfd.size(), -1);
 		if (readpoll < 0)
 			throw std::runtime_error(RED "Error poll = -1");
-		std::cout << "ppppppppp" << servor.all_pollfd[0].revents << std::endl;
 
 		if (servor.all_pollfd[i].fd == servor.getFD() && servor.all_pollfd[i].revents & POLLIN)
 		{
