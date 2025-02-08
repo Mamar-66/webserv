@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/07 17:41:09 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/08 10:46:00 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,28 +48,46 @@ void	monitoring(serveur &servor, char **env)
 		}
 		else if (servor.all_pollfd[i].revents & POLLERR || servor.all_pollfd[i].revents & POLLHUP || servor.all_pollfd[i].revents & POLLNVAL)
     	{
-        	std::cout << "Client FD " << servor.all_pollfd[i].fd << " déconnecté.\n";
-        	close(servor.all_pollfd[i].fd);
+				
+				std::cout << "Client FD " << servor.all_pollfd[i].fd << " déconnecté.\n";
+			if (servor.all_pollfd[i].fd == servor.getFD())
+				std::cout << "is a servor" << std::endl;
+
+			if (servor.all_pollfd[i].revents & POLLERR)
+				std::cout << "POLLERR" << std::endl;
+			if (servor.all_pollfd[i].revents & POLLHUP)
+				std::cout << "POLLHUP" << std::endl;
+			if (servor.all_pollfd[i].revents & POLLNVAL)
+				std::cout << "POLLNVAL" << std::endl;
+
+			close(servor.all_pollfd[i].fd);
 			
 		}
 	}
 }
 
-void	routine_servor(std::vector<serveur> &servor, char **env)
+void	routine_servor(std::vector<serveur*> &servor, char **env)
 {
 	try
 	{
-		std::vector<serveur>::iterator itserv = servor.begin();
+		std::vector<serveur*>::iterator itserv = servor.begin();
 
+		std::cout << BLUE << servor.size() << RESET << std::endl;
 		while (true)
 		{
+
 			if (itserv == servor.end())
+			{
+
 				itserv = servor.begin();
+			}
+			else
+			{
+				monitoring(*(*itserv), env);
+				itserv++;
+			}
 
-			monitoring(*itserv, env);
 
-			itserv++;
-			std::cout << BLUE << itserv->getFD() << RESET << std::endl;
 		}
 	}
 	catch (const std::exception &e)

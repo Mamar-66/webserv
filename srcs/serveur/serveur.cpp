@@ -101,15 +101,15 @@ serveur::serveur(const std::string &strConfig)
 
 	this->all_pollfd.push_back(this->pfd);
 
-	std::cout << ORANGE "hello constructor from serveur" RESET << std::endl;
+	std::cout << ORANGE "hello constructor from serveur FD = " << this->getFD() <<  RESET << std::endl;
 }
 
 serveur::~serveur()
 {
+	std::cout << ORANGE "destructor serveur FD = " << this->getFD() << RESET << std::endl;
 	close(this->socket_fd);
 	// delete[] this->pfd;
 	// delete this;
-	std::cout << ORANGE "destructor serveur" RESET << std::endl;
 }
 
 /* -------------------------------------------------------- */
