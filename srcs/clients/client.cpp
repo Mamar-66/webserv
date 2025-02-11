@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/07 16:23:54 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/10 13:45:33 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,8 @@
 /* --------------CONSTRUCTOR / DESTRUCTOR------------------ */
 /* -------------------------------------------------------- */
 
-client::client(int fdsocket) : socket_fd(fdsocket), is_cgi(false)
+client::client(int fdsocket, size_t size_body, bool listing) : 
+socket_fd(fdsocket), size_body(size_body), listing(listing), is_cgi(false)
 {
 	this->startTime = std::time(NULL);
 	if (this->startTime == -1)
@@ -69,6 +70,16 @@ const std::string&	client::getOutput(void)
 const bool &client::getStatusCgi()
 {
 	return this->is_cgi;
+}
+
+const size_t	&client::getSizeBody()
+{
+	return this->size_body;
+}
+
+const bool	&client::getListing()
+{
+	return this->listing;
 }
 
 /* -------------------------------------------------------- */
@@ -146,27 +157,6 @@ std::string read_request(const int &fd_client)
 	return url_decode(return_str);
 }
 
-// std::string read_request(const int &fd_client)
-// {
-// 	std::string	return_str;
-// 	char 		buff[2048];
-// 	short		byte_read;
-
-// 	do
-// 	{
-// 		std::memset(buff, 0, sizeof(buff));
-// 		byte_read = read(fd_client, buff, sizeof(buff));
-// 		if (byte_read < 0)
-// 			std::cerr << RED "Error from read" RESET << std::endl;
-
-// 		if (byte_read > 0)
-//             return_str.append(buff, byte_read);
-
-// 	} while (byte_read > 0);
-
-// 	return url_decode(return_str);
-// }
-
 void creat_client(serveur &servor, char** env)
 {
 	client *new_client = NULL;
@@ -181,7 +171,7 @@ void creat_client(serveur &servor, char** env)
 	if (read_text == "-1")
 		return;
 
-	new_client = new client(tmp_fd_client);
+	new_client = new client(tmp_fd_client, servor.client_max_body_size, true);
 	if (!new_client)
 		throw std::runtime_error(RED "error from 'new clien'");
 
@@ -213,7 +203,6 @@ void responding(serveur &servor, int &fd)
         {
             throw std::runtime_error(RED "Erreur lors de l'envoi des données");
         }
-
         std::cout << GREEN "Réponse : OK" RESET << std::endl;
 
         std::vector<pollfd>::iterator it = servor.all_pollfd.begin();
@@ -227,7 +216,6 @@ void responding(serveur &servor, int &fd)
                 break;
             }
         }
-
         delete servor.clients[fd];
         servor.clients.erase(fd);
 	}

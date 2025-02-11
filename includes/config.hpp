@@ -14,6 +14,7 @@
 	#define	config_hpp
 
 	#include <iostream>
+	#include <map>
 	#include <vector>
 	#include <sstream>
 	#include <cstdlib>
@@ -52,10 +53,11 @@ class config
 		bool						op;
 		int							port;
 		std::string	config_name;
-		std::vector<std::string>	host;
+		std::string	host;
 		std::string	root;
 		std::string	index;
-		std::vector<std::string>	error_page;
+		std::map<std::vector<int>, std::string>	error_page;
+		// std::vector<std::string>	error_page;
 		std::string	autoindex;
 		int			client_max_body_size;
     private:

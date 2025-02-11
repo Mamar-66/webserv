@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/05 08:24:50 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/10 13:48:19 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,10 +46,12 @@
 			std::string 	input;
 			std::string 	output;
 			int				socket_fd;
+			size_t			size_body;
+			bool			listing;
 			bool			is_cgi;
 
 		public:
-			client(int fdsocket);
+			client(int fdsocket, size_t size_body, bool listing);
 			~client();
 
 						/* GETTER */
@@ -58,13 +60,15 @@
 			const std::string	&getInput(void);
 			const std::string	&getOutput(void);
 			const bool			&getStatusCgi();
+			const size_t		&getSizeBody();
+			const bool			&getListing();
 
 			/* SETTER */
 			void				setInput(const std::string& str);
 			void				setOutput(const std::string& str);
 			void				setStatusCgiTrue();
 
-			pollfd			clien_pollfd;
+			pollfd				clien_pollfd;
 	};
 
 	void	creat_client(serveur &servor, char **env);

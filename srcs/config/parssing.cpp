@@ -188,6 +188,8 @@ void	parsconfigL(std::string& fileContent, std::map<std::string, Location>& loca
 
 std::vector<std::string> splitconfigs(const std::string &fileContent)
 {
+	if (fileContent.compare(0, 8, "server {") != 0)
+		throw std::runtime_error("Error : No block of configuration 'server' find at debut.");
     std::vector<std::string> configs;
     size_t pos = 0;
     size_t configStart = 0;

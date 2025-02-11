@@ -63,8 +63,8 @@ void	Location::getIndex(std::string& fileContent)
 	else if (fileContent.compare(fileContent.length() - 1, 3, ";") != 0)
 		throw std::runtime_error("Error : Invalid endline, only ';' accepted, index");
 	else
-		index.push_back(fileContent.substr(6, fileContent.length() - 6 - 1));
-	if (index[0].empty())
+		index = fileContent.substr(6, fileContent.length() - 6 - 1);
+	if (index.empty())
 		throw std::runtime_error("Error : Missing direction, index");
 }
 

@@ -36,6 +36,8 @@ $(OBJ_PATH):
 			mkdir -p $(OBJ_PATH)/clients
 			mkdir -p $(OBJ_PATH)/config
 			mkdir -p $(OBJ_PATH)/cgi
+			mkdir -p json
+			touch json/user.json
 
 $(NAME): $(OBJS)
 	@echo "\033[0;33m\nCOMPILING \033[31m Webserv \033[0;33m ...\n"

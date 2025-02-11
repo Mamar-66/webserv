@@ -12,7 +12,7 @@
 
 
 #ifndef LOCATION_HPP
-# define LOCATION_HPP
+	#define LOCATION_HPP
 
 #include <iostream>
 #include <vector>
@@ -41,7 +41,7 @@ class Location
 		void	initAutoindex(std::string& fileContent);
 		bool						op;
 		std::string	root;
-		std::vector<std::string>	index;
+		std::string	index;
 		std::vector<std::string>	allow_methods;
 		std::string	autoindex;
 		int			client_max_body_size;

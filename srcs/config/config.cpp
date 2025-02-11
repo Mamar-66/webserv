@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:00:02 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/22 12:07:40 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/10 11:21:00 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void	config::getPort(std::string& fileContent)
 	if (fileContent.compare(11, 3, ";") != 0)
 		throw std::runtime_error("Error : Max 4 numbers or invalid endline ';', listen");
 	std::string portStr = fileContent.substr(7, 4);
-    this->port = atoi(portStr.c_str());
+    this->port = std::atoi(portStr.c_str());
 	if (this->port == 0 && portStr != "0")
         throw std::runtime_error("Error : conversion fail, listen");
 }
@@ -127,7 +127,7 @@ void	config::getHost(std::string& fileContent)
            throw std::runtime_error("Error : Invalid part: must be in the range [0;255], host");
         }
     }
-	host.push_back(fileContent.substr(5, fileContent.length() - 5 - 1));
+	host = fileContent.substr(5, fileContent.length() - 5 - 1);
 }
 
 void	config::getRoot(std::string& fileContent)
@@ -158,30 +158,58 @@ void	config::getIndex(std::string& fileContent)
 		throw std::runtime_error("Error : Missing direction, index");
 }
 
+// std::vector<int> getErrorCodesForName(const std::map<std::vector<int>, std::string>& error_page, const std::string& name)
+// {
+//     for (std::map<std::vector<int>, std::string>::const_iterator it = error_page.begin(); it != error_page.end(); ++it) {
+//         const std::vector<int>& key = it->first;
+//         const std::string& value = it->second;
+//         if (value == name)
+//             return key;
+//     }
+//     throw std::runtime_error("Name not found in map");
+// }
+
 void config::initError_page(std::string& fileContent)
 {
-	if (countWords(fileContent) != 3)
-		throw std::runtime_error("Error : Too much Argument or not Enough, error_page");
+	if (countWords(fileContent) < 3)
+		throw std::runtime_error("Error : Not Enough Argument, error_page");
 	else if (fileContent.compare(fileContent.length() - 1, 3, ";") != 0)
 		throw std::runtime_error("Error : Invalid endline, only ';' accepted, error_page");
 	std::string adjustedContent = fileContent.substr(11);
 	std::vector<std::string> parts = split(adjustedContent, ' ');
-	if (parts[0].length() != 3)
-		throw std::runtime_error("Error : Second Argument invalid, too short or too long, error_page");
-	for (size_t i = 0; i < 3; i++)
+	std::vector<int> error_codes;
+	std::string	name;
+	int	k = 0;
+	for (size_t l = 0; l < parts.size() - 1; l++)
 	{
-		if (parts[0][i] > '9' || parts[0][i] < '0')
-			throw std::runtime_error("Error : Second Argument must be in the range[0;9], error_page");
+		if (parts[l].length() != 3)
+			throw std::runtime_error("Error : Second Argument invalid, too short or too long and must be in the range[0;9], error_page");
+		for (size_t i = 0; i < 3; i++)
+		{
+			if (parts[l][i] > '9' || parts[l][i] < '0')
+				throw std::runtime_error("Error : Second Argument must be in the range[0;9], error_page");
+		}
+   	 	int value = std::atoi(parts[l].c_str());
+   	 	if (value < 400 || value > 599)
+		{
+   	         throw std::runtime_error("Error : Second Argument must be in the range [400;599], error_page");
+   		}
+		error_codes.push_back(value);
+		k++;
 	}
-    int value = std::atoi(parts[0].c_str());
-    if (value < 400 || value > 599)
-	{
-            throw std::runtime_error("Error : Second Argument must be in the range [400;599], error_page");
-    }
-	error_page.push_back(fileContent.substr(11, 3));
-	error_page.push_back(fileContent.substr(15, fileContent.length() - 16));
-	if (error_page[1].empty())
+	name = fileContent.substr(11 + (3 * k) + (1 * k), fileContent.length() - (12 + (3 * k) + (1 * k)));
+	error_page.insert(std::make_pair(error_codes, (name)));
+	if (name.empty())
 		throw std::runtime_error("Error : Missing direction, error_page");
+	//std::vector<int> found_codes = getErrorCodesForName(error_page, "ClientErrors");
+    //     // Affiche tous les codes d'erreur
+    //     std::cout << "Found error codes: ";
+    //     for (std::vector<int>::iterator it = found_codes.begin(); it != found_codes.end(); ++it) {
+    // int code = *it;
+    // // Traitement
+    //         std::cout << code << " ";
+    //     }
+    //     std::cout << std::endl;
 }
 
 void	config::initAutoindex(std::string& fileContent)
