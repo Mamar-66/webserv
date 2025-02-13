@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/10 13:48:19 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/13 16:58:48 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@
 	#define UNDERLINE "\033[4m"
 
 	class serveur;
+	class monitoring;
 
 	class client
 	{
@@ -71,7 +72,9 @@
 			pollfd				clien_pollfd;
 	};
 
-	void	creat_client(serveur &servor, char **env);
-	void	responding(serveur &servor, int &fd);
+	void	creat_client(monitoring &moni, int &fd, char **env);
+	void	responding(monitoring &moni, int &fd, char **env, int i);
+	void	error(monitoring &servor, pollfd &poll, int i);
+	void	read_client(monitoring &moni, int&fd);
 
 #endif

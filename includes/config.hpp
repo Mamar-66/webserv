@@ -21,6 +21,7 @@
 	#include <string>
 	#include <climits>
 	#include <fstream>
+	#include "Location.hpp"
 
 		/* COLOR */
 	#define RED "\033[31m"
@@ -31,6 +32,7 @@
 	#define BOLD "\033[1m"
 	#define UNDERLINE "\033[4m"
 	
+class Location;
 
 class config
 {
@@ -39,28 +41,45 @@ class config
 		config &operator=(const config &other);
 		config(const config &other);
 		virtual ~config();
-		void	getconfig(std::string& fileContent);
-		void	getPort(std::string& fileContent);
-		void	getconfigName(std::string& fileContent);
-		void	getHost(std::string& fileContent);
-		void	getRoot(std::string& fileContent);
-		void	getIndex(std::string& fileContent);
+		bool getOp() const;
+		
+    	std::vector<int> 						getPort() const;
+    	std::string 							getConfigName() const;
+    	std::string 							getHost() const;
+    	std::string 							getRoot() const;
+   		std::string 							getIndex() const;
+    	std::map<std::vector<int>, std::string>	getErrorPage() const;
+    	bool 									getAutoindex() const;
+    	bool 									getVerifauto() const;
+    	int 									getClientMaxBodySize() const;
+
+		void	initconfig(std::string& fileContent);
+		void 	parseLocations(const std::vector<std::string>& lines, std::string& current);
+		void	parsconfig(std::string& fileContent, std::map<std::string, Location>& location, std::string& current);
+		void	initPort(std::string& fileContent);
+		void	initconfigName(std::string& fileContent);
+		void	initHost(std::string& fileContent);
+		void	initRoot(std::string& fileContent);
+		void	initIndex(std::string& fileContent);
 		void	initError_page(std::string& fileContent);
 		void	initAutoindex(std::string& fileContent);
 		void	initClient(std::string& fileContent);
 		void	initPart(std::string& fileContent);
 		void	initContrpart(std::string& fileContent);
-		bool						op;
-		int							port;
-		std::string	config_name;
-		std::string	host;
-		std::string	root;
-		std::string	index;
+
+		bool									op;
+		std::vector<int>						port;
+		std::string								config_name;
+		std::string								host;
+		std::string								root;
+		std::string								index;
 		std::map<std::vector<int>, std::string>	error_page;
-		// std::vector<std::string>	error_page;
-		std::string	autoindex;
-		int			client_max_body_size;
-    private:
+		bool									autoindex;
+		bool									verifauto;
+		int										client_max_body_size;
+		std::map<std::string, Location>			location;
+		
+    protected:
 };
 
 inline int countWords(const std::string& str) {
@@ -92,6 +111,5 @@ inline std::vector<std::string> split(const std::string &str, char delimiter) {
 
 std::vector<std::string> cut_conf_serv(const int argc, char *configFile);
 
-#include "Location.hpp"
 
 # endif

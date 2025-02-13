@@ -322,7 +322,7 @@ std::string concatenateVectors(std::vector<std::string> vec) {
         toReturn += *it;
     }
 
-    std::cout << "-----------------------------\n" << toReturn << "\n-----------------------------" << std::endl;
+    //std::cout << "-----------------------------\n" << toReturn << "\n-----------------------------" << std::endl;
     return toReturn;
 
 
@@ -357,12 +357,54 @@ std::string loadPage(std::string& catFile) {
     return htmlResponse;
 }
 
+std::vector<std::string> listDirectory(std::string path) {
+    std::vector<std::string> vector;
+    DIR* dir = opendir(path.c_str());  // Ouvre le répertoire
 
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != NULL) {  // Parcourt chaque entrée
+        vector.push_back(entry->d_name);  // Affiche le nom du fichier/dossier
+    }
 
-std::vector<std::string> makeAutoIndex( void ) {
+    closedir(dir);  // Ferme le répertoire
+    return vector;
+}
+
+std::vector<std::string> makeBodyIndex( RequestIn& req ) {
+    std::vector<std::string> vector;
+    std::string rootedDir = "./html"; /* Change with config.getRootDir() */
+    std::vector<std::string> listDir = listDirectory(rootedDir + req.getURI());
+
+    vector.push_back("<!DOCTYPE html>\n<html>\n<head>\n<title>Index of ");
+    vector.push_back(req.getURI());
+    vector.push_back("/</title>\n    <style>\n        body { font-family: Arial, sans-serif; }\n        table { width: 100%; border-collapse: collapse; }\n        th, td { padding: 8px; border-bottom: 1px solid #ddd; }\n    </style>\n</head>\n<body>\n    <h1>Index of ");
+    vector.push_back(req.getURI());
+    vector.push_back("/</h1>\n    <table>\n        <tr><th>Name</th></tr>");
+    for (int i = 0; i < static_cast<int>(listDir.size()); i++) {
+        vector.push_back("<tr><td><a href=\"");
+        vector.push_back(listDir[i]);
+        vector.push_back("\">");
+        vector.push_back(listDir[i]);
+        vector.push_back("</a></td></tr>");
+    }
+    vector.push_back("</table>\n</body>\n</html>");
+    return vector;
+}
+
+std::vector<std::string> makeAutoIndex( RequestIn& req ) {
     std::vector<std::string> vector;
 
-    vector.push_back("To do function");
+    std::string bodyAutoIndex = concatenateVectors(makeBodyIndex(req));
+
+    vector.push_back("HTTP/1.1 200 OK\r\n");
+    vector.push_back("Content-Type: text/html; charset=UTF-8\r\n");
+    vector.push_back("Content-Length: ");
+    vector.push_back(intToString(static_cast<int>(bodyAutoIndex.size()) - 1));
+    vector.push_back("\r\nConnection: close\r\nDate: ");
+    vector.push_back(getHttpDate());
+    vector.push_back("\r\n\r\n");
+    vector.push_back(bodyAutoIndex);
+
     return vector;
 }
 

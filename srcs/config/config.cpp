@@ -15,7 +15,7 @@
 #include "config.hpp"
 #include "Location.hpp"
 
-config::config(void) : port(0) ,client_max_body_size(0)
+config::config(void) : port(0), config_name("Default"), autoindex(false), verifauto(false), client_max_body_size(0)
 {
 	op = false;
 }
@@ -57,7 +57,7 @@ config::~config(void)
 {
 }
 
-void	config::getconfig(std::string& fileContent)
+void	config::initconfig(std::string& fileContent)
 {
 	if (fileContent.compare(6, 1, "") != 0 && fileContent.compare(7, 3, "{") != 0)
 		throw std::runtime_error("Error : Invalid, server");
@@ -65,10 +65,8 @@ void	config::getconfig(std::string& fileContent)
 		op = true;
 }
 
-void	config::getPort(std::string& fileContent)
+void	config::initPort(std::string& fileContent)
 {
-	if (port != 0)
-		 throw std::runtime_error("Error : Port is duplicated, listen");
 	if (fileContent.compare(6, 1, "") == 0)
 		throw std::runtime_error("Error : Missing Argument, listen");
 	for (size_t i = 0; i < 4; i++)
@@ -79,14 +77,15 @@ void	config::getPort(std::string& fileContent)
 	if (fileContent.compare(11, 3, ";") != 0)
 		throw std::runtime_error("Error : Max 4 numbers or invalid endline ';', listen");
 	std::string portStr = fileContent.substr(7, 4);
-    this->port = std::atoi(portStr.c_str());
-	if (this->port == 0 && portStr != "0")
+	int	i = std::atoi(portStr.c_str());
+    this->port.push_back(i);
+	if (i == 0 && portStr != "0")
         throw std::runtime_error("Error : conversion fail, listen");
 }
 
-void	config::getconfigName(std::string& fileContent)
+void	config::initconfigName(std::string& fileContent)
 {
-	if (!config_name.empty())
+	if (!config_name.empty() && config_name.compare(0, 7, "Default") != 0)
 		 throw std::runtime_error("Error : is duplicated, server_name");
 	if (countWords(fileContent) != 2)
 		throw std::runtime_error("Error : Maybe too much Argument or not Enough, server_name");
@@ -98,7 +97,7 @@ void	config::getconfigName(std::string& fileContent)
 		throw std::runtime_error("Error : Missing the name, server_name");
 }
 
-void	config::getHost(std::string& fileContent)
+void	config::initHost(std::string& fileContent)
 {
 	if (!host.empty())
 		 throw std::runtime_error("Error : is duplicated, host");
@@ -127,10 +126,10 @@ void	config::getHost(std::string& fileContent)
            throw std::runtime_error("Error : Invalid part: must be in the range [0;255], host");
         }
     }
-	host = fileContent.substr(5, fileContent.length() - 5 - 1);
+	this->host = fileContent.substr(5, fileContent.length() - 5 - 1);
 }
 
-void	config::getRoot(std::string& fileContent)
+void	config::initRoot(std::string& fileContent)
 {
 	if (!root.empty())
 		 throw std::runtime_error("Error : is duplicated, root");
@@ -144,7 +143,7 @@ void	config::getRoot(std::string& fileContent)
 		throw std::runtime_error("Error : Missing direction, root");
 }
 
-void	config::getIndex(std::string& fileContent)
+void	config::initIndex(std::string& fileContent)
 {
 	if (!index.empty())
 		 throw std::runtime_error("Error : is duplicated, index");
@@ -214,7 +213,7 @@ void config::initError_page(std::string& fileContent)
 
 void	config::initAutoindex(std::string& fileContent)
 {
-	if (!autoindex.empty())
+	if (verifauto == true)
 		 throw std::runtime_error("Error : is duplicated, autoindex");
 	if (countWords(fileContent) != 2)
 		throw std::runtime_error("Error : Too much Argument or not Enough, autoindex");
@@ -223,9 +222,15 @@ void	config::initAutoindex(std::string& fileContent)
 	else if (fileContent.compare(10, 5, "on;") != 0 && fileContent.compare(10, 5, "off;") != 0)
 		throw std::runtime_error("Error : only 'on' or off' accepted, autoindex");
 	else if (fileContent.compare(10, 5, "on;") == 0)
-		autoindex = fileContent.substr(10, 2);
+	{
+		verifauto = true;
+		autoindex = true;
+	}
 	else if (fileContent.compare(10, 5, "off;") == 0)
-		autoindex = fileContent.substr(10, 3);
+	{
+		autoindex = false;
+		verifauto = true;
+	}
 }
 
 void	config::initClient(std::string& fileContent)
@@ -280,4 +285,54 @@ void	config::initContrpart(std::string& fileContent)
 		throw std::runtime_error("Error : Two '}', }");
 	else
 		op = false;
+}
+
+bool config::getOp() const
+{
+    return op;
+}
+
+std::vector<int> config::getPort() const
+{
+    return port;
+}
+
+std::string config::getConfigName() const
+{
+    return config_name;
+}
+
+std::string config::getHost() const
+{
+    return host;
+}
+
+std::string config::getRoot() const
+{
+    return root;
+}
+
+std::string config::getIndex() const 
+{
+    return index;
+}
+
+std::map<std::vector<int>, std::string> config::getErrorPage() const
+{
+    return error_page;
+}
+
+bool config::getAutoindex() const
+{
+    return autoindex;
+}
+
+bool config::getVerifauto() const
+{
+    return verifauto;
+}
+
+int config::getClientMaxBodySize() const
+{
+    return client_max_body_size;
 }

@@ -62,14 +62,14 @@ RequestIn::RequestIn(const std::string& request, char **envp) {
         std::getline(stream, line, '\n');
         line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
     }
-    std::cout << "Map :\n--------------------------- Headers -----------------------------------\n";
-    for (std::map<std::string, std::string>::const_iterator it = this->mapParse.begin(); it != this->mapParse.end(); ++it) 
-        std::cout << it->first << " : " << it->second << std::endl;
+    // std::cout << "Map :\n--------------------------- Headers -----------------------------------\n";
+    // for (std::map<std::string, std::string>::const_iterator it = this->mapParse.begin(); it != this->mapParse.end(); ++it) 
+    //     std::cout << it->first << " : " << it->second << std::endl;
 
-    std::cout << "\n--------------------------------- Body -----------------------------\n";
-    std::getline(stream, this->body, '\0');
-    std::cout << this->body << std::endl;
-    std::cout << "\n--------------------------------- End -----------------------------\n";
+    // std::cout << "\n--------------------------------- Body -----------------------------\n";
+    // std::getline(stream, this->body, '\0');
+    // std::cout << this->body << std::endl;
+    // std::cout << "\n--------------------------------- End -----------------------------\n";
     this->length = 0;
     //sleep(2);
 }
@@ -84,12 +84,10 @@ void RequestIn::checkErrorHTTPHeaders( void /* ParseConfig& config */) {
         this->codeHTTP = 400;
         return ;
     }
-    /* Recuperation des infos */
     this->method = this->vector[0];
     this->uri = this->vector[1];
     this->protocol = this->vector[2];
 
-    /* Check de la methode */
     std::vector<std::string> validMethod;
     validMethod.push_back("GET");
     validMethod.push_back("POST");
@@ -210,9 +208,7 @@ void RequestIn::checkErrorHTTPBody( void /* ParseConfig& config */) {
         MyVector<std::string> vectorAccepted(typeRequest, ','); 
 
         std::cout << this->mapParse.find("Accept")->second << std::endl;
-        std::cerr <<  "AAAAAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADDDDDDDD"  << std::endl;
         std::string chEq = vectorAccepted(mimeAccepted);
-        std::cerr <<  "AAAAAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADDDDDDDD"  << std::endl;
         if (chEq == "NULL") {
             this->codeHTTP = 406;
             return ;
@@ -256,19 +252,20 @@ std::vector<std::string> RequestIn::GetResponse( void /* ParseConfig& config */ 
     this->uri = temp;
 
     std::string catFile = rootedDir + this->uri;
-    bool AutoIndexToRemove = false;
+    std::cout << catFile << std::endl;
+    bool AutoIndexToRemove = true;
 
 
     if (!(parseCatFile(catFile)))
         this->codeHTTP = 403;
     if (this->codeHTTP == 200 || this->codeHTTP / 100 == 3) {
         if (isDirectory(catFile)) {
-            catFile = catFile + "index.html"; /* Change to config.getDefaultPage */
+            catFile = catFile + "/index.html"; /* Change to config.getDefaultPage */
             if (!(isFile(catFile))) {
                 if (AutoIndexToRemove == false)
                     this->codeHTTP = 403;
                 else
-                    return makeAutoIndex();
+                    return makeAutoIndex(*this);
             }
 
         }
@@ -326,7 +323,6 @@ std::vector<std::string> RequestIn::GetResponse( void /* ParseConfig& config */ 
         vectorElems.push_back(this->mimeAccept);
         vectorElems.push_back("\r\n");
         vectorElems.push_back("Content-Length: ");
-        vectorElems.push_back("Content-Length: ");
         vectorElems.push_back(intToString(static_cast<int>(htmlResponse.size()) - 1));
         vectorElems.push_back("\r\n");
         vectorElems.push_back("Connection: ");
@@ -337,6 +333,10 @@ std::vector<std::string> RequestIn::GetResponse( void /* ParseConfig& config */ 
         vectorElems.push_back(htmlResponse);
     }
     return vectorElems;
+}
+
+std::string RequestIn::getURI( void ) {
+    return this->uri;
 }
 
 // std::vector<std::string> RequestIn::PushResponse( void /* ParseConfig& config */ ) {
@@ -409,9 +409,9 @@ std::string RequestIn::makeResponse( void /* ParseConfig& config */ ) {
         vectorElems = this->GetResponse();
     }
 
-    for (std::vector<std::string>::iterator it=vectorElems.begin(); it < vectorElems.end(); it++) {
-        std::cout << *it;
-    }
+   // for (std::vector<std::string>::iterator it=vectorElems.begin(); it < vectorElems.end(); it++) {
+   //     std::cout << *it;
+   // }
     std::cout << "------------------------------" << std::endl;
     return concatenateVectors(vectorElems);
 }

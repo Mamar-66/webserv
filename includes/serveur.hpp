@@ -6,12 +6,13 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:06:45 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/08 10:32:00 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/13 11:02:41 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVEUR_HPP
 #define SERVEUR_HPP
+
 
 	#include "client.hpp"
 	#include "config.hpp"
@@ -28,7 +29,13 @@
 	#include <errno.h>
 	#include <sstream>
 
-	#define MAX_CLIENTS 10
+	#include <ctime>
+	
+	extern std::time_t start;
+	extern std::time_t newnext;
+
+
+	#define MAX_CLIENTS 1000
 
 			/* COLOR */
 	#define RED "\033[31m"
@@ -44,31 +51,45 @@
 	class serveur : public config
 	{
 		private:
-			sockaddr_in		server_addr;
-			int				socket_fd;
+			std::vector<int>	servor_socket;
 
-			void 			addConfig(const std::string &strConfig, config &myconfig, std::map<std::string, Location> &location);
-			void			creatSocket(config &myconfig, std::map<std::string, Location> &location);
-			void			bindSocket();
-			void			stratListening();
+			void 			addConfig(const std::string &strConfig);
+			int				creatSocket(const int &port);
+			int				listen_port(const int &port);
+			void			bind_port();
 
 		public:
 			serveur(const std::string &strConfig);
 			virtual ~serveur();
 
 					/* GETTER */
-			const int 		&getFD();
-
-
+			// const int 		&getFD();
 			pollfd					pfd;
-			std::map<int, client*>	clients;
+			// std::map<int, client*>	clients;
 			std::vector<pollfd>		all_pollfd;
 
 			std::string		return_word_after(const std::string &word, const std::string &str);
 			int				stringToInt(const std::string &str);
+
+			bool			operator==(const int &fd) const;
 	};
 
-	void					routine_servor(std::vector<serveur*> &servor, char **env);
+	class monitoring
+	{
+		private :
+
+		public :
+			monitoring();
+			~monitoring();
+
+			std::vector<pollfd> all_pollfd_servor;
+			std::vector<pollfd> all_all_pollfd;
+			std::map<int, client *> clients;
+	};
+
+	void					routine_servor(monitoring &moni, char **env);
 	std::vector<serveur*>	creat_servor(std::vector<std::string> &cut_str_serv);
+
+	bool compar(const int &fd, const std::vector<pollfd> &poll_servor);
 
 #endif

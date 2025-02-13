@@ -10,10 +10,11 @@
 #include <stack>
 #include <fstream> 
 #include <ctime>
+
 #include <sys/stat.h>
+#include <dirent.h>
 
 #include "Utils.hpp"
-
 #include "Webserv.h"
 
 #ifndef BEFORE
@@ -54,6 +55,8 @@ class RequestIn {
         void checkErrorHTTPBody( void );
         void parseBody( void );
         std::string holdCGI( void );
+
+        std::string getURI(void);
     
         std::map<std::string, std::string> getMap( void );
 

@@ -6,78 +6,65 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/11 10:49:23 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/13 17:18:41 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/serveur.hpp"
 
-
-void	monitoring(serveur &servor, char **env)
+void	monitorin(monitoring &moni, char **env)
 {
-	std::cout << ORANGE "server listen . . ." RESET << std::endl;
+	size_t i = -1;
 
-	for (size_t i = 0; i < servor.all_pollfd.size(); ++i)
+	for (int i = 0; i < (int)moni.all_all_pollfd.size(); i++)
+		moni.all_all_pollfd[i].revents = 0;
+	std::cout << ORANGE "serveur listen . . ." RESET << std::endl;
+	int readpoll = poll(moni.all_all_pollfd.data(), moni.all_all_pollfd.size(), -1);
+	if (readpoll < 0)
+		throw std::runtime_error(RED "Error poll = -1");
+	while (++i < moni.all_all_pollfd.size())
 	{
-		servor.all_pollfd[i].revents = 0;
-		int readpoll = poll(servor.all_pollfd.data(), servor.all_pollfd.size(), 10);
-		if (readpoll < 0)
-			throw std::runtime_error(RED "Error poll = -1");
 
-		if (servor.all_pollfd[i].fd == servor.getFD() && servor.all_pollfd[i].revents & POLLIN)
+		if (compar(moni.all_all_pollfd[i].fd, moni.all_pollfd_servor) && moni.all_all_pollfd[i].revents & POLLIN)
 		{
-			try
-			{
-				creat_client(servor, env);
-			}
-			catch(const std::exception& e)
-			{
-				throw;
-			}
+			creat_client(moni, moni.all_all_pollfd[i].fd, env);
 		}
-		else if(servor.all_pollfd[i].fd != servor.getFD() && servor.all_pollfd[i].revents & POLLOUT)
+		else if (!compar(moni.all_all_pollfd[i].fd, moni.all_pollfd_servor) && (moni.all_all_pollfd[i].revents & POLLIN) != 0)
 		{
-			try
-			{
-				responding(servor, servor.all_pollfd[i].fd);
-			}
-			catch(const std::exception& e)
-			{
-				throw;
-			}
+			read_client(moni, moni.all_all_pollfd[i].fd);
 		}
-		else if (servor.all_pollfd[i].revents & POLLERR || servor.all_pollfd[i].revents & POLLHUP || servor.all_pollfd[i].revents & POLLNVAL)
-    	{
-				
-			std::cout << "Client FD " << servor.all_pollfd[i].fd << " déconnecté.\n";
-			if (servor.all_pollfd[i].fd == servor.getFD())
-				std::cout << "is a servor" << std::endl;
-			if (servor.all_pollfd[i].revents & POLLERR)
-				std::cout << "POLLERR" << std::endl;
-			if (servor.all_pollfd[i].revents & POLLHUP)
-				std::cout << "POLLHUP" << std::endl;
-			if (servor.all_pollfd[i].revents & POLLNVAL)
-				std::cout << "POLLNVAL" << std::endl;
-
-			close(servor.all_pollfd[i].fd);
+		else if (!compar(moni.all_all_pollfd[i].fd, moni.all_pollfd_servor) && (moni.all_all_pollfd[i].revents & POLLOUT) != 0)
+		{
+			responding(moni, moni.all_all_pollfd[i].fd, env, i);
+		}
+		else if (moni.all_all_pollfd[i].revents & POLLERR || moni.all_all_pollfd[i].revents & POLLHUP || moni.all_all_pollfd[i].revents & POLLNVAL)
+		{
+			error(moni, moni.all_all_pollfd[i], i);
 		}
 	}
+	
+	//std::cout << ORANGE "server listen . . ." RESET << std::endl;
+	// int size = moni.all_all_pollfd.size();
+
+		// newnext = std::time(NULL);
+		// std::cout << UNDERLINE BLUE << "start boucle " <<  newnext - start << RESET << std::endl;
+		// start = newnext;
+
+
+		// newnext = std::time(NULL);
+		// std::cout << UNDERLINE BLUE << "poll " << newnext - start << RESET << std::endl;
+		// start = newnext;
+
+
 }
 
-void	routine_servor(std::vector<serveur*> &servor, char **env)
+void routine_servor(monitoring &moni, char **env)
 {
 	try
 	{
-		std::vector<serveur*>::iterator itserv = servor.begin();
-
-		std::cout << BLUE << servor.size() << RESET << std::endl;
 		while (true)
 		{
-
-			if (itserv == servor.end())
-				itserv = servor.begin();
-			else
-				monitoring(*(*itserv++), env);
+			monitorin(moni, env);
 		}
 	}
 	catch (const std::exception &e)

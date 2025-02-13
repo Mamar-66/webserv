@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #ff4b2b, #ff416c);
+            background: linear-gradient(135deg, #a21f15, #c0199e);
             color: #fff;
             display: flex;
             justify-content: center;
@@ -15,63 +15,103 @@
             height: 100vh;
             margin: 0;
             padding: 0;
+            overflow: hidden;
         }
 
         .error-container {
             text-align: center;
-            background-color: #2c2c2c;
+            background-color: rgb(24, 14, 22);
             padding: 40px;
             border-radius: 15px;
-            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.5);
             width: 350px;
             max-width: 90%;
+            animation: fadeIn 1s ease-in-out;
         }
 
         .error-container h1 {
             font-size: 120px;
             margin: 0;
             font-weight: bold;
-            color: #ffeb3b;
+            color: #d31bb2; /* Rouge vif */
+            animation: bounce 1.5s infinite;
         }
 
         .error-container p {
             font-size: 18px;
             margin-top: 15px;
-            color: #e1e1e1;
+            color: #ddd;
         }
 
         .error-container .message {
             font-size: 20px;
             font-weight: bold;
-            color: #ffcc00;
+            color: #f39c12; /* Jaune or */
+            margin-top: 10px;
         }
 
         .error-container a {
             text-decoration: none;
             font-size: 16px;
             color: #fff;
-            background-color: #ff5722;
+            background-color: #5a0c63; /* Bleu clair */
             padding: 12px 20px;
             border-radius: 5px;
             margin-top: 20px;
             display: inline-block;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            animation: pulse 2s infinite;
         }
 
         .error-container a:hover {
-            background-color: #e64a19;
+            background-color: #c043a9; /* Bleu foncé */
+            transform: scale(1.05);
         }
 
         .error-container a:active {
-            background-color: #d84315;
+            background-color: #219677; /* Vert turquoise */
+            transform: scale(0.95);
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .error-code {
             font-size: 24px;
             font-weight: normal;
-            color: #ffeb3b;
+            color: #f39c12;
             margin-top: 10px;
         }
+
     </style>
 </head>
 <body>
@@ -80,7 +120,7 @@
         <h1>500</h1>
         <p class="error-code">Internal Server Error</p>
         <p class="message">Erreur générale serveur</p>
-        <a href="/">Retour à la page l'accueil</a>
+        <a href="/">Retour à l'accueil</a>
     </div>
 
 </body>

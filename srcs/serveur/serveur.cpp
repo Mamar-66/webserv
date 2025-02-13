@@ -2,128 +2,173 @@
 #include "../../includes/serveur.hpp"
 #include "Location.hpp"
 
+monitoring::monitoring()
+{
+
+}
+
+monitoring::~monitoring()
+{
+}
+
 /* -------------------------------------------------------- */
 /* --------------- CONSTRUCTOR / DESTRUCTOR --------------- */
 /* -------------------------------------------------------- */
 
-void serveur::creatSocket(config &myconfig, std::map<std::string, Location> &location)
+int	serveur::creatSocket(const int &port)
 {
-	this->socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+	int return_socket = socket(AF_INET, SOCK_STREAM, 0);
+	struct sockaddr_in	server_addr;
 	std::ostringstream oss;
 
-	if (this->socket_fd == -1)
+	if (return_socket == -1)
 	{
 		oss << errno;
 		throw std::runtime_error(RED "Error create socket server\nCode error : " + oss.str() + "\nError code value : " + std::string(strerror(errno)));
 	}
-	(void)location;
-	memset(&this->server_addr, 0, sizeof(this->server_addr));
-	this->server_addr.sin_family = AF_INET;
-	this->server_addr.sin_addr.s_addr = INADDR_ANY;
-	this->server_addr.sin_port = htons(myconfig.port);
-}
 
-void serveur::bindSocket()
-{
-	std::ostringstream oss;
+	memset(&server_addr, 0, sizeof(server_addr));
 
-	if (bind(this->socket_fd, (struct sockaddr *)&this->server_addr, sizeof(this->server_addr)) < 0)
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_addr.s_addr = INADDR_ANY;
+	server_addr.sin_port = htons(port);
+
+	if (bind(return_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
 	{
 		oss << errno;
 		throw std::runtime_error(RED "Error bind servor\nCode error : " + oss.str() + "\nError code value : " + std::string(strerror(errno)));
 	}
-}
 
-void serveur::stratListening()
-{
-	std::ostringstream oss;
-
-	if (listen(this->socket_fd, MAX_CLIENTS) < 0)
+	if (listen(return_socket, MAX_CLIENTS) < 0)
 	{
 		oss << errno;
 		throw std::runtime_error(RED "Error listen\nCode error : " + oss.str() + "\nError code value : " + std::string(strerror(errno)));
 	}
 
-	this->pfd.fd = this->socket_fd;
+	this->pfd.fd = return_socket;
 	this->pfd.events = POLLIN;
 	this->pfd.revents = 0;
+
+	std::cout << ORANGE "hello constructor from serveur FD = " << return_socket << RESET << std::endl;
+
+	return return_socket;
 }
 
-void serveur::addConfig(const std::string &strConfig, config &myconfig, std::map<std::string, Location> &location)
+void serveur::addConfig(const std::string &strConfig)
 {
-	(void)location;
-	std::string p = return_word_after("listen", strConfig);
-	if (p.empty())
-		throw std::runtime_error(RED "Error config file for chearch listen");
+		std::string current;
+		std::vector<std::string> lines = splitLines(strConfig);
+		parseLocations(lines, current);
+   		for (size_t i = 0; i < lines.size(); ++i)
+		{
+			lines[i] = normalizeSpaces(lines[i]);
+			if (this->op == true && location[current].op == true)
+					parsconfigL(lines[i], location, current);
+			else
+					parsconfig(lines[i], location, current);
+		}
+		if (location[current].op == true || this->op == true)
+				throw std::runtime_error("Error : missing '{' or '}'");
+		if (this->config_name.empty() || this->port.empty())
+			throw std::runtime_error("Error : it is mandatory to have the Server Port, server");
+}
+
+int	serveur::listen_port(const int &port)
+{
+	int	return_fd = -1;
 
 	try
 	{
-		myconfig.port = stringToInt(p);
-		myconfig.config_name = return_word_after("server_name", strConfig);
-		//this->host = return_word_after("host", strConfig);
+		return_fd = this->creatSocket(port);
 	}
 	catch(const std::exception& e)
 	{
-		throw;
+		std::cerr << RED << e.what() << RESET << std::endl;
+		return return_fd;
 	}
+	
+	return return_fd;
+}
+
+void serveur::bind_port()
+{
+	int 	size = this->port.size();
+	int 	tmp_fd;
+
+	for (int i = 0; i < size; ++i)
+	{
+		tmp_fd = this->listen_port(this->port[i]);
+		if (tmp_fd > 0)
+		{
+			this->servor_socket.push_back(tmp_fd);
+			this->all_pollfd.push_back(this->pfd);
+		}
+	}
+
+	if (this->servor_socket.empty())
+		std::runtime_error("Error servor no creat");
 }
 
 serveur::serveur(const std::string &strConfig)
 {
 	try
 	{
-		config myconfig;
-		std::string current;
-		std::map<std::string, Location> location;
-		std::vector<std::string> lines = splitLines(strConfig);
-		location = parseLocations(lines, current);
-   		for (size_t i = 0; i < lines.size(); ++i)
-		{
-			lines[i] = normalizeSpaces(lines[i]);
-			if (myconfig.op == true && location[current].op == true)
-					parsconfigL(lines[i], location, current);
-			else
-					parsconfig(myconfig, lines[i], location, current);
-		}
-		if (location[current].op == true || myconfig.op == true)
-				throw std::runtime_error("Error : missing '{' or '}'");
-		if (myconfig.config_name.empty() || myconfig.port == 0)
-			throw std::runtime_error("Error : it is mandatory to have the Server Port and Name, server");
-		this->addConfig(strConfig, myconfig, location);
-		this->creatSocket(myconfig, location);
-		this->bindSocket();
-		this->stratListening();
+		this->addConfig(strConfig);
+		this->bind_port();
 	}
 	catch (const std::exception &e)
 	{
 		throw;
 	}
 
-	this->all_pollfd.push_back(this->pfd);
 
-	std::cout << ORANGE "hello constructor from serveur FD = " << this->getFD() <<  RESET << std::endl;
+	// std::cout << ORANGE "hello constructor from serveur FD = " <<  RESET << std::endl;
 }
 
 serveur::~serveur()
 {
-	std::cout << ORANGE "destructor serveur FD = " << this->getFD() << RESET << std::endl;
-	close(this->socket_fd);
-	// delete[] this->pfd;
-	// delete this;
+	std::cout << ORANGE "destructor serveur FD = " << RESET << std::endl;
+	int size = this->servor_socket.size();
+	for (int i = 0; i < size; i++)
+		close(this->servor_socket[i]);
+	this->servor_socket.clear();
 }
 
 /* -------------------------------------------------------- */
 /* ----------------------- GETTER ------------------------- */
 /* -------------------------------------------------------- */
 
-const int	&serveur::getFD()
+// const int &serveur::getFD()
+// {
+// 	return this->socket_fd;
+// }
+// const int &serveur::isServ(const int &fd)
+// {
+// 	return this->socket_fd;
+// }
+
+/* -------------------------------------------------- */
+
+/* -------------------------------------------------------- */
+/* ----------------------- SURCHARGE ---------------------- */
+/* -------------------------------------------------------- */
+
+bool serveur::operator==(const int &fd) const
 {
-	return this->socket_fd;
+	int size = this->servor_socket.size();
+
+	for (int i = 0; i < size; ++i)
+	{
+		if (this->servor_socket[i] == fd)
+			return true;
+	}
+
+	return false;
 }
 
 /* -------------------------------------------------- */
 
-std::string serveur::return_word_after(const std::string &word, const std::string &str)
+	std::string serveur::return_word_after(const std::string &word, const std::string &str)
 {
 	size_t pos = str.find(word);
 

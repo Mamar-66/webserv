@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/10 13:45:33 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/13 17:19:36 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ socket_fd(fdsocket), size_body(size_body), listing(listing), is_cgi(false)
 		throw std::runtime_error(RED "Failed to get the current time" RESET);
 
 	this->clien_pollfd.fd = this->socket_fd;
-	this->clien_pollfd.events = POLLOUT;
+	this->clien_pollfd.events = POLLIN | POLLOUT;
 	this->clien_pollfd.revents = 0;
 
 	std::cout << GREEN "creat client fd : " << this->socket_fd << "time = " << this->startTime << RESET << std::endl;
@@ -123,102 +123,105 @@ std::string url_decode(const std::string &url) {
     return decoded;
 }
 
-std::string read_request(const int &fd_client)
+std::string	read_request(const int &fd_client)
 {
 	std::string	return_str;
 	char 		buff[2048];
 	short		byte_read;
 
-    int flags = fcntl(fd_client, F_GETFL, 0);
-    if (flags == -1)
-	{
-		std::cerr << "error from fcntl flag" << std::endl;
-		return "-1";
-	}
-	flags |= O_NONBLOCK;
-    if (fcntl(fd_client, F_SETFL, flags) == -1)
-	{
-        std::cerr << "error from fcntl change flag" << std::endl;
-		return "-1"; 
-	}
-
 	do
 	{
 		std::memset(buff, 0, sizeof(buff));
-		byte_read = read(fd_client, buff, sizeof(buff));
-		if (byte_read < 0)
-			std::cerr << RED "Error from read" RESET << std::endl;
+		byte_read = recv(fd_client, buff, sizeof(buff), MSG_DONTWAIT);
 
 		if (byte_read > 0)
             return_str.append(buff, byte_read);
+		if (byte_read == -1)
+		{
+			std::cerr << "sortie recv -1" << std::endl;
+		}
+		if (byte_read == 0)
+		{
+			std::cerr << "sortie recv 0" << std::endl;
+		}
 
 	} while (byte_read > 0);
 
 	return url_decode(return_str);
 }
 
-void creat_client(serveur &servor, char** env)
+void	creat_client(monitoring &moni, int &fd, char** env)
 {
+	(void)env;
 	client *new_client = NULL;
 
-	int tmp_fd_client = accept(servor.getFD(), NULL, NULL);
+	int tmp_fd_client = accept(fd, NULL, NULL);
 	if (tmp_fd_client < 0)
-		throw std::runtime_error(RED "error frem accept");
+		throw std::runtime_error(RED "error from accept");
 
-	std::cout << ORANGE "creat client" RESET << std::endl;
+	std::cout << ORANGE "creat client fd : " << tmp_fd_client << " from serveur : " << fd <<  RESET << std::endl;
 
-	std::string read_text = read_request(tmp_fd_client);
-	if (read_text == "-1")
-		return;
-
-	new_client = new client(tmp_fd_client, servor.client_max_body_size, true);
+	new_client = new client(tmp_fd_client, 1111111, true);
 	if (!new_client)
 		throw std::runtime_error(RED "error from 'new clien'");
 
-	if (read_text.empty())
-	{
-		delete new_client;
-		return;
-	}
-	new_client->setInput(read_text);
-	new_client->setOutput(raph(new_client->getInput(), env));
-
-	servor.clients[new_client->getFD()] = new_client;
-	servor.all_pollfd.push_back(new_client->clien_pollfd);
+	moni.clients[new_client->getFD()] = new_client;
+	moni.all_all_pollfd.push_back(new_client->clien_pollfd);
 }
 
-void responding(serveur &servor, int &fd)
+void	read_client(monitoring &moni, int &fd)
 {
-    std::cout << "Client prêt à recevoir" << std::endl;
+	std::cout << "Client prêt à etre lu" << std::endl;
 
-    client *cl = servor.clients[fd];
-    std::string output = cl->getOutput();
+	std::string read_text = read_request(fd);
 
-    if (!cl->getStatusCgi())
+	if (!read_text.empty())
+	{
+		moni.clients[fd]->setInput(read_text);
+		std::cout << RED "input : " << read_text  << RESET << std::endl;
+	}
+}
+
+void	responding(monitoring &moni, int &fd, char **env, int i)
+{
+    std::cout << "Client prêt à recevoir fr : " << fd << std::endl;
+
+    client *cl = moni.clients[fd];
+
+    if (!cl->getStatusCgi() && !cl->getInput().empty())
     {
-        std::cout << ORANGE "Input = " BLUE << cl->getInput() << RESET << std::endl;
+    std::cout << ORANGE "Input = " BLUE << cl->getInput() << RESET << std::endl;
 
-        ssize_t bytes_sent = send(cl->getFD(), output.c_str(), output.size(), 0);
-        if (bytes_sent == -1)
-        {
+		cl->setOutput(raph(cl->getInput(), env));
+
+		ssize_t bytes_sent = send(cl->getFD(), cl->getOutput().c_str(), cl->getOutput().size(), 0);
+		if (bytes_sent == -1)
             throw std::runtime_error(RED "Erreur lors de l'envoi des données");
-        }
         std::cout << GREEN "Réponse : OK" RESET << std::endl;
 
-        std::vector<pollfd>::iterator it = servor.all_pollfd.begin();
-
-        for (; it != servor.all_pollfd.end(); ++it)
-        {
-
-            if (it->fd == cl->getFD())
-            {
-                servor.all_pollfd.erase(it);
-                break;
-            }
-        }
-        delete servor.clients[fd];
-        servor.clients.erase(fd);
+        delete moni.clients[fd];
+        moni.clients.erase(fd);
+		moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
 	}
+}
+
+void	error(monitoring &moni, pollfd &poll, int i)
+{
+	std::cout << "dans error fd : " << poll.fd << std::endl;
+	client *cl = moni.clients[poll.fd];
+
+	if (compar(cl->getFD(), moni.all_pollfd_servor))
+		std::cout <<RED << "is a servor" << RESET << std::endl;
+	if (poll.revents & POLLERR)
+		std::cout <<RED << "POLLERR" << RESET << std::endl;
+	if (poll.revents & POLLHUP)
+		std::cout <<RED << "POLLHUP" << RESET << std::endl;
+	if (poll.revents & POLLNVAL)
+		std::cout <<RED << "POLLNVAL" << RESET << std::endl;
+
+	delete moni.clients[poll.fd];
+	moni.clients.erase(poll.fd);
+	moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
 }
 
 std::string	raph(const std::string& input, char** env)
@@ -242,4 +245,14 @@ std::string	raph(const std::string& input, char** env)
     }
     std::string response = test.makeResponse();
 	return response;
+}
+
+bool compar(const int &fd, const std::vector<pollfd> &poll_servor)
+{
+	for (int i = 0; i < (int)poll_servor.size(); ++i)
+	{
+		if (fd == poll_servor[i].fd)
+			return true;
+	}
+	return false;
 }

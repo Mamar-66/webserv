@@ -28,8 +28,20 @@ class Location
 		Location &operator=(const Location &other);
 		Location(const Location &other);
 		virtual ~Location();
-		void	getRoot(std::string& fileContent);
-		void	getIndex(std::string& fileContent);
+		
+		bool 						getOp() const;
+    	std::string					getRoot() const;
+    	std::string 				getIndex() const;
+    	std::vector<std::string> 	getAllowMethods() const;
+    	bool 						getAutoindex() const;
+    	bool 						getVerifauto() const;
+    	int 						getClientMaxBodySize() const;
+    	std::string 				getRetur() const;
+    	std::vector<std::string> 	getCgiPath() const;
+    	std::vector<std::string> 	getCgiExt() const;
+
+		void	initRoot(std::string& fileContent);
+		void	initIndex(std::string& fileContent);
 		void	initAllow_methods(std::string& fileContent);
 		void	initClient(std::string& fileContent);
 		void	initReturn(std::string& fileContent);
@@ -39,22 +51,23 @@ class Location
 		void	initPart(std::string& fileContent);
 		void	initContrpart(std::string& fileContent);
 		void	initAutoindex(std::string& fileContent);
+
 		bool						op;
-		std::string	root;
-		std::string	index;
+		std::string					root;
+		std::string					index;
 		std::vector<std::string>	allow_methods;
-		std::string	autoindex;
-		int			client_max_body_size;
-		std::string	retur;
+		bool						autoindex;
+		bool						verifauto;
+		int							client_max_body_size;
+		std::string					retur;
 		std::vector<std::string>	cgi_path;
 		std::vector<std::string>	cgi_ext;	
-    private:
+    protected:
 };
 
 std::map<std::string, Location> parseLocations(const std::vector<std::string>& lines, std::string& current);
 std::vector<std::string> splitLines(const std::string &input);
 std::string normalizeSpaces(const std::string &input);
 void	parsconfigL(std::string& fileContent, std::map<std::string, Location>& location, std::string& current);
-void	parsconfig(config& config, std::string& fileContent, std::map<std::string, Location>& location, std::string& current);
 
 # endif

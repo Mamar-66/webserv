@@ -12,6 +12,8 @@
 #include "Utils.hpp"
 #include <unistd.h>
 
+class RequestIn;
+
 std::vector<std::string> StrToVector(std::string str);
 std::string getHttpDate();
 std::string intToString(int value);
@@ -29,7 +31,7 @@ std::string concatenateVectors(std::vector<std::string> vec);
 std::string loadPage(std::string& catFile);
 bool isTypeOk(MyVector<std::string> typesServer, std::string& typeAccepted);
 std::string getAdressesError( int HTTPCode /* ParseConfig& config */ );
-std::vector<std::string> makeAutoIndex( void );
+std::vector<std::string> makeAutoIndex( RequestIn& req );
 std::string checkCGI(std::string& str);
 std::vector<std::string> split(const std::string& str, char delimiter);
 std::string	raph(const std::string& input, char** env);

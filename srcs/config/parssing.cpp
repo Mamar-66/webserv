@@ -97,26 +97,26 @@ std::vector<std::string> splitLines(const std::string &input) {
     return lines;
 }
 
-void	parsconfig(config& config, std::string& fileContent, std::map<std::string, Location>& location, std::string& current)
+void	config::parsconfig(std::string& fileContent, std::map<std::string, Location>& location, std::string& current)
 {
 	if (fileContent.compare(0, 12, "server_name ") == 0)
-		config.getconfigName(fileContent);
+		this->initconfigName(fileContent);
 	else if (fileContent.compare(0, 7, "listen ") == 0)
-		config.getPort(fileContent);
+		this->initPort(fileContent);
 	else if (fileContent.compare(0, 7, "server ") == 0)
-		config.getconfig(fileContent);
+		this->initconfig(fileContent);
 	else if (fileContent.compare(0, 5, "host ") == 0)
-		config.getHost(fileContent);
+		this->initHost(fileContent);
 	else if (fileContent.compare(0, 5, "root ") == 0)
-		config.getRoot(fileContent);
+		this->initRoot(fileContent);
 	else if (fileContent.compare(0, 6, "index ") == 0)
-		config.getIndex(fileContent);
+		this->initIndex(fileContent);
 	else if (fileContent.compare(0, 11, "error_page ") == 0)
-		config.initError_page(fileContent);
+		this->initError_page(fileContent);
 	else if (fileContent.compare(0, 10, "autoindex ") == 0)
-		config.initAutoindex(fileContent);
+		this->initAutoindex(fileContent);
 	else if (fileContent.compare(0, 21, "client_max_body_size ") == 0)
-		config.initClient(fileContent);
+		this->initClient(fileContent);
 	else if (fileContent.compare(0, 9, "location ") == 0)
 	{
 		if (countWords(fileContent) != 3)
@@ -131,14 +131,14 @@ void	parsconfig(config& config, std::string& fileContent, std::map<std::string, 
 		location[current].initLocation(fileContent);
 	}
 	else if (fileContent.compare(0, 3, "{") == 0)
-		config.initPart(fileContent);
+		this->initPart(fileContent);
 	else if (fileContent.compare(0, 3, "}") == 0)
-		config.initContrpart(fileContent);
+		this->initContrpart(fileContent);
 	else if (fileContent.compare(0, 1, "#") == 0)
 		return ;
 	else
 	{
-		throw std::runtime_error("Error : Invalid Argument in the block location : " + fileContent );
+		throw std::runtime_error("Error : Invalid Argument in the block server : " + fileContent );
 	}
 }
 
@@ -152,11 +152,11 @@ void	parsconfigL(std::string& fileContent, std::map<std::string, Location>& loca
 	else if (fileContent.compare(0, 21, "client_max_body_size ") == 0)
 		location[current].initClient(fileContent);
 	else if (fileContent.compare(0, 5, "root ") == 0)
-		location[current].getRoot(fileContent);
+		location[current].initRoot(fileContent);
 	else if (fileContent.compare(0, 7, "return ") == 0)
 		location[current].initReturn(fileContent);
 	else if (fileContent.compare(0, 6, "index ") == 0)
-		location[current].getIndex(fileContent);
+		location[current].initIndex(fileContent);
 	else if (fileContent.compare(0, 9, "cgi_path ") == 0)
 		location[current].initCgi_path(fileContent);
 	else if (fileContent.compare(0, 8, "cgi_ext ") == 0)
@@ -195,7 +195,7 @@ std::vector<std::string> splitconfigs(const std::string &fileContent)
     size_t configStart = 0;
 
     while ((configStart = fileContent.find("server {", pos)) != std::string::npos) {
-        size_t configEnd = fileContent.find("server {", configStart + 1);
+        size_t configEnd = fileContent.find("\nserver {", configStart + 1);
 
         if (configEnd == std::string::npos) {
             configs.push_back(fileContent.substr(configStart));
@@ -210,11 +210,13 @@ std::vector<std::string> splitconfigs(const std::string &fileContent)
     return configs;
 }
 
-std::map<std::string, Location> parseLocations(const std::vector<std::string>& lines, std::string& current) {
-    std::map<std::string, Location> locations;
+void config::parseLocations(const std::vector<std::string>& lines, std::string& current)
+{
+    //std::map<std::string, Location> locations;
     int locationCount = 0;
 	std::string	chiant;
 
+	//std::cout <<  << std::endl;
    for (std::vector<std::string>::const_iterator it = lines.begin(); it != lines.end(); ++it) {
         const std::string& line = *it;
 
@@ -224,13 +226,12 @@ std::map<std::string, Location> parseLocations(const std::vector<std::string>& l
             std::vector<std::string> parts = split(chiant, ' ');
             if (parts.size() >= 2) {
                 std::string locationPath = parts[1]; 
-				locations.insert(std::make_pair(locationPath, Location()));
+				location.insert(std::make_pair(locationPath, Location()));
 				if (locationCount == 1)
 					current = parts[1];
             }
         }
     }
-    return locations;
 }
 
 std::vector<std::string> cut_conf_serv(const int argc, char *configFile)
@@ -255,6 +256,7 @@ std::vector<std::string> cut_conf_serv(const int argc, char *configFile)
 	{
 		removeComments(fileContent);
 		fileContent = removeEmptyLines(fileContent);
+		fileContent = normalizeSpaces(fileContent);
 		std::vector<std::string> configs = splitconfigs(fileContent);
 		return (configs);
 	}

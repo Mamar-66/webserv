@@ -13,7 +13,7 @@
 #include "Location.hpp"
 #include "config.hpp"
 
-Location::Location() :	client_max_body_size(0)
+Location::Location() :	 autoindex(false), verifauto(false), client_max_body_size(0)
 {
 	op = false;
 }
@@ -54,7 +54,7 @@ Location& Location::operator=(const Location &other)
 	return (*this);
 }
 
-void	Location::getIndex(std::string& fileContent)
+void	Location::initIndex(std::string& fileContent)
 {
 	if (!index.empty())
 		 throw std::runtime_error("Error : is duplicated, index");
@@ -69,7 +69,7 @@ void	Location::getIndex(std::string& fileContent)
 }
 
 
-void	Location::getRoot(std::string& fileContent)
+void	Location::initRoot(std::string& fileContent)
 {
 	if (!root.empty())
 		 throw std::runtime_error("Error : is duplicated, root");
@@ -219,7 +219,7 @@ void	Location::initContrpart(std::string& fileContent)
 
 void	Location::initAutoindex(std::string& fileContent)
 {
-	if (!autoindex.empty())
+	if (autoindex == true)
 		 throw std::runtime_error("Error : is duplicated, autoindex");
 	if (countWords(fileContent) != 2)
 		throw std::runtime_error("Error : Too much Argument or not Enough, autoindex");
@@ -228,7 +228,53 @@ void	Location::initAutoindex(std::string& fileContent)
 	else if (fileContent.compare(10, 5, "on;") != 0 && fileContent.compare(10, 5, "off;") != 0)
 		throw std::runtime_error("Error : only 'on' or off' accepted, autoindex");
 	else if (fileContent.compare(10, 5, "on;") == 0)
-		autoindex = fileContent.substr(10, 2);
+	{
+		verifauto = true;
+		autoindex = true;
+	}
 	else if (fileContent.compare(10, 5, "off;") == 0)
-		autoindex = fileContent.substr(10, 3);
+	{
+		verifauto = true;
+		autoindex = false;
+	}
+}
+
+bool Location::getOp() const {
+    return op;
+}
+
+std::string Location::getRoot() const {
+    return root;
+}
+
+std::string Location::getIndex() const {
+    return index;
+}
+
+std::vector<std::string> Location::getAllowMethods() const {
+    return allow_methods;
+}
+
+bool Location::getAutoindex() const {
+    return autoindex;
+}
+
+bool Location::getVerifauto() const {
+    return verifauto;
+}
+
+int Location::getClientMaxBodySize() const {
+    return client_max_body_size;
+}
+
+std::string Location::getRetur() const {
+    return retur;
+}
+
+std::vector<std::string> Location::getCgiPath() const {
+    return cgi_path;
+}
+
+std::vector<std::string> Location::getCgiExt() const {
+    return cgi_ext;
 }
