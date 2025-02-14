@@ -2,13 +2,19 @@
 #include "../../includes/serveur.hpp"
 #include "Location.hpp"
 
-monitoring::monitoring()
+monitoring::monitoring(std::vector<pollfd> allPollFd) : all_pollfd_servor(allPollFd), all_all_pollfd(allPollFd)
 {
 
 }
 
 monitoring::~monitoring()
 {
+	if (clients.size() > 0)
+	{
+		for (std::map<int, client*>::iterator it = this->clients.begin(); it != this->clients.end(); ++it)
+			delete it->second;
+		clients.clear();
+	}
 }
 
 /* -------------------------------------------------------- */
@@ -146,25 +152,6 @@ serveur::~serveur()
 // {
 // 	return this->socket_fd;
 // }
-
-/* -------------------------------------------------- */
-
-/* -------------------------------------------------------- */
-/* ----------------------- SURCHARGE ---------------------- */
-/* -------------------------------------------------------- */
-
-bool serveur::operator==(const int &fd) const
-{
-	int size = this->servor_socket.size();
-
-	for (int i = 0; i < size; ++i)
-	{
-		if (this->servor_socket[i] == fd)
-			return true;
-	}
-
-	return false;
-}
 
 /* -------------------------------------------------- */
 

@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/13 17:18:41 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/14 10:54:24 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,27 +42,13 @@ void	monitorin(monitoring &moni, char **env)
 			error(moni, moni.all_all_pollfd[i], i);
 		}
 	}
-	
-	//std::cout << ORANGE "server listen . . ." RESET << std::endl;
-	// int size = moni.all_all_pollfd.size();
-
-		// newnext = std::time(NULL);
-		// std::cout << UNDERLINE BLUE << "start boucle " <<  newnext - start << RESET << std::endl;
-		// start = newnext;
-
-
-		// newnext = std::time(NULL);
-		// std::cout << UNDERLINE BLUE << "poll " << newnext - start << RESET << std::endl;
-		// start = newnext;
-
-
 }
 
 void routine_servor(monitoring &moni, char **env)
 {
 	try
 	{
-		while (true)
+		while (running)
 		{
 			monitorin(moni, env);
 		}

@@ -6,13 +6,12 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:06:45 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/13 11:02:41 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/14 11:03:29 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVEUR_HPP
 #define SERVEUR_HPP
-
 
 	#include "client.hpp"
 	#include "config.hpp"
@@ -28,9 +27,11 @@
 	#include <map>
 	#include <errno.h>
 	#include <sstream>
+	#include <csignal>
 
 	#include <ctime>
 	
+	extern bool 		running;
 	extern std::time_t start;
 	extern std::time_t newnext;
 
@@ -63,15 +64,10 @@
 			virtual ~serveur();
 
 					/* GETTER */
-			// const int 		&getFD();
 			pollfd					pfd;
-			// std::map<int, client*>	clients;
 			std::vector<pollfd>		all_pollfd;
-
-			std::string		return_word_after(const std::string &word, const std::string &str);
-			int				stringToInt(const std::string &str);
-
-			bool			operator==(const int &fd) const;
+			std::string				return_word_after(const std::string &word, const std::string &str);
+			int						stringToInt(const std::string &str);
 	};
 
 	class monitoring
@@ -79,17 +75,18 @@
 		private :
 
 		public :
-			monitoring();
+			monitoring(std::vector<pollfd> allPollFd);
 			~monitoring();
 
-			std::vector<pollfd> all_pollfd_servor;
-			std::vector<pollfd> all_all_pollfd;
-			std::map<int, client *> clients;
+			char **cpy_env;
+
+			std::vector<pollfd>		all_pollfd_servor;
+			std::vector<pollfd>		all_all_pollfd;
+			std::map<int, client*>	clients;
 	};
 
 	void					routine_servor(monitoring &moni, char **env);
 	std::vector<serveur*>	creat_servor(std::vector<std::string> &cut_str_serv);
-
-	bool compar(const int &fd, const std::vector<pollfd> &poll_servor);
+	bool 					compar(const int &fd, const std::vector<pollfd> &poll_servor);
 
 #endif
