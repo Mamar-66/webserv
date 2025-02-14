@@ -184,7 +184,7 @@ void	read_client(monitoring &moni, int &fd)
 
 void	responding(monitoring &moni, int &fd, char **env, int i)
 {
-    std::cout << "Client prêt à recevoir fr : " << fd << std::endl;
+   // std::cout << "Client prêt à recevoir fr : " << fd << std::endl;
 
     client *cl = moni.clients[fd];
 
@@ -243,7 +243,7 @@ std::string	raph(const std::string& input, char** env)
         test.parseBody();
         std::cout << test.getCode() << std::endl;
     }
-    std::string response = test.makeResponse();
+    std::string response = test.makeResponse(input);
 	return response;
 }
 

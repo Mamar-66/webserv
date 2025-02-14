@@ -35,3 +35,6 @@ std::vector<std::string> makeAutoIndex( RequestIn& req );
 std::string checkCGI(std::string& str);
 std::vector<std::string> split(const std::string& str, char delimiter);
 std::string	raph(const std::string& input, char** env);
+MyStack<std::string> create1Stack(const std::string& ch);
+void addElemToStr(std::string& str, MyStack<std::string>& stack);
+

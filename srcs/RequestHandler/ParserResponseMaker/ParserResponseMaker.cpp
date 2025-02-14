@@ -17,7 +17,6 @@ std::vector<std::string> RequestIn::GetResponse( void /* ParseConfig& config */ 
     std::cout << catFile << std::endl;
     bool AutoIndexToRemove = true;
 
-
     if (!(parseCatFile(catFile)))
         this->codeHTTP = 403;
     if (this->codeHTTP == 200 || this->codeHTTP / 100 == 3) {
@@ -154,16 +153,16 @@ std::vector<std::string> RequestIn::GetResponse( void /* ParseConfig& config */ 
 //     return vectorElems;
 // }
 
-std::string RequestIn::makeResponse( void /* ParseConfig& config */ ) {
+std::string RequestIn::makeResponse(const std::string& input) {
     std::vector<std::string> vectorElems;
     if (this->method == "POST") {
-        vectorElems = this->GetResponse();
+        vectorElems = this->PostResponse(input);
     }
 
-    /*else if (this->method == "DELETE") {
+    else if (this->method == "DELETE") {
         vectorElems = this->DeleteResponse();
     }
-*/
+
     
     else {
         vectorElems = this->GetResponse();

@@ -13,8 +13,17 @@ SRC	=	main.cpp \
 		clients/client.cpp \
 		config/config.cpp \
 		config/parssing.cpp \
-		RequestHandler/Parser.cpp \
-		RequestHandler/utils.cpp \
+		RequestHandler/ParserCGI/ParserCGI.cpp \
+		RequestHandler/ParserCGI/UtilsParserCGI.cpp \
+		RequestHandler/ParserConstructor/ParserConstructors.cpp \
+		RequestHandler/ParserErrorChecker/ParserErrorChecker.cpp \
+		RequestHandler/ParserErrorChecker/UtilsParserErrorChecker.cpp \
+		RequestHandler/ParserResponseMaker/ParserDeleteMaker.cpp \
+		RequestHandler/ParserResponseMaker/UtilsParserDeleteMaker.cpp \
+		RequestHandler/ParserResponseMaker/ParserResponseMaker.cpp \
+		RequestHandler/ParserResponseMaker/UtilsParserResponseMaker.cpp \
+		RequestHandler/generalUtils.cpp \
+		RequestHandler/ParserGetter.cpp \
 		config/Location.cpp
 
 
@@ -32,12 +41,16 @@ all: $(OBJ_PATH) $(NAME) $(CGI_tester)
 $(OBJ_PATH):
 			mkdir -p $(OBJ_PATH)
 			mkdir -p $(OBJ_PATH)/RequestHandler
+			mkdir -p $(OBJ_PATH)/RequestHandler/ParserCGI
+			mkdir -p $(OBJ_PATH)/RequestHandler/ParserConstructor
+			mkdir -p $(OBJ_PATH)/RequestHandler/ParserErrorChecker
+			mkdir -p $(OBJ_PATH)/RequestHandler/ParserResponseMaker
 			mkdir -p $(OBJ_PATH)/serveur
 			mkdir -p $(OBJ_PATH)/clients
 			mkdir -p $(OBJ_PATH)/config
 			mkdir -p $(OBJ_PATH)/cgi
 			mkdir -p json
-			touch json/user.json
+			touch json/users.json
 
 $(NAME): $(OBJS)
 	@echo "\033[0;33m\nCOMPILING \033[31m Webserv \033[0;33m ...\n"

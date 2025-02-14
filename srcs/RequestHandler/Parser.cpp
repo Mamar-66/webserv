@@ -394,27 +394,27 @@ std::string RequestIn::getURI( void ) {
 //     return vectorElems;
 // }
 
-std::string RequestIn::makeResponse( void /* ParseConfig& config */ ) {
-    std::vector<std::string> vectorElems;
-    if (this->method == "POST") {
-        vectorElems = this->GetResponse();
-    }
+// std::string RequestIn::makeResponse(const std::string& input) {
+//     std::vector<std::string> vectorElems;
+//     if (this->method == "POST") {
+//         vectorElems = this->PostResponse(input);
+//     }
 
-    /*else if (this->method == "DELETE") {
-        vectorElems = this->DeleteResponse();
-    }
-*/
+//     else if (this->method == "DELETE") {
+//         vectorElems = this->DeleteResponse();
+//     }
+
     
-    else {
-        vectorElems = this->GetResponse();
-    }
+//     else {
+//         vectorElems = this->GetResponse();
+//     }
 
-   // for (std::vector<std::string>::iterator it=vectorElems.begin(); it < vectorElems.end(); it++) {
-   //     std::cout << *it;
-   // }
-    std::cout << "------------------------------" << std::endl;
-    return concatenateVectors(vectorElems);
-}
+//    // for (std::vector<std::string>::iterator it=vectorElems.begin(); it < vectorElems.end(); it++) {
+//    //     std::cout << *it;
+//    // }
+//     std::cout << "------------------------------" << std::endl;
+//     return concatenateVectors(vectorElems);
+// }
 
 RequestIn::~RequestIn() {}
 

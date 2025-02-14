@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete File or Directory</title>
+    <style>
+        /* 🌟 Style général */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+            width: 320px;
+            position: relative;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        /* 🗑️ Style de la poubelle */
+        .trash-container {
+            position: relative;
+            width: 100px;
+            height: 120px;
+            margin: 20px auto;
+        }
+
+        .trash-lid {
+            width: 100px;
+            height: 20px;
+            background: #444;
+            border-radius: 10px 10px 0 0;
+            position: absolute;
+            top: -10px;
+            left: 0;
+            transition: transform 0.3s ease-in-out;
+            transform-origin: center bottom;
+        }
+
+        .trash-body {
+            width: 100px;
+            height: 100px;
+            background: repeating-linear-gradient(
+                -45deg,
+                #666,
+                #666 10px,
+                #777 10px,
+                #777 20px
+            );
+            border-radius: 10px;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            position: relative;
+        }
+
+        .delete-btn:hover ~ .trash-container .trash-lid {
+            transform: rotate(-30deg) translateY(-10px);
+        }
+
+        /* 🎨 Input et bouton stylés */
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        /* Message de retour */
+        .message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .success {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .error {
+            background: #e74c3c;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Delete File or Directory</h2>
+
+        <input type="text" id="delete-data" placeholder="Enter file or directory path">
+        <button class="delete-btn" onclick="handleDelete()">Delete</button>
+
+        <div class="trash-container">
+            <div class="trash-lid"></div>
+            <div class="trash-body"></div>
+        </div>
+
+        <div id="response-message" class="message"></div>
+    </div>
+
+    <script>
+        function handleDelete() {
+            let inputData = document.getElementById('delete-data').value;
+            let messageBox = document.getElementById('response-message');
+
+            if (!inputData) {
+                messageBox.innerHTML = "❌ Please enter a file or directory path.";
+                messageBox.className = "message error";
+                messageBox.style.display = "block";
+                return;
+            }
+
+            fetch(`/${encodeURIComponent(inputData)}`, {
+                method: 'DELETE',
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                messageBox.innerHTML = `✅ Deleted: ${data}`;
+                messageBox.className = "message success";
+                messageBox.style.display = "block";
+                document.getElementById('delete-data').value = '';
+            })
+            .catch(error => {
+                messageBox.innerHTML = `❌ Failed: ${error.message}`;
+                messageBox.className = "message error";
+                messageBox.style.display = "block";
+            });
+        }
+    </script>
+
+</body>
+</html>

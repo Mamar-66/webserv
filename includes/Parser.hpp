@@ -60,10 +60,27 @@ class RequestIn {
     
         std::map<std::string, std::string> getMap( void );
 
-        std::string makeResponse( void /* ParseConfig& config */ );
+        std::string makeResponse(const std::string& input);
         std::string canKeepAlive( void );
         int getCode( void );
 
         std::vector<std::string> PushResponse( void /* ParseConfig& config */ );
         std::vector<std::string> GetResponse( void /* ParseConfig& config */ );
+        std::vector<std::string> DeleteResponse();
+        std::vector<std::string> PostResponse(const std::string& input);
+
+
+        /* Getters */
+        std::map<std::string, int> getMapCount( void );
+
+        std::string getMethod( void );
+        std::string getProtocol( void );
+
+        int getLength( void );
+        std::string getStringCode( void );
+        std::string getBody( void );
+        
+        std::string getMimeAccept( void );
+        std::vector<std::string> getVector( void );
+        std::vector<std::string> getEnvVector( void );
 };

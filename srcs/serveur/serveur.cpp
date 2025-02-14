@@ -13,8 +13,8 @@ monitoring::~monitoring()
 	{
 		for (std::map<int, client*>::iterator it = this->clients.begin(); it != this->clients.end(); ++it)
 			delete it->second;
-		clients.clear();
 	}
+	clients.clear();
 }
 
 /* -------------------------------------------------------- */
@@ -133,7 +133,7 @@ serveur::serveur(const std::string &strConfig)
 
 serveur::~serveur()
 {
-	std::cout << ORANGE "destructor serveur FD = " << RESET << std::endl;
+	std::cout << ORANGE "destructor serveur" << RESET << std::endl;
 	int size = this->servor_socket.size();
 	for (int i = 0; i < size; i++)
 		close(this->servor_socket[i]);

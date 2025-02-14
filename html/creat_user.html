@@ -7,55 +7,102 @@
     <title>Crate User</title>
     <style>
         body {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #3498db, #8e44ad);
+            color: white;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-        }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            width: 400px;
-            height: 250px;
             text-align: center;
+            animation: fadeIn 2s ease-in-out;
         }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .container {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.8s ease-out;
+            width: 350px;
+        }
+
+        @keyframes slideUp {
+            0% { transform: translateY(50px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
         h2 {
-            color: #333;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
         }
+
+        label {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            display: inline-block;
+            text-align: left;
+            font-weight: bold;
+            color: white;
+        }
+
         input {
-            width: 95%;
-            padding: 10px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
             width: 100%;
             padding: 10px;
+            margin: 10px 0;
             border: none;
             border-radius: 5px;
-            background-color: #28a745;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        input:focus {
+            background-color: #f1f1f1;
+            outline: none;
+        }
+
+        button {
+            background-color: #2ecc71;
+            border: none;
+            padding: 15px 30px;
             color: white;
-            font-size: 16px;
+            font-size: 1.1rem;
+            border-radius: 25px;
             cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            width: 100%;
         }
+
         button:hover {
-            background-color: #00ff37;
+            background-color: #27ae60;
+            transform: translateY(-5px);
         }
-    </style>
+</style>
 </head>
 <body>
     <div class="container">
-        <h2>Creat User</h2>
-        <form action="/srcs/cgi/user.cgi" method="POST">
-            <input type="text" name="username" placeholder="User name" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Register</button>
+        <h2>Créer un utilisateur</h2>
+        <form action="" method="POST">
+            <label for="username">Nom d'utilisateur :</label>
+            <input type="text" id="username" name="username" placeholder="User name" required>
+            
+            <label for="email">Adresse e-mail :</label>
+            <input type="email" id="email" name="email" placeholder="Email" required>
+            
+            <label for="password">Mot de passe :</label>
+            <input type="password" id="password" name="password" placeholder="Password" required>
+            
+            <button type="submit">S'inscrire</button>
         </form>
     </div>
-
 </body>
 </html>
+

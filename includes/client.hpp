@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/13 16:58:48 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/14 17:53:49 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,8 @@
 			void				setStatusCgiTrue();
 
 			pollfd				clien_pollfd;
+			int					pipefd[2];
+			char 				**envp;
 	};
 
 	void	creat_client(monitoring &moni, int &fd, char **env);

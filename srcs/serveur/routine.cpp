@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/14 10:54:24 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/14 17:22:37 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,15 +16,14 @@ void	monitorin(monitoring &moni, char **env)
 {
 	size_t i = -1;
 
+	std::cout << ORANGE "serveur listen . . ." RESET << std::endl;
 	for (int i = 0; i < (int)moni.all_all_pollfd.size(); i++)
 		moni.all_all_pollfd[i].revents = 0;
-	std::cout << ORANGE "serveur listen . . ." RESET << std::endl;
 	int readpoll = poll(moni.all_all_pollfd.data(), moni.all_all_pollfd.size(), -1);
 	if (readpoll < 0)
 		throw std::runtime_error(RED "Error poll = -1");
 	while (++i < moni.all_all_pollfd.size())
 	{
-
 		if (compar(moni.all_all_pollfd[i].fd, moni.all_pollfd_servor) && moni.all_all_pollfd[i].revents & POLLIN)
 		{
 			creat_client(moni, moni.all_all_pollfd[i].fd, env);

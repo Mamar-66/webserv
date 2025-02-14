@@ -6,13 +6,14 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 16:29:52 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/14 10:59:00 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/14 17:30:44 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/serveur.hpp"
 #include "../includes/config.hpp"
 
+// docker run --rm -t jstarcher/siege -c100 -r200 10.13.5.2:8080 | grep -v "HTTP"
 
 std::time_t 	start = std::time(NULL);
 std::time_t 	newnext = 0;
@@ -51,8 +52,6 @@ void init(int argc, char **argv, char **env)
 		monitoring 				moni(allPollFd);
 
 		routine_servor(moni, env);
-		servors.clear();
-
 	}
 	catch (const std::exception &e)
 	{
@@ -61,6 +60,7 @@ void init(int argc, char **argv, char **env)
 
 	for (int i = 0; i < (int)servors.size(); ++i)
 		delete servors[i];
+	servors.clear();
 }
 
 int main(int argc, char **argv, char **env)
