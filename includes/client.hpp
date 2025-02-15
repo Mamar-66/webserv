@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/14 17:53:49 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/15 19:42:06 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,10 @@
 	#define BOLD "\033[1m"
 	#define UNDERLINE "\033[4m"
 
-	class serveur;
-	class monitoring;
+	class	serveur;
+	class	monitoring;
+	class	cgi;
+
 
 	class client
 	{
@@ -67,16 +69,36 @@
 			/* SETTER */
 			void				setInput(const std::string& str);
 			void				setOutput(const std::string& str);
-			void				setStatusCgiTrue();
+			void				setCgiTrue();
+			void				setCgiFalse();
 
 			pollfd				clien_pollfd;
-			int					pipefd[2];
-			char 				**envp;
+
+			cgi					*cg_i;
+	};
+
+	class	cgi
+	{
+		private :
+			int			socket_fd;
+			void 		init_cgi();
+
+		public :
+			cgi();
+			~cgi();
+
+			const int &		getFfCgi();	
+
+			// char 			**envp;
+			std::vector<std::string>	envp;
+			pollfd						pollfd_cgi;
+
 	};
 
 	void	creat_client(monitoring &moni, int &fd, char **env);
 	void	responding(monitoring &moni, int &fd, char **env, int i);
 	void	error(monitoring &servor, pollfd &poll, int i);
 	void	read_client(monitoring &moni, int&fd);
+	void	raph(client &cl, char **env);
 
 #endif

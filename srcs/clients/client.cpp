@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/13 17:19:36 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/15 19:26:29 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,60 @@
 /* --------------CONSTRUCTOR / DESTRUCTOR------------------ */
 /* -------------------------------------------------------- */
 
-client::client(int fdsocket, size_t size_body, bool listing) : 
+/* -------------------------------------------------------------------- */
+/* --------------------------------- CGI ------------------------------ */
+/* -------------------------------------------------------------------- */
+
+void	cgi::init_cgi()
+{
+	struct sockaddr_in 		serverAddr;
+	struct sockaddr_in		addr;
+
+	this->socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+
+	memset(&serverAddr, 0, sizeof(serverAddr));
+
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_addr.s_addr = INADDR_ANY;
+	serverAddr.sin_port = 0;
+
+	if (bind(this->socket_fd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) == -1)
+		throw std::runtime_error("error constructeur bind cgi");
+
+	if (listen(this->socket_fd, 5) == -1)
+		throw std::runtime_error("error constructeur listen cgi");
+
+	/* recup port choisi par le systeme */
+	socklen_t addr_len = sizeof(addr);
+	if (getsockname(this->socket_fd, (struct sockaddr *)&addr, &addr_len) == -1)
+		throw std::runtime_error("Error get port");
+	unsigned short	port = ntohs(addr.sin_port);
+
+	std::cout << "hello from constructor CGI Port : " << port << " fd : " << this->socket_fd << std::endl;
+}
+
+cgi::cgi()
+{
+	this->init_cgi();
+}
+
+cgi::~cgi()
+{
+	close(this->socket_fd);
+	
+}
+
+const int &cgi::getFfCgi()
+{
+	return this->socket_fd;
+}
+
+/* -------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- */
+
+client::client(int fdsocket, size_t size_body, bool listing) :
 socket_fd(fdsocket), size_body(size_body), listing(listing), is_cgi(false)
 {
 	this->startTime = std::time(NULL);
@@ -40,7 +93,8 @@ client::~client()
 	}
 	else
 		std::cout << RED "delete client warning don't close fd : " << this->socket_fd << RESET << std::endl;
-
+	if (this->cg_i)
+		delete this->cg_i;
 }
 
 /* -------------------------------------------------------- */
@@ -96,9 +150,13 @@ void	client::setOutput(const std::string& str)
 	this->output = str;
 }
 
-void	client::setStatusCgiTrue()
+void	client::setCgiTrue()
 {
 	this->is_cgi = true;
+}
+void client::setCgiFalse()
+{
+	this->is_cgi = false;
 }
 
 /* --------------------------------------------------- */
@@ -186,15 +244,13 @@ void	responding(monitoring &moni, int &fd, char **env, int i)
 {
    // std::cout << "Client prêt à recevoir fr : " << fd << std::endl;
 
-    client *cl = moni.clients[fd];
+	if (!(*moni.clients[fd]).getInput().empty())
+		raph(*moni.clients[fd], env);
+	if (!(*moni.clients[fd]).getStatusCgi())
+	{
+		std::cout << ORANGE "Input = " BLUE << (*moni.clients[fd]).getInput() << RESET << std::endl;
 
-    if (!cl->getStatusCgi() && !cl->getInput().empty())
-    {
-    std::cout << ORANGE "Input = " BLUE << cl->getInput() << RESET << std::endl;
-
-		cl->setOutput(raph(cl->getInput(), env));
-
-		ssize_t bytes_sent = send(cl->getFD(), cl->getOutput().c_str(), cl->getOutput().size(), 0);
+		ssize_t bytes_sent = send((*moni.clients[fd]).getFD(), (*moni.clients[fd]).getOutput().c_str(), (*moni.clients[fd]).getOutput().size(), 0);
 		if (bytes_sent == -1)
             throw std::runtime_error(RED "Erreur lors de l'envoi des données");
         std::cout << GREEN "Réponse : OK" RESET << std::endl;
@@ -224,10 +280,10 @@ void	error(monitoring &moni, pollfd &poll, int i)
 	moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
 }
 
-std::string	raph(const std::string& input, char** env)
+void	raph(client &cl, char** env)
 {
 	/* reponce */
-	RequestIn test(input, env);
+	RequestIn test(cl.getInput(), env);
     std::cout << test.getCode() << std::endl;
     std::cout << "---------------" << std::endl;
     if (test.getCode() == 200) {
@@ -243,8 +299,9 @@ std::string	raph(const std::string& input, char** env)
         test.parseBody();
         std::cout << test.getCode() << std::endl;
     }
-    std::string response = test.makeResponse(input);
-	return response;
+	std::string response = test.makeResponse(cl.getInput());
+
+	cl.setOutput(response);
 }
 
 bool compar(const int &fd, const std::vector<pollfd> &poll_servor)
