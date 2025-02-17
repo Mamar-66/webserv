@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 11:54:40 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/24 12:06:51 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/16 10:48:55 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ inline int countWords(const std::string& str) {
     return wordCount;
 }
 
-inline std::vector<std::string> split(const std::string &str, char delimiter) {
+inline std::vector<std::string> splitt(const std::string &str, char delimiter) {
     std::vector<std::string> tokens;
     std::string::size_type start = 0;
     std::string::size_type end = str.find(delimiter);

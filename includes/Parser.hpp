@@ -16,6 +16,7 @@
 
 #include "Utils.hpp"
 #include "Webserv.h"
+#include "serveur.hpp"
 
 #ifndef BEFORE
 # define BEFORE 1
@@ -60,8 +61,8 @@ class RequestIn {
     
         std::map<std::string, std::string> getMap( void );
 
-        std::string makeResponse(const std::string& input);
-        std::string canKeepAlive( void );
+		std::string makeResponse(monitoring &moni, client &cl);
+		std::string canKeepAlive( void );
         int getCode( void );
 
         std::vector<std::string> PushResponse( void /* ParseConfig& config */ );
@@ -83,4 +84,7 @@ class RequestIn {
         std::string getMimeAccept( void );
         std::vector<std::string> getVector( void );
         std::vector<std::string> getEnvVector( void );
+
+		/* omar */
+		void 	init_envp(client &cl);
 };

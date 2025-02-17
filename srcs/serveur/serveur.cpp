@@ -155,7 +155,7 @@ serveur::~serveur()
 
 /* -------------------------------------------------- */
 
-	std::string serveur::return_word_after(const std::string &word, const std::string &str)
+std::string serveur::return_word_after(const std::string &word, const std::string &str)
 {
 	size_t pos = str.find(word);
 
@@ -183,4 +183,22 @@ int serveur::stringToInt(const std::string &str)
 		throw std::invalid_argument("Invalid input: Not a number");
 
 	return number;
+}
+
+int	monitoring::where_are_fd_pipe(const int &fd)
+{
+	std::map<int, client*>::iterator it = this->clients.begin();
+
+	for (; it != this->clients.end(); ++it)
+	{
+		// if (fd == it->second->pipe_write[0])
+		// 	return it->first;
+		if (fd == it->second->pipe_write[1])
+			return it->first;
+		else if (fd == it->second->pipe_read[0])
+			return it->first;
+		// else if (fd == it->second->pipe_read[1])
+		// 	return it->first;
+	}
+	return -1;
 }

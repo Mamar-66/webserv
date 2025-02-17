@@ -1,4 +1,5 @@
 #include "../../../includes/Parser.hpp"
+#include "../../../includes/serveur.hpp"
 
 std::vector<std::string> RequestIn::GetResponse( void /* ParseConfig& config */ ) {
     std::map<int, std::string> mapCode = initCodeMap();
@@ -14,7 +15,7 @@ std::vector<std::string> RequestIn::GetResponse( void /* ParseConfig& config */ 
     this->uri = temp;
 
     std::string catFile = rootedDir + this->uri;
-    std::cout << catFile << std::endl;
+    // std::cout << catFile << std::endl;
     bool AutoIndexToRemove = true;
 
     if (!(parseCatFile(catFile)))
@@ -153,24 +154,42 @@ std::vector<std::string> RequestIn::GetResponse( void /* ParseConfig& config */ 
 //     return vectorElems;
 // }
 
-std::string RequestIn::makeResponse(const std::string& input) {
-    std::vector<std::string> vectorElems;
-    if (this->method == "POST") {
-        vectorElems = this->PostResponse(input);
-    }
+void 	RequestIn::init_envp(client &cl)
+{
+	std::string tmp;
 
-    else if (this->method == "DELETE") {
+	tmp = "URI=" + getURI();
+	cl.envp[0] = strdup(tmp.c_str());
+	tmp = "METHOD=" + getMethod();
+	cl.envp[1] = strdup(tmp.c_str());
+	tmp = "BODY=" + getBody();
+	cl.envp[2] = strdup(tmp.c_str());
+	cl.envp[3] = NULL;
+}
+
+std::string RequestIn::makeResponse(monitoring &moni, client &cl) {
+    std::vector<std::string> vectorElems;
+
+	if (getURI().find(".py") != std::string::npos)
+	{
+		init_envp(cl);
+		start_CGI(moni, cl);
+		return "";
+		// exit(1);
+	}
+	else if (this->method == "POST") {
+		vectorElems = this->PostResponse(cl.getInput());
+	}
+	else if (this->method == "DELETE") {
         vectorElems = this->DeleteResponse();
     }
-
-    
     else {
         vectorElems = this->GetResponse();
     }
 
-    for (std::vector<std::string>::iterator it=vectorElems.begin(); it < vectorElems.end(); it++) {
-        std::cout << *it;
-    }
+    // for (std::vector<std::string>::iterator it=vectorElems.begin(); it < vectorElems.end(); it++) {
+    //     std::cout << *it;
+    // }
     std::cout << "------------------------------" << std::endl;
     return concatenateVectors(vectorElems);
 }

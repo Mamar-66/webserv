@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sbarbe <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 15:19:17 by sbarbe            #+#    #+#             */
-/*   Updated: 2025/01/16 15:19:18 by sbarbe           ###   ########.fr       */
+/*   Updated: 2025/02/16 10:50:42 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ void	Location::initAllow_methods(std::string& fileContent)
 	else if (fileContent.compare(fileContent.length() - 1, 3, ";") != 0)
 		throw std::runtime_error("Error : Invalid endline, only ';' accepted, allow_methods");
 	std::string adjustedContent = fileContent.substr(14);
-	std::vector<std::string> parts = split(adjustedContent, ' ');
+	std::vector<std::string> parts = splitt(adjustedContent, ' ');
 	for (size_t i = 0; i < parts.size(); i++)
 	{
 		if (parts[i].compare("GET") != 0 && parts[i].compare("DELETE") != 0 && parts[i].compare("POST") != 0 && parts[i].compare("PUT") != 0 && parts[i].compare("HEAD") != 0 && (i - 1 == parts.size() && parts[i].compare("GET;") != 0 && parts[i].compare("DELETE;") != 0 && parts[i].compare("POST;") != 0 && parts[i].compare("PUT;") != 0 && parts[i].compare("HEAD;") != 0))
@@ -113,7 +113,7 @@ void	Location::initClient(std::string& fileContent)
 		 throw std::runtime_error("Error : is duplicated, client_max_body_size");
 	if (countWords(fileContent) != 2)
 		throw std::runtime_error("Error : Too much Argument or not Enough, client_max_body_size");
-	std::vector<std::string> parts = split(fileContent, ' ');
+	std::vector<std::string> parts = splitt(fileContent, ' ');
     if (parts[0] != "client_max_body_size")
         throw std::runtime_error("Error : Invalid, client_max_body_size");
     std::string sizeValue = parts[1];
@@ -152,7 +152,7 @@ void	Location::initReturn(std::string& fileContent)
 
 void	Location::initCgi_path(std::string& fileContent)
 {
-	std::vector<std::string> parts = split(fileContent, ' ');
+	std::vector<std::string> parts = splitt(fileContent, ' ');
 	for (size_t i = 1; i < parts.size(); ++i)
 	{
 		if (i + 1 == parts.size())
@@ -166,7 +166,7 @@ void	Location::initCgi_path(std::string& fileContent)
 
 void	Location::initCgi_ext(std::string& fileContent)
 {
-	std::vector<std::string> parts = split(fileContent, ' ');
+	std::vector<std::string> parts = splitt(fileContent, ' ');
 	for (size_t i = 1; i < parts.size(); ++i)
 	{
 		if (i + 1 == parts.size())
@@ -182,7 +182,7 @@ void	Location::initLocation(std::string& fileContent)
 {
 	if (countWords(fileContent) != 3)
 		throw std::runtime_error("Error : Too much argument or not Enough, location");
-	std::vector<std::string> parts = split(fileContent, ' ');
+	std::vector<std::string> parts = splitt(fileContent, ' ');
 	if (parts[1][0] != '/')
 		throw std::runtime_error("Error : Invalid Direction, location");
 	else if (parts[2][0] != '{' || parts[2][1])

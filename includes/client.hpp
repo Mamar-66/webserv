@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/15 19:42:06 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/17 13:55:02 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,20 +45,23 @@
 	class client
 	{
 		private:
+			int				socket_fd;
+			int				socket_fd_father;
 			std::time_t 	startTime;
 			std::string 	input;
 			std::string 	output;
-			int				socket_fd;
 			size_t			size_body;
 			bool			listing;
 			bool			is_cgi;
 
 		public:
 			client(int fdsocket, size_t size_body, bool listing);
+			client(int fdsocket, int fdSocketFather,size_t size_body, bool listing);
 			~client();
 
 						/* GETTER */
 			const int			&getFD(void);
+			const int 			&getFDFather();
 			const std::time_t	&getStartTime();
 			const std::string	&getInput(void);
 			const std::string	&getOutput(void);
@@ -73,32 +76,39 @@
 			void				setCgiFalse();
 
 			pollfd				clien_pollfd;
+			pollfd				cgi_pollfd_write[2];
+			pollfd				cgi_pollfd_read[2];
+			bool 				write;
 
-			cgi					*cg_i;
+			char 				*envp[4];
+			int					pipe_write[2];
+			int					pipe_read[2];
+			// cgi					*cg_i;
 	};
 
-	class	cgi
-	{
-		private :
-			int			socket_fd;
-			void 		init_cgi();
+	// class	cgi
+	// {
+	// 	private :
+	// 		bool		im_cgi;
+	// 		int			socket_fd;
+	// 		void 		init_cgi();
 
-		public :
-			cgi();
-			~cgi();
+	// 	public :
+	// 		cgi();
+	// 		~cgi();
 
-			const int &		getFfCgi();	
+	// 		const int &		getFfCgi();	
 
-			// char 			**envp;
-			std::vector<std::string>	envp;
-			pollfd						pollfd_cgi;
+	// 		std::vector<std::string>	envp;
+	// 		pollfd						pollfd_cgi;
 
-	};
+	// };
 
 	void	creat_client(monitoring &moni, int &fd, char **env);
 	void	responding(monitoring &moni, int &fd, char **env, int i);
 	void	error(monitoring &servor, pollfd &poll, int i);
-	void	read_client(monitoring &moni, int&fd);
-	void	raph(client &cl, char **env);
+	void	read_client(monitoring &moni, int&fd, int i);
+	void	raph(monitoring &moni, client &cl, char** env);
+	void 	start_CGI(monitoring &moni, client &cl);
 
 #endif

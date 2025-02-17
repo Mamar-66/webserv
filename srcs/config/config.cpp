@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:00:02 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/10 11:21:00 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/16 10:49:36 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ void	config::initHost(std::string& fileContent)
 			throw std::runtime_error("Error : Invalid address, host");
 	}
 	std::string adjustedContent = fileContent.substr(5);
-	std::vector<std::string> parts = split(adjustedContent, '.');
+	std::vector<std::string> parts = splitt(adjustedContent, '.');
 
     if (parts.size() != 4)
      throw std::runtime_error("Error : Address ip must have 4 parts, host");
@@ -175,7 +175,7 @@ void config::initError_page(std::string& fileContent)
 	else if (fileContent.compare(fileContent.length() - 1, 3, ";") != 0)
 		throw std::runtime_error("Error : Invalid endline, only ';' accepted, error_page");
 	std::string adjustedContent = fileContent.substr(11);
-	std::vector<std::string> parts = split(adjustedContent, ' ');
+	std::vector<std::string> parts = splitt(adjustedContent, ' ');
 	std::vector<int> error_codes;
 	std::string	name;
 	int	k = 0;
@@ -239,7 +239,7 @@ void	config::initClient(std::string& fileContent)
 		 throw std::runtime_error("Error : is duplicated, client_max_body_size");
 	if (countWords(fileContent) != 2)
 		throw std::runtime_error("Error : Too much Argument or not Enough, client_max_body_size");
-	std::vector<std::string> parts = split(fileContent, ' ');
+	std::vector<std::string> parts = splitt(fileContent, ' ');
     if (parts[0] != "client_max_body_size")
         throw std::runtime_error("Error : Invalid, client_max_body_size");
     std::string sizeValue = parts[1];

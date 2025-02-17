@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:06:45 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/14 11:03:29 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/17 09:55:28 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,10 +83,12 @@
 			std::vector<pollfd>		all_pollfd_servor;
 			std::vector<pollfd>		all_all_pollfd;
 			std::map<int, client*>	clients;
+
+			int						where_are_fd_pipe(const int &fd);
 	};
 
 	void					routine_servor(monitoring &moni, char **env);
 	std::vector<serveur*>	creat_servor(std::vector<std::string> &cut_str_serv);
-	bool 					compar(const int &fd, const std::vector<pollfd> &poll_servor);
+	bool 					compar(const int fd, const std::vector<pollfd> &poll_servor);
 
 #endif

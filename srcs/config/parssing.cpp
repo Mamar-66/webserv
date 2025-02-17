@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:04:12 by omfelk            #+#    #+#             */
-/*   Updated: 2025/01/28 14:55:41 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/16 10:50:00 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,7 @@ void	config::parsconfig(std::string& fileContent, std::map<std::string, Location
 	{
 		if (countWords(fileContent) != 3)
 			throw std::runtime_error("Error : maybe too Much or not Enough, Location");
-		std::vector<std::string> parts = split(fileContent, ' ');
+		std::vector<std::string> parts = splitt(fileContent, ' ');
 		if (parts[1][0] != '/')
 			throw std::runtime_error("Error : The second argument is invalid, it must begin with '/', Location");
 		else if (parts[2][0] != '{' || parts[2][1])
@@ -165,7 +165,7 @@ void	parsconfigL(std::string& fileContent, std::map<std::string, Location>& loca
 	{
 			if (countWords(fileContent) != 3)
 			throw std::runtime_error("Error : maybe too Much or not Enough, Location");
-		std::vector<std::string> parts = split(fileContent, ' ');
+		std::vector<std::string> parts = splitt(fileContent, ' ');
 		if (parts[1][0] != '/')
 			throw std::runtime_error("Error : The second argument is invalid, it must begin with '/', Location");
 		else if (parts[2][0] != '{' || parts[2][1])
@@ -223,7 +223,7 @@ void config::parseLocations(const std::vector<std::string>& lines, std::string& 
         if (line.find("location") != std::string::npos) {
             locationCount++;
 			chiant = normalizeSpaces(line);
-            std::vector<std::string> parts = split(chiant, ' ');
+            std::vector<std::string> parts = splitt(chiant, ' ');
             if (parts.size() >= 2) {
                 std::string locationPath = parts[1]; 
 				location.insert(std::make_pair(locationPath, Location()));
