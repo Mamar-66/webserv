@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:06:45 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/17 09:55:28 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/18 14:06:18 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,8 @@
 	#include <ctime>
 	
 	extern bool 		running;
-	extern std::time_t start;
-	extern std::time_t newnext;
+	extern std::time_t	start;
+	extern std::time_t	newnext;
 
 
 	#define MAX_CLIENTS 1000
@@ -87,7 +87,7 @@
 			int						where_are_fd_pipe(const int &fd);
 	};
 
-	void					routine_servor(monitoring &moni, char **env);
+	void					routine_servor(monitoring &moni);
 	std::vector<serveur*>	creat_servor(std::vector<std::string> &cut_str_serv);
 	bool 					compar(const int fd, const std::vector<pollfd> &poll_servor);
 

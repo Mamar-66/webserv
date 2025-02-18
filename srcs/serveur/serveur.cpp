@@ -41,6 +41,7 @@ int	serveur::creatSocket(const int &port)
 
 	if (bind(return_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
 	{
+		close(return_socket);
 		oss << errno;
 		throw std::runtime_error(RED "Error bind servor\nCode error : " + oss.str() + "\nError code value : " + std::string(strerror(errno)));
 	}
@@ -191,14 +192,10 @@ int	monitoring::where_are_fd_pipe(const int &fd)
 
 	for (; it != this->clients.end(); ++it)
 	{
-		// if (fd == it->second->pipe_write[0])
-		// 	return it->first;
 		if (fd == it->second->pipe_write[1])
 			return it->first;
 		else if (fd == it->second->pipe_read[0])
 			return it->first;
-		// else if (fd == it->second->pipe_read[1])
-		// 	return it->first;
 	}
 	return -1;
 }

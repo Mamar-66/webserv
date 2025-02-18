@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/17 13:55:02 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/18 14:00:52 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,32 +83,13 @@
 			char 				*envp[4];
 			int					pipe_write[2];
 			int					pipe_read[2];
-			// cgi					*cg_i;
 	};
 
-	// class	cgi
-	// {
-	// 	private :
-	// 		bool		im_cgi;
-	// 		int			socket_fd;
-	// 		void 		init_cgi();
-
-	// 	public :
-	// 		cgi();
-	// 		~cgi();
-
-	// 		const int &		getFfCgi();	
-
-	// 		std::vector<std::string>	envp;
-	// 		pollfd						pollfd_cgi;
-
-	// };
-
-	void	creat_client(monitoring &moni, int &fd, char **env);
-	void	responding(monitoring &moni, int &fd, char **env, int i);
+	void	creat_client(monitoring &moni, int &fd);
+	void	responding(monitoring &moni, int &fd, int i);
 	void	error(monitoring &servor, pollfd &poll, int i);
-	void	read_client(monitoring &moni, int&fd, int i);
-	void	raph(monitoring &moni, client &cl, char** env);
+	void	read_client(monitoring &moni, int&fd);
+	void	raph(monitoring &moni, client &cl);
 	void 	start_CGI(monitoring &moni, client &cl);
 
 #endif

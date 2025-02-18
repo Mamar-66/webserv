@@ -6,13 +6,13 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/17 15:03:39 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/18 14:06:29 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/serveur.hpp"
 
-void	monitorin(monitoring &moni, char **env)
+void	monitorin(monitoring &moni)
 {
 	size_t i = -1;
 
@@ -25,17 +25,17 @@ void	monitorin(monitoring &moni, char **env)
 
 		if (compar(moni.all_all_pollfd[i].fd, moni.all_pollfd_servor) && moni.all_all_pollfd[i].revents & POLLIN)
 		{
-			creat_client(moni, moni.all_all_pollfd[i].fd, env);
+			creat_client(moni, moni.all_all_pollfd[i].fd);
 		}
 		else if (!compar(moni.all_all_pollfd[i].fd, moni.all_pollfd_servor)
 			&& (moni.all_all_pollfd[i].revents & POLLIN) != 0)
 		{
-			read_client(moni, moni.all_all_pollfd[i].fd, i);
+			read_client(moni, moni.all_all_pollfd[i].fd);
 		}
 		else if (!compar(moni.all_all_pollfd[i].fd, moni.all_pollfd_servor)
 			&& (moni.all_all_pollfd[i].revents & POLLOUT) != 0)
 		{
-			responding(moni, moni.all_all_pollfd[i].fd, env, i);
+			responding(moni, moni.all_all_pollfd[i].fd, i);
 		}
 		else if (moni.all_all_pollfd[i].revents & POLLERR
 			|| moni.all_all_pollfd[i].revents & POLLHUP
@@ -46,7 +46,7 @@ void	monitorin(monitoring &moni, char **env)
 	}
 }
 
-void routine_servor(monitoring &moni, char **env)
+void routine_servor(monitoring &moni)
 {
 	try
 	{
@@ -54,8 +54,8 @@ void routine_servor(monitoring &moni, char **env)
 		{
 			for (int i = 0; i < (int)moni.all_all_pollfd.size(); i++)
 				moni.all_all_pollfd[i].revents = 0;
-			
-			monitorin(moni, env);
+
+			monitorin(moni);
 		}
 	}
 	catch (const std::exception &e)

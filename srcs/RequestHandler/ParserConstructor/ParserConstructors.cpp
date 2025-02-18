@@ -16,7 +16,7 @@ RequestIn& RequestIn::operator=(RequestIn& cpy) {
 }
 
 /* Default Constructor */
-RequestIn::RequestIn(const std::string& request, char **envp) {
+RequestIn::RequestIn(const std::string& request/* , char **envp */) {
     clientRequest = 100; //client value
     std::istringstream stream(request);
     std::string line;
@@ -24,10 +24,10 @@ RequestIn::RequestIn(const std::string& request, char **envp) {
     std::vector<std::string> vecEnv;
     std::string chEnv;
 
-    for (int i = 0; envp[i] != NULL; i++) {
-        chEnv = envp[i];
-        vecEnv.push_back(chEnv);
-    }
+    // for (int i = 0; envp[i] != NULL; i++) {
+    //     chEnv = envp[i];
+    //     vecEnv.push_back(chEnv);
+    // }
     vecEnv.push_back(chEnv);
 
     this->envVector = vecEnv;

@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 16:29:52 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/14 17:30:44 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/18 14:06:06 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,11 @@
 #include "../includes/config.hpp"
 
 // docker run --rm -t jstarcher/siege -c100 -r200 10.13.5.2:8080 | grep -v "HTTP"
+// valgrind --leak-check=full --track-fds=yes ./Webserv config/default.conf
 
 std::time_t 	start = std::time(NULL);
 std::time_t 	newnext = 0;
 bool 			running = true;
-
 
 void	signalHandler_ctrC(int signal)
 {
@@ -28,9 +28,8 @@ void	signalHandler_ctrC(int signal)
 		running = false;
 }
 
-void init(int argc, char **argv, char **env)
+void init(int argc, char **argv)
 {
-	(void)env;
 	std::vector<pollfd>		allPollFd;
 
 	std::vector<std::string> cut_str_serv = cut_conf_serv(argc, argv[1]);
@@ -51,7 +50,7 @@ void init(int argc, char **argv, char **env)
 
 		monitoring 				moni(allPollFd);
 
-		routine_servor(moni, env);
+		routine_servor(moni);
 	}
 	catch (const std::exception &e)
 	{
@@ -63,12 +62,12 @@ void init(int argc, char **argv, char **env)
 	servors.clear();
 }
 
-int main(int argc, char **argv, char **env)
+int main(int argc, char **argv)
 {
 	try 
 	{
 		std::signal(SIGINT, signalHandler_ctrC);
-		init(argc, argv, env);
+		init(argc, argv);
 	}
 	catch (const std::exception &e)
 	{
@@ -77,4 +76,3 @@ int main(int argc, char **argv, char **env)
 
 	return 1;
 }
-

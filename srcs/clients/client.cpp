@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/17 17:35:37 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/18 16:17:22 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,14 +91,12 @@ client::~client()
 		close(this->socket_fd);
 		std::cout << RED "delete client whith close fd : " << this->socket_fd << RESET << std::endl;
 
-		if (this->envp[0] != NULL)
-		{
-			int size = (int)sizeof(envp) / sizeof(envp[0]);
-			for (int i = 0; i < size - 1; ++i)
-				delete this->envp[i];
-		}
 		if (this->getStatusCgi())
 		{
+			int size = (int)sizeof(envp) / sizeof(envp[0]);
+			for (int i = 0; i < size; ++i)
+				free(this->envp[i]);
+
 			close(this->pipe_write[0]);
 			close(this->pipe_write[1]);
 			close(this->pipe_read[0]);
@@ -199,8 +197,34 @@ std::string url_decode(const std::string &url) {
     return decoded;
 }
 
-
 std::string	read_request(const int &fd_client)
+{
+	std::string	return_str;
+	char 		buff[2048];
+	short		byte_read;
+
+	do
+	{
+		std::memset(buff, 0, sizeof(buff));
+		byte_read = recv(fd_client, buff, sizeof(buff), MSG_DONTWAIT);
+
+		if (byte_read > 0)
+            return_str.append(buff, byte_read);
+		if (byte_read == -1)
+		{
+			std::cerr << "sortie recv -1" << std::endl;
+		}
+		if (byte_read == 0)
+		{
+			std::cerr << "sortie recv 0" << std::endl;
+		}
+
+	} while (byte_read > 0);
+
+	return url_decode(return_str);
+}
+
+std::string	read_request_cgi(const int &fd_client)
 {
 	std::string	return_str;
 	char 		buff[2048];
@@ -233,9 +257,8 @@ std::string	read_request(const int &fd_client)
 	return url_decode(return_str);
 }
 
-void	creat_client(monitoring &moni, int &fd, char** env)
+void	creat_client(monitoring &moni, int &fd)
 {
-	(void)env;
 	client *new_client = NULL;
 
 	int tmp_fd_client = accept(fd, NULL, NULL);
@@ -252,48 +275,42 @@ void	creat_client(monitoring &moni, int &fd, char** env)
 	moni.all_all_pollfd.push_back(new_client->clien_pollfd);
 }
 
-void	read_client(monitoring &moni, int &fd, int i)
+void	read_client(monitoring &moni, int &fd)
 {
-	(void)i;
-	std::cout << "Client prêt à etre lu fd : " << fd << std::endl;
-	std::string read_text = read_request(fd);
-
+	// std::cout << "Client prêt à etre lu fd : " << fd << std::endl;
 	std::map<int, client *>::iterator it = moni.clients.find(fd);
 
-	if (it == moni.clients.end() && !read_text.empty())
+	if (it == moni.clients.end())
 	{
+		std::string read_text = read_request_cgi(fd);
 		int tmp_fd = moni.where_are_fd_pipe(fd);
-		std::cout << "client cgi ok read fd " << fd <<  "tmp : " << tmp_fd << read_text << std::endl;
+		if (tmp_fd == -1)
+			std::cout << RED "error where_are_fd_pipe" RESET << std::endl;
 
-		ssize_t bytes_sent = send(tmp_fd, read_text.c_str(), read_text.size(), 0);
-		if (bytes_sent == -1)
-			throw std::runtime_error(RED "Erreur lors de l'envoi des données dans read_client");
+		// std::cout << "client cgi ok read fd " << fd << "tmp : " << tmp_fd << read_text << std::endl;
 
-		moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
-		delete moni.clients[tmp_fd];
-		moni.clients.erase(tmp_fd);
+		moni.clients[tmp_fd]->setOutput(read_text);
 	}
-	else if (!read_text.empty() && it != moni.clients.end())
+	else if (it != moni.clients.end())
 	{
+		std::string read_text = read_request(fd);
 		moni.clients[fd]->setInput(read_text);
-		std::cout << RED "input from read_client  fd : " << moni.clients[fd]->getFD() << " " << read_text << RESET << std::endl;
+		// std::cout << RED "input from read_client  fd : " << moni.clients[fd]->getFD() << " " << read_text << RESET << std::endl;
 	}
 }
 
-void	responding(monitoring &moni, int &fd, char **env, int i)
+void	responding(monitoring &moni, int &fd, int i)
 {
-	// std::cout << "Client prêt à recevoir fd : " << fd << std::endl;
-
 	std::map<int, client*>::iterator it = moni.clients.find(fd);
 
 	if (it == moni.clients.end())
 	{
-		std::cout << "client cgi ok write fd " << fd << std::endl;
+		// std::cout << "client cgi ok write fd " << fd << std::endl;
 		int tmp_fd = moni.where_are_fd_pipe(fd);
 		if (tmp_fd == -1)
-			std::cerr << "error tmp_fd where_are_fd_pipe" << std::endl;
+			std::cerr << RED "error tmp_fd where_are_fd_pipe" RESET << std::endl;
 
-		std::cout << "tmp : " << tmp_fd << "input : " << (*moni.clients[tmp_fd]).getInput().size() << std::endl;
+		// std::cout << "tmp : " << tmp_fd << "input : " << (*moni.clients[tmp_fd]).getInput().size() << std::endl;
 
 		ssize_t bytes_sentt = write(fd, (*moni.clients[tmp_fd]).getInput().c_str(), (*moni.clients[tmp_fd]).getInput().size());
 		if (bytes_sentt == -1)
@@ -301,23 +318,31 @@ void	responding(monitoring &moni, int &fd, char **env, int i)
 
 		std::cout << "write ok dans pipe" << std::endl;
 
-		// close(moni.clients[tmp_fd]->pipe_write[1]);
-		// close(moni.all_all_pollfd[i].fd);
 		moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
+	}
+	else if (moni.clients[fd]->getStatusCgi() && !moni.clients[fd]->getOutput().empty())
+	{
+		ssize_t bytes_sent = send(fd, moni.clients[fd]->getOutput().c_str(), moni.clients[fd]->getOutput().size(), 0);
+		if (bytes_sent == -1)
+			throw std::runtime_error(RED "Erreur lors de l'envoi des données dans read_client");
+
+		moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
+		delete moni.clients[fd];
+		moni.clients.erase(fd);
 	}
 	else if (!moni.clients[fd]->getStatusCgi())
 	{
-		if (!(*moni.clients[fd]).getInput().empty() && !(*moni.clients[fd]).getStatusCgi())
-			raph(moni, *moni.clients[fd], env);
+		if (!(*moni.clients[fd]).getInput().empty())
+			raph(moni, *moni.clients[fd]);
 
-		if (!(*moni.clients[fd]).getStatusCgi())
+		if (!(*moni.clients[fd]).getStatusCgi() && !(*moni.clients[fd]).getOutput().empty())
 		{
-			std::cout << ORANGE "Input from responding fd " << (*moni.clients[fd]).getFD() << "= " << BLUE << (*moni.clients[fd]).getInput() << RESET << std::endl;
+			// std::cout << ORANGE "Input from responding fd " << (*moni.clients[fd]).getFD() << "= " << BLUE << (*moni.clients[fd]).getInput() << RESET << std::endl;
 
 			ssize_t bytes_sent = send((*moni.clients[fd]).getFD(), (*moni.clients[fd]).getOutput().c_str(), (*moni.clients[fd]).getOutput().size(), 0);
 			if (bytes_sent == -1)
 				throw std::runtime_error(RED "Erreur lors de l'envoi des données dans responding");
-			std::cout << GREEN "Réponse : OK" RESET << std::endl;
+			// std::cout << GREEN "Réponse : OK" RESET << std::endl;
 
 			delete moni.clients[fd];
 			moni.clients.erase(fd);
@@ -328,7 +353,7 @@ void	responding(monitoring &moni, int &fd, char **env, int i)
 
 void	error(monitoring &moni, pollfd &poll, int i)
 {
-	std::cout << "dans error fd : " << poll.fd << std::endl;
+	// std::cout << "dans error fd : " << poll.fd << std::endl;
 	client *cl = moni.clients[poll.fd];
 	std::map<int, client *>::iterator it = moni.clients.find(poll.fd);
 
@@ -349,10 +374,10 @@ void	error(monitoring &moni, pollfd &poll, int i)
 	moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
 }
 
-void	raph(monitoring &moni, client &cl, char** env)
+void	raph(monitoring &moni, client &cl)
 {
 	/* reponce */
-	RequestIn test(cl.getInput(), env);
+	RequestIn test(cl.getInput());
     // std::cout << test.getCode() << std::endl;
     // std::cout << "---------------" << std::endl;
     if (test.getCode() == 200) {

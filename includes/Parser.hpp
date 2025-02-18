@@ -49,7 +49,7 @@ class RequestIn {
         RequestIn& operator=(RequestIn& cpy);
 
     public:
-        RequestIn(const std::string& request, char **envp);
+        RequestIn(const std::string& request/* , char **envp */);
         ~RequestIn();
 
         void checkErrorHTTPHeaders( void );
