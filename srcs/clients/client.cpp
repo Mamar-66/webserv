@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/23 12:48:06 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/23 23:57:48 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,6 +152,14 @@ void client::setCgiFalse()
 
 /* --------------------------------------------------- */
 
+void	delete_client(monitoring &moni, int fd, int i)
+{
+	delete moni.clients[fd];
+	moni.clients.erase(fd);
+	moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
+}
+
+
 std::string	client::read_request(const int &fd_client)
 {
 	std::string	return_str;
@@ -184,9 +192,6 @@ std::string	client::read_request(const int &fd_client)
 				this->content_real += byte_read;
 		}
 
-		// std::cout << "byte read " << byte_read << std::endl;
-		// std::cout << "byte read " << content_real << std::endl;
-		// std::cout << "okoko " << this->content_lenght << std::endl;
 		if (byte_read == 0 || byte_read == -1)
 		{
 			std::cerr << "sortie recv 0" << std::endl;
@@ -203,7 +208,7 @@ std::string	client::read_request_cgi(const int &fd_client)
 	std::string	return_str;
 	char 		buff[4096];
 	short		byte_read;
-	// size_t		content_lenght_pos = 0;
+	size_t		content_lenght_pos = 0;
 
 	int flags = fcntl(fd_client, F_GETFL, 0);
 	if (flags == -1)
@@ -219,26 +224,28 @@ std::string	client::read_request_cgi(const int &fd_client)
 		if (byte_read > 0)
 		{
 			return_str.append(buff, byte_read);
-			// if (!this->first_pass)
-			// {
-			// 	content_lenght_pos = return_str.find("Content-Length: ");
-			// 	if (content_lenght_pos != std::string::npos)
-			// 	{
+			if (!this->first_pass)
+			{
+				content_lenght_pos = return_str.find("Content-Length: ");
+				if (content_lenght_pos != std::string::npos)
+				{
 
-			// 		content_lenght_pos += 16;
-			// 		size_t end_pos = return_str.find("\r\n\r\n", content_lenght_pos);
-			// 		this->content_lenght = std::atoi(return_str.substr(content_lenght_pos, end_pos - content_lenght_pos).c_str());
-			// 		this->first_pass = true;
-			// 		this->content_lenght += end_pos + 4;
-			// 	}
-			// }
-			// if (this->first_pass)
-			// 	this->content_real += byte_read;
-			if (byte_read == 0 || byte_read == -1)
+					content_lenght_pos += 16;
+					size_t end_pos = return_str.find("\r\n\r\n", content_lenght_pos);
+					this->content_lenght = std::atoi(return_str.substr(content_lenght_pos, end_pos - content_lenght_pos).c_str());
+					this->first_pass = true;
+					this->content_lenght += end_pos + 4;
+				}
+			}
+			if (this->first_pass)
+				this->content_real += byte_read;
+			if (byte_read == 0)
 			{
 				std::cerr << "sortie recv 0" << std::endl;
 				break;
 			}
+			if (byte_read == -1)
+				return "-1";
 		}
 	}
 	while (byte_read > 0);
@@ -264,21 +271,27 @@ void	creat_client(monitoring &moni, int &fd)
 	moni.all_all_pollfd.push_back(new_client->clien_pollfd);
 }
 
-void	read_client(monitoring &moni, int &fd)
+void	read_client(monitoring &moni, int &fd, int i)
 {
 	// std::cout << "Client prêt à etre lu fd : " << fd << std::endl;
 	std::map<int, client *>::iterator it = moni.clients.find(fd);
 
 	if (it == moni.clients.end())
 	{
-		std::string read_text = moni.clients[fd]->read_request_cgi(fd);
 		int tmp_fd = moni.where_are_fd_pipe(fd);
 		if (tmp_fd == -1)
 			std::runtime_error(RED "throw error where_are_fd_pipe");
+		std::string read_text = moni.clients[tmp_fd]->read_request_cgi(fd);
 
 		std::cout << "client cgi ok read fd " << fd << "tmp : " << tmp_fd << read_text << std::endl;
 
 		moni.clients[tmp_fd]->setOutput(read_text);
+		if (moni.clients[tmp_fd]->content_real >= moni.clients[tmp_fd]->content_lenght)
+		{
+			close((*moni.clients[tmp_fd]).pipe_read[1]);
+			close((*moni.clients[tmp_fd]).pipe_read[0]);
+			moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
+		}
 	}
 	else
 	{
@@ -309,11 +322,12 @@ void	responding(monitoring &moni, int &fd, int i)
 
 		close((*moni.clients[tmp_fd]).pipe_write[1]);
 		close((*moni.clients[tmp_fd]).pipe_write[0]);
-
-		// close((*moni.clients[tmp_fd]).pipe_read[1]);
-		// close((*moni.clients[tmp_fd]).pipe_read[0]);
-		std::cout << "write ok dans pipe" << std::endl;
 		moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
+
+		std::cout << "write ok dans pipe" << std::endl;
+
+		(*moni.clients[tmp_fd]).first_pass = false;
+		(*moni.clients[tmp_fd]).content_real = 0;
 	}
 	else if (moni.clients[fd]->getStatusCgi() && !moni.clients[fd]->getOutput().empty())
 	{
@@ -321,32 +335,27 @@ void	responding(monitoring &moni, int &fd, int i)
 		if (bytes_sent == -1)
 			throw std::runtime_error(RED "Erreur lors de l'envoi des données dans read_client");
 
-		moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
-		delete moni.clients[fd];
-		moni.clients.erase(fd);
+		std::cout << "cgie repondu" << std::endl;
+	
+		delete_client(moni, fd, i);
 	}
 	else if (!moni.clients[fd]->getStatusCgi())
 	{
-		if (!(*moni.clients[fd]).getInput().empty() && (*moni.clients[fd]).content_real >= (*moni.clients[fd]).content_lenght) {
-			std::ofstream fi("textOmar.txt");
-			fi << (*moni.clients[fd]).getInput().size();
-			raph(moni, *moni.clients[fd]);
+		if (!(*moni.clients[fd]).getInput().empty() && (*moni.clients[fd]).content_real >= (*moni.clients[fd]).content_lenght)
+		{
+			if (raph(moni, *moni.clients[fd]))
+				return;
 		}
-
 		if (!(*moni.clients[fd]).getStatusCgi() && !(*moni.clients[fd]).getOutput().empty())
 		{
 			std::cout << ORANGE "Input from responding fd " << (*moni.clients[fd]).getFD() << "= " << BLUE << (*moni.clients[fd]).getInput() << RESET << std::endl;
-
-			
 
 			ssize_t bytes_sent = send((*moni.clients[fd]).getFD(), (*moni.clients[fd]).getOutput().c_str(), (*moni.clients[fd]).getOutput().size(), 0);
 			if (bytes_sent == -1)
 				throw std::runtime_error(RED "Erreur lors de l'envoi des données dans responding");
 			// std::cout << GREEN "Réponse : OK" RESET << std::endl;
 
-			delete moni.clients[fd];
-			moni.clients.erase(fd);
-			moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
+			delete_client(moni, fd, i);
 		}
 	}
 }
@@ -369,16 +378,12 @@ void	error(monitoring &moni, pollfd &poll, int i)
 	else if (poll.revents & POLLNVAL)
 		std::cout <<RED << "POLLNVAL" << RESET << std::endl;
 
-	delete moni.clients[poll.fd];
-	moni.clients.erase(poll.fd);
-	moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
+	delete_client(moni, poll.fd, i);
 }
 
-void	raph(monitoring &moni, client &cl)
+bool	raph(monitoring &moni, client &cl)
 {
 	/* reponce */
-	std::ofstream fi("textRaf2.txt");
-	fi << cl.getInput().size();
 	RequestIn test(cl.getInput());
     // std::cout << test.getCode() << std::endl;
     // std::cout << "---------------" << std::endl;
@@ -397,7 +402,12 @@ void	raph(monitoring &moni, client &cl)
     }
 	std::string response = test.makeResponse(moni, cl);
 
+	std::cout << "responce : " << response << std::endl;
+
+	if (response == "cgi")
+		return true;
 	cl.setOutput(response);
+	return false;
 }
 
 bool compar(const int fd, const std::vector<pollfd> &poll_servor)

@@ -28,7 +28,7 @@ std::string checkRedir(std::string& ch) { //, ParseConfig& conf) {
     std::map<std::string, std::string> mapRedir;
 
     mapRedir["/d"] = "./";
-    mapRedir["/e"] = "/exemple1-2";
+    mapRedir["/e"] = "/conect/index.html";
     mapRedir["/d/d"] = "/exemple2-1";
     mapRedir["/d/e"] = "/exemple2-2";
     mapRedir["/e/d"] = "/exemple2-3";

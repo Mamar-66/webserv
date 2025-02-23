@@ -174,8 +174,7 @@ std::string RequestIn::makeResponse(monitoring &moni, client &cl) {
 	{
 		init_envp(cl);
 		start_CGI(moni, cl);
-		return "";
-		// exit(1);
+		return "cgi";
 	}
 	else if (this->method == "POST") {
 		vectorElems = this->PushResponse();

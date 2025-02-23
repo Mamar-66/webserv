@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/23 12:17:47 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/23 23:51:32 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,8 +93,8 @@
 	void	creat_client(monitoring &moni, int &fd);
 	void	responding(monitoring &moni, int &fd, int i);
 	void	error(monitoring &servor, pollfd &poll, int i);
-	void	read_client(monitoring &moni, int&fd);
-	void	raph(monitoring &moni, client &cl);
+	void	read_client(monitoring &moni, int &fd, int i);
+	bool	raph(monitoring &moni, client &cl);
 	void 	start_CGI(monitoring &moni, client &cl);
 
 #endif

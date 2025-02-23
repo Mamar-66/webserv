@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/23 11:05:44 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/23 20:28:34 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void	monitorin(monitoring &moni)
 		else if (!compar(moni.all_all_pollfd[i].fd, moni.all_pollfd_servor)
 			&& (moni.all_all_pollfd[i].revents & POLLIN) != 0)
 		{
-			read_client(moni, moni.all_all_pollfd[i].fd);
+			read_client(moni, moni.all_all_pollfd[i].fd, i);
 		}
 		else if (!compar(moni.all_all_pollfd[i].fd, moni.all_pollfd_servor)
 			&& (moni.all_all_pollfd[i].revents & POLLOUT) != 0)

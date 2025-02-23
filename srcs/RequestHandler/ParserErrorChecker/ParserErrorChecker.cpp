@@ -109,9 +109,7 @@ void RequestIn::checkErrorHTTPHeaders( void /* ParseConfig& config */) {
 }
 
 void RequestIn::checkErrorHTTPBody( void /* ParseConfig& config */) {
-    std::ofstream fi("test2.txt");
-
-    fi << this->length << " :: " << static_cast<int>(this->body.size()) << std::endl;
+	
     if (this->length != static_cast<int>(this->body.size())) {
         this->codeHTTP = 400;
         return ;

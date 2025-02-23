@@ -129,6 +129,7 @@ import time
 
 
 import sys
+import time
 
 data = sys.stdin.read();
 
@@ -180,12 +181,17 @@ html_content = """
 # Construction de la réponse HTTP avec en-têtes pour code 200
 response = "HTTP/1.1 200 OK\r\n"  # Code 200 pour OK
 response += "Content-Type: text/html; charset=UTF-8\r\n"  # Type du contenu
-response += "Content-Length: {}\r\n".format(len(html_content))  # Longueur du contenu
+# response += "Content-Length: {}\r\n".format(len(html_content))  # Longueur du contenu
 response += "Connection: close\r\n"  # Connexion fermée après la réponse
 response += "\r\n"  # Ligne vide pour séparer l'en-tête du corps
-response += html_content  # Corps de la réponse contenant du HTML
+
+
+time.sleep(2)
+
+print(response)
+  # Corps de la réponse contenant du HTML
 
 # Afficher la réponse complète (en-tête + corps)
-print(response)
+print(html_content)
 
 

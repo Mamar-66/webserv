@@ -6,20 +6,22 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/14 16:58:02 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/21 11:45:25 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/23 21:07:15 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include	"../../includes/client.hpp"
+
 #include <sys/wait.h>
+
 void	config_cgi(monitoring &moni, client &cl)
 {
 	cl.setCgiTrue();
 
 	if (pipe(cl.pipe_write) == -1 || pipe(cl.pipe_read) == -1)
 		throw std::runtime_error("Erreur de pipe");
-	// std::cout << BLUE "client fd = " << cl.getFD() << " " << "pipe fd == " << cl.pipe_write[0] << " " << cl.pipe_write[1] << std::endl;
-	// std::cout << BLUE "client fd = " << cl.getFD() << " " << "pipe fd == " << cl.pipe_read[0] << " " << cl.pipe_read[1] << std::endl;
+	std::cout << BLUE "client fd = " << cl.getFD() << " " << "pipe fd == " << cl.pipe_write[0] << " " << cl.pipe_write[1] << RESET << std::endl;
+	std::cout << BLUE "client fd = " << cl.getFD() << " " << "pipe fd == " << cl.pipe_read[0] << " " << cl.pipe_read[1] << RESET << std::endl;
 
 	cl.cgi_pollfd_write[0].fd = cl.pipe_write[0];
 	cl.cgi_pollfd_write[0].events = POLLIN | POLLOUT;
@@ -50,6 +52,7 @@ void	config_cgi(monitoring &moni, client &cl)
 
 		close(cl.pipe_write[0]);
 		close(cl.pipe_write[1]);
+
 		if (dup2(cl.pipe_read[1], STDOUT_FILENO) == -1)
 			throw std::runtime_error(RED "error from dup2 stdout");
 
@@ -63,6 +66,8 @@ void	config_cgi(monitoring &moni, client &cl)
 
 		if (execve(argv[0], argv, cl.envp) == -1)
 			std::cout << BLUE << "exerve failled" << argv[0] << RESET << std::endl;
+		close(cl.pipe_read[0]);
+		close(cl.pipe_read[1]);
 	}
 	else
 	{
