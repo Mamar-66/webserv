@@ -2,19 +2,29 @@
 #include "../../includes/serveur.hpp"
 #include "Location.hpp"
 
-monitoring::monitoring(std::vector<pollfd> allPollFd) : all_pollfd_servor(allPollFd), all_all_pollfd(allPollFd)
+monitoring::monitoring()
 {
 
 }
 
 monitoring::~monitoring()
 {
-	if (clients.size() > 0)
+	if (this->clients.size() > 0)
 	{
 		for (std::map<int, client*>::iterator it = this->clients.begin(); it != this->clients.end(); ++it)
 			delete it->second;
 	}
-	clients.clear();
+	if (this->servors.size() > 0)
+	{
+		std::set<serveur*> free_servor;
+
+		for (std::map<int, serveur*>::iterator it = this->servors.begin(); it != this->servors.end(); ++it)
+				free_servor.insert(it->second);
+		for(std::set<serveur*>::iterator it = free_servor.begin(); it != free_servor.end(); ++it)
+			delete *it;
+	}
+	this->clients.clear();
+	this->servors.clear();
 }
 
 /* -------------------------------------------------------- */
@@ -32,6 +42,9 @@ int	serveur::creatSocket(const int &port)
 		oss << errno;
 		throw std::runtime_error(RED "Error create socket server\nCode error : " + oss.str() + "\nError code value : " + std::string(strerror(errno)));
 	}
+
+	int opt = 1;
+	setsockopt(return_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
 	memset(&server_addr, 0, sizeof(server_addr));
 
@@ -56,7 +69,7 @@ int	serveur::creatSocket(const int &port)
 	this->pfd.events = POLLIN;
 	this->pfd.revents = 0;
 
-	std::cout << ORANGE "hello constructor from serveur FD = " << return_socket << RESET << std::endl;
+	std::cout << ORANGE "hello constructor from serveur " << this->config_name << " FD = " << return_socket << RESET << std::endl;
 
 	return return_socket;
 }
@@ -66,13 +79,14 @@ void serveur::addConfig(const std::string &strConfig)
 		std::string current;
 		std::vector<std::string> lines = splitLines(strConfig);
 		parseLocations(lines, current);
+
    		for (size_t i = 0; i < lines.size(); ++i)
 		{
 			lines[i] = normalizeSpaces(lines[i]);
 			if (this->op == true && location[current].op == true)
-					parsconfigL(lines[i], location, current);
+				parsconfigL(lines[i], location, current);
 			else
-					parsconfig(lines[i], location, current);
+				parsconfig(lines[i], location, current);
 		}
 		if (location[current].op == true || this->op == true)
 				throw std::runtime_error("Error : missing '{' or '}'");
@@ -145,14 +159,6 @@ serveur::~serveur()
 /* ----------------------- GETTER ------------------------- */
 /* -------------------------------------------------------- */
 
-// const int &serveur::getFD()
-// {
-// 	return this->socket_fd;
-// }
-// const int &serveur::isServ(const int &fd)
-// {
-// 	return this->socket_fd;
-// }
 
 /* -------------------------------------------------- */
 

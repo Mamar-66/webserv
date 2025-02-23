@@ -6,14 +6,14 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 16:29:52 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/18 14:06:06 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/23 11:06:44 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/serveur.hpp"
 #include "../includes/config.hpp"
 
-// docker run --rm -t jstarcher/siege -c100 -r200 10.13.5.2:8080 | grep -v "HTTP"
+// docker run --rm -t jstarcher/siege -b -c100 -r200 10.13.5.2:8080 | grep -v "HTTP"
 // valgrind --leak-check=full --track-fds=yes ./Webserv config/default.conf
 
 std::time_t 	start = std::time(NULL);
@@ -30,25 +30,15 @@ void	signalHandler_ctrC(int signal)
 
 void init(int argc, char **argv)
 {
-	std::vector<pollfd>		allPollFd;
+	monitoring	moni;
 
 	std::vector<std::string> cut_str_serv = cut_conf_serv(argc, argv[1]);
-	std::vector<serveur*> servors = creat_servor(cut_str_serv);
+	creat_servor(cut_str_serv, moni);
 
 	try 
 	{
-		if (!servors.empty())
-		{
-			for (int i = 0; i < (int)servors.size(); ++i)
-			{
-				for (int j = 0; j < (int)servors[i]->all_pollfd.size(); ++j)
-				{
-					allPollFd.push_back(servors[i]->all_pollfd[j]);
-				}
-			}
-		}
-
-		monitoring 				moni(allPollFd);
+		if (moni.servors.empty())
+			throw std::runtime_error(RED "Error servors not existed");
 
 		routine_servor(moni);
 	}
@@ -56,10 +46,6 @@ void init(int argc, char **argv)
 	{
 		std::cerr << RED << e.what() << RESET << std::endl;
 	}
-
-	for (int i = 0; i < (int)servors.size(); ++i)
-		delete servors[i];
-	servors.clear();
 }
 
 int main(int argc, char **argv)

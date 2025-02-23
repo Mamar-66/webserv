@@ -30,10 +30,11 @@ std::string checkRedir(std::string& ch);
 std::string concatenateVectors(std::vector<std::string> vec);
 std::string loadPage(std::string& catFile);
 bool isTypeOk(MyVector<std::string> typesServer, std::string& typeAccepted);
-std::string getAdressesError( int HTTPCode /* ParseConfig& config */ );
 std::vector<std::string> makeAutoIndex( RequestIn& req );
 std::string checkCGI(std::string& str);
 std::vector<std::string> split(const std::string& str, char delimiter);
 MyStack<std::string> create1Stack(const std::string& ch);
 void addElemToStr(std::string& str, MyStack<std::string>& stack);
-
+std::string postGetBoundary(std::string& str);
+MyTriple<std::string, std::string, bool>  makeFilePost(RequestIn& input);
+void createFile(MyTriple<std::string, std::string, bool>& triple);

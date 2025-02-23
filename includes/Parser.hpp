@@ -40,6 +40,7 @@ class RequestIn {
         std::string mimeAccept;
         std::vector<std::string> envVector;
         int codeHTTP;
+        std::string boundary;
 
         int clientRequest; // Move into client class
 
@@ -74,14 +75,16 @@ class RequestIn {
         /* Getters */
         std::map<std::string, int> getMapCount( void );
 
+        int getLength( void );
+        
         std::string getMethod( void );
         std::string getProtocol( void );
-
-        int getLength( void );
         std::string getStringCode( void );
-        std::string getBody( void );
-        
+        std::string& getBody( void );
         std::string getMimeAccept( void );
+        std::string getBoundary( void );
+
+
         std::vector<std::string> getVector( void );
         std::vector<std::string> getEnvVector( void );
 

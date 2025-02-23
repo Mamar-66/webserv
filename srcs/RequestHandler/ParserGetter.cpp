@@ -33,7 +33,7 @@ std::string RequestIn::getProtocol( void ) {
     return this->protocol;
 }
 
-std::string RequestIn::getBody( void ) {
+std::string& RequestIn::getBody( void ) {
     return body;
 }
 
@@ -47,4 +47,8 @@ std::string RequestIn::getMimeAccept( void ) {
 
 std::vector<std::string> RequestIn::getEnvVector( void ) {
     return this->envVector;
+}
+
+std::string RequestIn::getBoundary( void ) {
+    return this->boundary;
 }

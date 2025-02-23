@@ -64,6 +64,10 @@ RequestIn::RequestIn(const std::string& request/* , char **envp */) {
         line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
     }
     this->length = 0;
+    std::istreambuf_iterator<char> eos;
+    std::string s(std::istreambuf_iterator<char>(stream), eos);
+    this->body = s;
+    std::cout << ORANGE << "----------------------------------------------------------_>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " << this->body << "<<<<<<<<" << RESET << std::endl; 
 }
 
 RequestIn::~RequestIn() {}

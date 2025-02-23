@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:06:45 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/18 14:06:18 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/23 12:10:54 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 	#include <string>
 	#include <cstring>
 	#include <map>
+	#include <set>
 	#include <errno.h>
 	#include <sstream>
 	#include <csignal>
@@ -35,10 +36,9 @@
 	extern std::time_t	start;
 	extern std::time_t	newnext;
 
+	#define MAX_CLIENTS 10000
 
-	#define MAX_CLIENTS 1000
-
-			/* COLOR */
+	/* COLOR */
 	#define RED "\033[31m"
 	#define ORANGE "\033[38;5;208m"
 	#define GREEN "\033[32m"
@@ -75,20 +75,21 @@
 		private :
 
 		public :
-			monitoring(std::vector<pollfd> allPollFd);
+			monitoring();
 			~monitoring();
 
-			char **cpy_env;
+
 
 			std::vector<pollfd>		all_pollfd_servor;
 			std::vector<pollfd>		all_all_pollfd;
 			std::map<int, client*>	clients;
+			std::map<int, serveur*>	servors;
 
 			int						where_are_fd_pipe(const int &fd);
 	};
 
-	void					routine_servor(monitoring &moni);
-	std::vector<serveur*>	creat_servor(std::vector<std::string> &cut_str_serv);
-	bool 					compar(const int fd, const std::vector<pollfd> &poll_servor);
+	void		routine_servor(monitoring &moni);
+	void		creat_servor(std::vector<std::string> &cut_str_serv, monitoring &moni);
+	bool 		compar(const int fd, const std::vector<pollfd> &poll_servor);
 
 #endif

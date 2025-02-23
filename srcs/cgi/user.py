@@ -127,44 +127,12 @@ import time
 #!/usr/bin/env python3
 
 
-import sys
-import threading
-import time
-
-# Fonction de lecture dans un thread
-def read_line_from_stdin(result):
-    result.append(sys.stdin.readline().strip())
-
-# Fonction qui lit avec timeout
-def read_input_with_timeout(timeout):
-    result = []
-    
-    # Démarre un thread pour lire depuis stdin
-    thread = threading.Thread(target=read_line_from_stdin, args=(result,))
-    thread.start()
-
-    # Attends que le thread termine ou que le timeout expire
-    thread.join(timeout)
-
-    if thread.is_alive():
-        print("Timeout atteint, aucune donnée n'a été lue.")
-        return None
-    else:
-        return result[0] if result else None
-
-# Exemple de boucle de lecture avec timeout
-while True:
-    i = 0
-    line = read_input_with_timeout(0.1)
-
-        # print(f"Reçu : {line}")
-    if line:
-        i += 1
-    else:
-        break
-    time.sleep(0.1)
 
 import sys
+
+data = sys.stdin.read();
+
+
 
 html_content = """
 <!DOCTYPE html>

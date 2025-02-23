@@ -43,14 +43,8 @@ void RequestIn::checkErrorHTTPHeaders( void /* ParseConfig& config */) {
     }
 
     /* Check du corps de la requete (POST) */
-    std::vector<std::string> mimeAccepted;
-    mimeAccepted.push_back("text/html");
-    mimeAccepted.push_back("text/css");
-    mimeAccepted.push_back("application/javascript");
-    mimeAccepted.push_back("image/apng");
-    mimeAccepted.push_back("image/jpeg");
-    mimeAccepted.push_back("application/json");
-    mimeAccepted.push_back("text/plain") ; // config.getMimes();
+    MyVector<std::string> mimeAccepted;
+    mimeAccepted.push_back("multipart/form-data"); // config.getMimes();
 
     if (this->mapParse.find("Content-Length") != this->mapParse.end()) {
         std::istringstream stream2(this->mapParse["Content-Length"]);
@@ -100,8 +94,12 @@ void RequestIn::checkErrorHTTPHeaders( void /* ParseConfig& config */) {
         std::istringstream streamType(this->mapParse["Content-Type"]);
         std::string typeRequest;
         streamType >> typeRequest;
+        MyVector<std::string> vectorAccepted(typeRequest, ','); 
 
-        if (std::find(mimeAccepted.begin(), mimeAccepted.end(), typeRequest) == mimeAccepted.end()) {
+        std::cout << this->mapParse.find("Content-Type")->second << std::endl;
+        std::string chEq = vectorAccepted(mimeAccepted);
+        this->boundary = postGetBoundary(this->mapParse["Content-Type"]);
+        if (chEq == "NULL") {
             this->codeHTTP = 415;
             return ;
         }
@@ -111,7 +109,9 @@ void RequestIn::checkErrorHTTPHeaders( void /* ParseConfig& config */) {
 }
 
 void RequestIn::checkErrorHTTPBody( void /* ParseConfig& config */) {
-    std::cout << this->length << " :: " << this->body << static_cast<int>(this->body.size()) << std::endl;
+    std::ofstream fi("test2.txt");
+
+    fi << this->length << " :: " << static_cast<int>(this->body.size()) << std::endl;
     if (this->length != static_cast<int>(this->body.size())) {
         this->codeHTTP = 400;
         return ;
@@ -133,7 +133,7 @@ void RequestIn::checkErrorHTTPBody( void /* ParseConfig& config */) {
         streamType >> typeRequest;
         MyVector<std::string> vectorAccepted(typeRequest, ','); 
 
-        std::cout << this->mapParse.find("Accept")->second << std::endl;
+        // std::cout << this->mapParse.find("Accept")->second << std::endl;
         std::string chEq = vectorAccepted(mimeAccepted);
         if (chEq == "NULL") {
             this->codeHTTP = 406;

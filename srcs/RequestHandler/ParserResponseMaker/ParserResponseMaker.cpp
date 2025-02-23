@@ -178,7 +178,7 @@ std::string RequestIn::makeResponse(monitoring &moni, client &cl) {
 		// exit(1);
 	}
 	else if (this->method == "POST") {
-		vectorElems = this->PostResponse(cl.getInput());
+		vectorElems = this->PushResponse();
 	}
 	else if (this->method == "DELETE") {
         vectorElems = this->DeleteResponse();
@@ -190,6 +190,6 @@ std::string RequestIn::makeResponse(monitoring &moni, client &cl) {
     // for (std::vector<std::string>::iterator it=vectorElems.begin(); it < vectorElems.end(); it++) {
     //     std::cout << *it;
     // }
-    std::cout << "------------------------------" << std::endl;
+    // std::cout << "------------------------------" << std::endl;
     return concatenateVectors(vectorElems);
 }

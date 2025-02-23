@@ -22,6 +22,8 @@ SRC	=	main.cpp \
 		RequestHandler/ParserResponseMaker/ParserDeleteMaker.cpp \
 		RequestHandler/ParserResponseMaker/UtilsParserDeleteMaker.cpp \
 		RequestHandler/ParserResponseMaker/ParserResponseMaker.cpp \
+		RequestHandler/ParserResponseMaker/UtilsParserPostMaker.cpp \
+		RequestHandler/ParserResponseMaker/ParserPostMaker.cpp \
 		RequestHandler/ParserResponseMaker/UtilsParserResponseMaker.cpp \
 		RequestHandler/generalUtils.cpp \
 		RequestHandler/ParserGetter.cpp \
@@ -51,7 +53,9 @@ $(OBJ_PATH):
 			mkdir -p $(OBJ_PATH)/config
 			mkdir -p $(OBJ_PATH)/cgi
 			mkdir -p json
+			mkdir -p uploadServer
 			touch json/users.json
+			touch json/alreadyUsed.txt
 
 $(NAME): $(OBJS)
 	@echo "\033[0;33m\nCOMPILING \033[31m Webserv \033[0;33m ...\n"
@@ -62,7 +66,6 @@ $(CGI_tester): $(OBJS_CGI)
 	@echo "\033[0;33m\nCOMPILING \033[31m CGI_tester \033[0;33m ...\n"
 	c++ srcs/cgi/testeur.cpp -o $(CGI_tester)
 	@echo "\033[32m ./tester created\n"
-
 
 $(OBJ_PATH)%.o: $(SRC_PATH)%.cpp
 	$(CC) $(CFLAGS) -c $< -o $@ $(INCS)

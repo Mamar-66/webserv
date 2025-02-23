@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/18 14:00:52 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/23 12:17:47 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,14 +50,16 @@
 			std::time_t 	startTime;
 			std::string 	input;
 			std::string 	output;
-			size_t			size_body;
-			bool			listing;
 			bool			is_cgi;
 
 		public:
-			client(int fdsocket, size_t size_body, bool listing);
-			client(int fdsocket, int fdSocketFather,size_t size_body, bool listing);
+			client(int fdsocket, int fdFather);
 			~client();
+
+			size_t		content_lenght;
+			bool		chunked;
+			bool		first_pass;
+			size_t		content_real;
 
 						/* GETTER */
 			const int			&getFD(void);
@@ -83,6 +85,9 @@
 			char 				*envp[4];
 			int					pipe_write[2];
 			int					pipe_read[2];
+
+			std::string 		read_request(const int &fd_client);
+			std::string			read_request_cgi(const int &fd_client);
 	};
 
 	void	creat_client(monitoring &moni, int &fd);

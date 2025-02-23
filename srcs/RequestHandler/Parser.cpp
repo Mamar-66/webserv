@@ -241,7 +241,7 @@ void RequestIn::parseBody( void ) {
 std::vector<std::string> RequestIn::GetResponse( void /* ParseConfig& config */ ) {
     std::map<int, std::string> mapCode = initCodeMap();
 
-    std::string rootedDir = "./html"; /* Change with config.getRootDir() */
+    std::string rootedDir = "./html/conect"; /* Change with config.getRootDir() */
 
     std::vector<std::string> vectorElems;
 

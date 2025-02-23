@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/18 16:17:22 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/23 12:48:06 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,10 @@ int		creat_socket_cgi()
 	return return_socket;
 }
 
-client::client(int fdsocket, size_t size_body, bool listing) :
-socket_fd(fdsocket), socket_fd_father(0), size_body(size_body), listing(listing), is_cgi(false)
+client::client(int fdsocket, int fdFather) :
+socket_fd(fdsocket), socket_fd_father(fdFather),
+is_cgi(false), content_lenght(0), chunked(false), first_pass(false),
+content_real(0)
 {
 	this->startTime = std::time(NULL);
 	if (this->startTime == -1)
@@ -63,25 +65,6 @@ socket_fd(fdsocket), socket_fd_father(0), size_body(size_body), listing(listing)
 		this->envp[i] = NULL;
 
 	std::cout << GREEN "creat client fd : " << this->socket_fd << "time = " << this->startTime << RESET << std::endl;
-}
-
-client::client(int fdsocket, int fdSocketFather, size_t size_body, bool listing) : 
-socket_fd(fdsocket), socket_fd_father(fdSocketFather),
-size_body(size_body), listing(listing), is_cgi(false)
-{
-	this->startTime = std::time(NULL);
-	if (this->startTime == -1)
-		throw std::runtime_error(RED "Failed to get the current time" RESET);
-
-	this->clien_pollfd.fd = this->socket_fd;
-	this->clien_pollfd.events = POLLIN | POLLOUT;
-	this->clien_pollfd.revents = 0;
-
-	int size = (int)sizeof(envp) / sizeof(envp[0]);
-	for (int i = 0; i < size; ++i)
-		this->envp[i] = NULL;
-
-	std::cout << GREEN "creat client CGI fd : " << this->socket_fd << "time = " << this->startTime << RESET << std::endl;
 }
 
 client::~client()
@@ -109,7 +92,9 @@ client::~client()
 }
 
 /* -------------------------------------------------------- */
-/* -------------------- GETTER ---------------------------- */
+/* -------------------- GETTER ----------- 200
+Failed transactions:	           0
+----------------- */
 /* -------------------------------------------------------- */
 
 const int	&client::getFD()
@@ -142,23 +127,13 @@ const bool &client::getStatusCgi()
 	return this->is_cgi;
 }
 
-const size_t	&client::getSizeBody()
-{
-	return this->size_body;
-}
-
-const bool	&client::getListing()
-{
-	return this->listing;
-}
-
 /* -------------------------------------------------------- */
 /* -------------------- SETTER ---------------------------- */
 /* -------------------------------------------------------- */
 
 void	client::setInput(const std::string& str)
 {
-	this->input = str;
+	this->input.append(str);
 }
 
 void	client::setOutput(const std::string& str)
@@ -177,58 +152,58 @@ void client::setCgiFalse()
 
 /* --------------------------------------------------- */
 
-std::string url_decode(const std::string &url) {
-    std::string decoded = "";
-    for (size_t i = 0; i < url.length(); ++i) {
-        if (url[i] == '%' && i + 2 < url.length()) {
-            std::string hex = url.substr(i + 1, 2);
-            char decoded_char = 0;
-            if ((hex[0] >= '0' && hex[0] <= '9') || (hex[0] >= 'A' && hex[0] <= 'F') || (hex[0] >= 'a' && hex[0] <= 'f')) {
-                if ((hex[1] >= '0' && hex[1] <= '9') || (hex[1] >= 'A' && hex[1] <= 'F') || (hex[1] >= 'a' && hex[1] <= 'f')) {
-                    decoded_char = static_cast<char>(::strtol(hex.c_str(), NULL, 16));
-                    decoded += decoded_char;
-                    i += 2;
-                    continue;
-                }
-            }
-        }
-        decoded += url[i];
-    }
-    return decoded;
-}
-
-std::string	read_request(const int &fd_client)
+std::string	client::read_request(const int &fd_client)
 {
 	std::string	return_str;
-	char 		buff[2048];
+	char buff[4096];
 	short		byte_read;
+	size_t content_lenght_pos = 0;
 
 	do
 	{
 		std::memset(buff, 0, sizeof(buff));
-		byte_read = recv(fd_client, buff, sizeof(buff), MSG_DONTWAIT);
+		byte_read = recv(fd_client, buff, sizeof(buff) - 1, MSG_DONTWAIT);
 
 		if (byte_read > 0)
-            return_str.append(buff, byte_read);
-		if (byte_read == -1)
 		{
-			std::cerr << "sortie recv -1" << std::endl;
+            return_str.append(buff, byte_read);
+			if (!this->first_pass)
+			{
+				content_lenght_pos = return_str.find("Content-Length: ");
+				if (content_lenght_pos != std::string::npos)
+				{
+					
+					content_lenght_pos += 16;
+					size_t end_pos = return_str.find("\r\n\r\n", content_lenght_pos);
+					this->content_lenght = std::atoi(return_str.substr(content_lenght_pos, end_pos - content_lenght_pos).c_str());
+					this->first_pass = true;
+					this->content_lenght += end_pos + 4;
+				}
+			}
+			if (this->first_pass)
+				this->content_real += byte_read;
 		}
-		if (byte_read == 0)
+
+		// std::cout << "byte read " << byte_read << std::endl;
+		// std::cout << "byte read " << content_real << std::endl;
+		// std::cout << "okoko " << this->content_lenght << std::endl;
+		if (byte_read == 0 || byte_read == -1)
 		{
 			std::cerr << "sortie recv 0" << std::endl;
+			break;
 		}
 
 	} while (byte_read > 0);
 
-	return url_decode(return_str);
+	return return_str;
 }
 
-std::string	read_request_cgi(const int &fd_client)
+std::string	client::read_request_cgi(const int &fd_client)
 {
 	std::string	return_str;
-	char 		buff[2048];
+	char 		buff[4096];
 	short		byte_read;
+	// size_t		content_lenght_pos = 0;
 
 	int flags = fcntl(fd_client, F_GETFL, 0);
 	if (flags == -1)
@@ -242,19 +217,33 @@ std::string	read_request_cgi(const int &fd_client)
 		byte_read = read(fd_client, buff, sizeof(buff));
 
 		if (byte_read > 0)
-            return_str.append(buff, byte_read);
-		if (byte_read == -1)
 		{
-			std::cerr << "sortie recv -1" << std::endl;
-		}
-		if (byte_read == 0)
-		{
-			std::cerr << "sortie recv 0" << std::endl;
-		}
+			return_str.append(buff, byte_read);
+			// if (!this->first_pass)
+			// {
+			// 	content_lenght_pos = return_str.find("Content-Length: ");
+			// 	if (content_lenght_pos != std::string::npos)
+			// 	{
 
-	} while (byte_read > 0);
+			// 		content_lenght_pos += 16;
+			// 		size_t end_pos = return_str.find("\r\n\r\n", content_lenght_pos);
+			// 		this->content_lenght = std::atoi(return_str.substr(content_lenght_pos, end_pos - content_lenght_pos).c_str());
+			// 		this->first_pass = true;
+			// 		this->content_lenght += end_pos + 4;
+			// 	}
+			// }
+			// if (this->first_pass)
+			// 	this->content_real += byte_read;
+			if (byte_read == 0 || byte_read == -1)
+			{
+				std::cerr << "sortie recv 0" << std::endl;
+				break;
+			}
+		}
+	}
+	while (byte_read > 0);
 
-	return url_decode(return_str);
+	return return_str;
 }
 
 void	creat_client(monitoring &moni, int &fd)
@@ -265,9 +254,9 @@ void	creat_client(monitoring &moni, int &fd)
 	if (tmp_fd_client < 0)
 		throw std::runtime_error(RED "error from accept");
 
-	std::cout << ORANGE "creat client fd : " << tmp_fd_client << " from serveur : " << fd <<  RESET << std::endl;
+	// std::cout << ORANGE "creat client fd : " << tmp_fd_client << " from serveur : " << fd <<  RESET << std::endl;
 
-	new_client = new client(tmp_fd_client, 11111, true);
+	new_client = new client(tmp_fd_client, fd);
 	if (!new_client)
 		throw std::runtime_error(RED "error from 'new clien'");
 
@@ -282,18 +271,18 @@ void	read_client(monitoring &moni, int &fd)
 
 	if (it == moni.clients.end())
 	{
-		std::string read_text = read_request_cgi(fd);
+		std::string read_text = moni.clients[fd]->read_request_cgi(fd);
 		int tmp_fd = moni.where_are_fd_pipe(fd);
 		if (tmp_fd == -1)
-			std::cout << RED "error where_are_fd_pipe" RESET << std::endl;
+			std::runtime_error(RED "throw error where_are_fd_pipe");
 
-		// std::cout << "client cgi ok read fd " << fd << "tmp : " << tmp_fd << read_text << std::endl;
+		std::cout << "client cgi ok read fd " << fd << "tmp : " << tmp_fd << read_text << std::endl;
 
 		moni.clients[tmp_fd]->setOutput(read_text);
 	}
-	else if (it != moni.clients.end())
+	else
 	{
-		std::string read_text = read_request(fd);
+		std::string read_text = moni.clients[fd]->read_request(fd);
 		moni.clients[fd]->setInput(read_text);
 		// std::cout << RED "input from read_client  fd : " << moni.clients[fd]->getFD() << " " << read_text << RESET << std::endl;
 	}
@@ -310,14 +299,20 @@ void	responding(monitoring &moni, int &fd, int i)
 		if (tmp_fd == -1)
 			std::cerr << RED "error tmp_fd where_are_fd_pipe" RESET << std::endl;
 
-		// std::cout << "tmp : " << tmp_fd << "input : " << (*moni.clients[tmp_fd]).getInput().size() << std::endl;
+		std::cout << "tmp : " << tmp_fd << "input : " << (*moni.clients[tmp_fd]).getInput() << std::endl;
+
+		(*moni.clients[tmp_fd]).setInput("\n");
 
 		ssize_t bytes_sentt = write(fd, (*moni.clients[tmp_fd]).getInput().c_str(), (*moni.clients[tmp_fd]).getInput().size());
 		if (bytes_sentt == -1)
 			throw std::runtime_error(RED "write Erreur lors de l'envoi des données pour cgi dans responding");
 
-		std::cout << "write ok dans pipe" << std::endl;
+		close((*moni.clients[tmp_fd]).pipe_write[1]);
+		close((*moni.clients[tmp_fd]).pipe_write[0]);
 
+		// close((*moni.clients[tmp_fd]).pipe_read[1]);
+		// close((*moni.clients[tmp_fd]).pipe_read[0]);
+		std::cout << "write ok dans pipe" << std::endl;
 		moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
 	}
 	else if (moni.clients[fd]->getStatusCgi() && !moni.clients[fd]->getOutput().empty())
@@ -332,12 +327,17 @@ void	responding(monitoring &moni, int &fd, int i)
 	}
 	else if (!moni.clients[fd]->getStatusCgi())
 	{
-		if (!(*moni.clients[fd]).getInput().empty())
+		if (!(*moni.clients[fd]).getInput().empty() && (*moni.clients[fd]).content_real >= (*moni.clients[fd]).content_lenght) {
+			std::ofstream fi("textOmar.txt");
+			fi << (*moni.clients[fd]).getInput().size();
 			raph(moni, *moni.clients[fd]);
+		}
 
 		if (!(*moni.clients[fd]).getStatusCgi() && !(*moni.clients[fd]).getOutput().empty())
 		{
-			// std::cout << ORANGE "Input from responding fd " << (*moni.clients[fd]).getFD() << "= " << BLUE << (*moni.clients[fd]).getInput() << RESET << std::endl;
+			std::cout << ORANGE "Input from responding fd " << (*moni.clients[fd]).getFD() << "= " << BLUE << (*moni.clients[fd]).getInput() << RESET << std::endl;
+
+			
 
 			ssize_t bytes_sent = send((*moni.clients[fd]).getFD(), (*moni.clients[fd]).getOutput().c_str(), (*moni.clients[fd]).getOutput().size(), 0);
 			if (bytes_sent == -1)
@@ -377,17 +377,19 @@ void	error(monitoring &moni, pollfd &poll, int i)
 void	raph(monitoring &moni, client &cl)
 {
 	/* reponce */
+	std::ofstream fi("textRaf2.txt");
+	fi << cl.getInput().size();
 	RequestIn test(cl.getInput());
     // std::cout << test.getCode() << std::endl;
     // std::cout << "---------------" << std::endl;
     if (test.getCode() == 200) {
         test.checkErrorHTTPHeaders();
-        std::cout << test.getCode() << std::endl;
+        // std::cout << test.getCode() << std::endl;
     }
     // std::cout << test.getCode() << std::endl;
     if (test.getCode() == 200) {
         test.checkErrorHTTPBody();
-        std::cout << test.getCode() << std::endl;
+        // std::cout << test.getCode() << std::endl;
     }
     if (test.getCode() == 200) {
         test.parseBody();
@@ -400,13 +402,12 @@ void	raph(monitoring &moni, client &cl)
 
 bool compar(const int fd, const std::vector<pollfd> &poll_servor)
 {
-	if (fd)
+
+	for (int i = 0; i < (int)poll_servor.size(); ++i)
 	{
-		for (int i = 0; i < (int)poll_servor.size(); ++i)
-		{
-			if (fd == poll_servor[i].fd)
-				return true;
-		}
+		if (fd == poll_servor[i].fd)
+			return true;
 	}
+
 	return false;
 }

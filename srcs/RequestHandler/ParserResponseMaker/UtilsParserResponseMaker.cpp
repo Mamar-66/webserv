@@ -50,7 +50,6 @@ std::string concatenateVectors(std::vector<std::string> vec) {
         toReturn += *it;
     }
 
-    std::cout << "-----------------------------\n" << toReturn << "\n-----------------------------" << std::endl;
     return toReturn;
 
 
