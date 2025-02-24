@@ -16,6 +16,7 @@
 	#include "client.hpp"
 	#include "config.hpp"
 	#include "Location.hpp"
+	#include "Cookie.hpp"
 
 	#include <netinet/in.h>
 	#include <unistd.h>
@@ -84,6 +85,8 @@
 			std::vector<pollfd>		all_all_pollfd;
 			std::map<int, client*>	clients;
 			std::map<int, serveur*>	servors;
+
+			std::map<std::string, Cookie> mapCookie;
 
 			int						where_are_fd_pipe(const int &fd);
 	};

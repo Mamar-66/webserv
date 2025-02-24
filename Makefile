@@ -27,6 +27,8 @@ SRC	=	main.cpp \
 		RequestHandler/ParserResponseMaker/UtilsParserResponseMaker.cpp \
 		RequestHandler/generalUtils.cpp \
 		RequestHandler/ParserGetter.cpp \
+		Cookie/Cookies.cpp \
+		Cookie/UtilsCookie.cpp \
 		config/Location.cpp
 
 
@@ -52,6 +54,7 @@ $(OBJ_PATH):
 			mkdir -p $(OBJ_PATH)/clients
 			mkdir -p $(OBJ_PATH)/config
 			mkdir -p $(OBJ_PATH)/cgi
+			mkdir -p $(OBJ_PATH)/Cookie
 			mkdir -p json
 			mkdir -p uploadServer
 			touch json/users.json

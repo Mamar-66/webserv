@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/23 23:57:48 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/24 17:00:51 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,9 +92,7 @@ client::~client()
 }
 
 /* -------------------------------------------------------- */
-/* -------------------- GETTER ----------- 200
-Failed transactions:	           0
------------------ */
+/* -------------------- GETTER -----------------------------*/
 /* -------------------------------------------------------- */
 
 const int	&client::getFD()
@@ -150,6 +148,13 @@ void client::setCgiFalse()
 	this->is_cgi = false;
 }
 
+void	client::setActualTime()
+{
+	this->startTime = std::time(NULL);
+}
+
+/* --------------------------------------------------- */
+/* --------------------------------------------------- */
 /* --------------------------------------------------- */
 
 void	delete_client(monitoring &moni, int fd, int i)
@@ -159,6 +164,29 @@ void	delete_client(monitoring &moni, int fd, int i)
 	moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
 }
 
+bool	time_out(monitoring &moni, int fd, int i)
+{
+	int tmp_fd = fd;
+	time_t nowTime = std::time(NULL);
+	std::map<int, client*>::iterator it = moni.clients.find(fd);
+
+	if (fd > 0)
+	{
+		if (it == moni.clients.end())
+		{
+			tmp_fd = moni.where_are_fd_pipe(fd);
+			if (tmp_fd == -1)
+				return false;
+		}
+		if (nowTime - moni.clients[tmp_fd]->getStartTime() > 5)
+		{
+			std::cout << "Timeout for client fd : " << tmp_fd << std::endl;
+			delete_client(moni, tmp_fd, i);
+			return true;
+		}
+	}
+	return false;
+}
 
 std::string	client::read_request(const int &fd_client)
 {
@@ -190,6 +218,7 @@ std::string	client::read_request(const int &fd_client)
 			}
 			if (this->first_pass)
 				this->content_real += byte_read;
+			this->setActualTime();
 		}
 
 		if (byte_read == 0 || byte_read == -1)
@@ -384,7 +413,7 @@ void	error(monitoring &moni, pollfd &poll, int i)
 bool	raph(monitoring &moni, client &cl)
 {
 	/* reponce */
-	RequestIn test(cl.getInput());
+	RequestIn test(cl, moni);
     // std::cout << test.getCode() << std::endl;
     // std::cout << "---------------" << std::endl;
     if (test.getCode() == 200) {

@@ -4,12 +4,8 @@ std::vector<std::string> RequestIn::PushResponse( void /* ParseConfig& config */
     std::map<int, std::string> mapCode = initCodeMap();
     std::string rootedDir = "./html"; // CHANGE WITH CONF
     std::vector<std::string> vectorElems;
+    std::string sample201 = "./html/conect/utilsSample/uploadSucces.html";
 
-    vectorElems.push_back("HTTP/1.1 ");
-    vectorElems.push_back(intToString(this->codeHTTP));
-    vectorElems.push_back(" ");
-    vectorElems.push_back(this->stringCode);
-    vectorElems.push_back("\r\n");
 
     if (this->codeHTTP - 400 < 0) {
         MyTriple<std::string, std::string, bool> fileToSave = makeFilePost(*this);
@@ -25,11 +21,16 @@ std::vector<std::string> RequestIn::PushResponse( void /* ParseConfig& config */
 
         std::string htmlResponse;
         if (this->codeHTTP == 201) {
-            std::string catFile = rootedDir + this->uri + "index.html";
-            htmlResponse = loadPage(catFile);
+            htmlResponse = loadPage(sample201);
+            std::cout << GREEN << htmlResponse << RESET << std::endl;
         }
         else
             htmlResponse = "";
+        vectorElems.push_back("HTTP/1.1 ");
+        vectorElems.push_back(intToString(this->codeHTTP));
+        vectorElems.push_back(" ");
+        vectorElems.push_back(this->stringCode);
+        vectorElems.push_back("\r\n");
         vectorElems.push_back("Content-Type: text/html\r\n");
         vectorElems.push_back("Content-Length: ");
         vectorElems.push_back(intToString(static_cast<int>(htmlResponse.size()) - 1));
@@ -58,6 +59,11 @@ std::vector<std::string> RequestIn::PushResponse( void /* ParseConfig& config */
             htmlResponse = "";
 
 
+        vectorElems.push_back("HTTP/1.1 ");
+        vectorElems.push_back(intToString(this->codeHTTP));
+        vectorElems.push_back(" ");
+        vectorElems.push_back(this->stringCode);
+        vectorElems.push_back("\r\n");
         vectorElems.push_back("Content-Type: text/html\r\n");
         vectorElems.push_back("Content-Length: ");
         vectorElems.push_back(intToString(static_cast<int>(htmlResponse.size()) - 1));

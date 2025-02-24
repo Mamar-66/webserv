@@ -160,4 +160,17 @@ class MyVector {
         bool operator<(const MyVector<T1>& otr) {
             return this->vec < otr.vec;
         }
+
+        int findElem(T1& elem) {
+            for (int i = 0; i < this->size(); i++) {
+                if (elem == (*this)[i])
+                    return i;
+            }
+            return -1;
+        }
+        void erase(T1& elem) {
+            int pos = this->findElem(elem);
+            if (pos >= 0)
+                this->vec.erase(this->begin() + pos);
+        }
 };

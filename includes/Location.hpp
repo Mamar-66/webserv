@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sbarbe <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 15:19:22 by sbarbe            #+#    #+#             */
-/*   Updated: 2025/01/16 15:19:24 by sbarbe           ###   ########.fr       */
+/*   Updated: 2025/02/21 22:59:19 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ class Location
 		std::string					retur;
 		std::vector<std::string>	cgi_path;
 		std::vector<std::string>	cgi_ext;	
+		bool 						passwordDependent;
     protected:
 };
 

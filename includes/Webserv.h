@@ -9,11 +9,14 @@
 #include <map>
 #include <stack>
 #include <fstream>
-#include "Utils.hpp"
 #include <unistd.h>
+
+#include "Utils.hpp"
+#include "Cookie.hpp"
 
 class RequestIn;
 
+std::string makeTheSample(std::string code, std::string str, std::string sample);
 std::vector<std::string> StrToVector(std::string str);
 std::string getHttpDate();
 std::string intToString(int value);
@@ -38,3 +41,5 @@ void addElemToStr(std::string& str, MyStack<std::string>& stack);
 std::string postGetBoundary(std::string& str);
 MyTriple<std::string, std::string, bool>  makeFilePost(RequestIn& input);
 void createFile(MyTriple<std::string, std::string, bool>& triple);
+bool findCookie(MyVector<Cookie> list, std::string id);
+std::string generateSessionId();

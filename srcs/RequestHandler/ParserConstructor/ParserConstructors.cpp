@@ -3,7 +3,7 @@
 #include <unistd.h>
 
 /* Copy Constructor */
-RequestIn::RequestIn(RequestIn& cpy) {
+RequestIn::RequestIn(RequestIn& cpy) : monitor(cpy.monitor) {
     this->mapParse = cpy.mapParse;
     this->mapCount = cpy.mapCount;
 }
@@ -16,9 +16,8 @@ RequestIn& RequestIn::operator=(RequestIn& cpy) {
 }
 
 /* Default Constructor */
-RequestIn::RequestIn(const std::string& request/* , char **envp */) {
-    clientRequest = 100; //client value
-    std::istringstream stream(request);
+RequestIn::RequestIn(client& request, monitoring& monitor/* , char **envp */) : monitor(monitor) {
+    std::istringstream stream(request.getInput());
     std::string line;
     std::string key, value;
     std::vector<std::string> vecEnv;

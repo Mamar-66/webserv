@@ -1,6 +1,7 @@
 #include "../../../includes/Parser.hpp"
 
 void RequestIn::checkErrorHTTPHeaders( void /* ParseConfig& config */) {
+    // myVector<std::string> vector;
     if (this->vector.size() != 3) {
         this->codeHTTP = 400;
         return ;
@@ -104,6 +105,12 @@ void RequestIn::checkErrorHTTPHeaders( void /* ParseConfig& config */) {
             return ;
         }
     }
+    if ((this->mapParse.find("Cookie") == this->mapParse.end() && (this->uri.find("/conect") != std::string::npos)) || (this->monitor.mapCookie.find(this->mapParse["Cookie"]) == this->monitor.mapCookie.end() && (this->uri.find("/conect") != std::string::npos))) {
+        this->codeHTTP = 401;
+        return ;
+    }
+    else
+        std::cout << this->monitor.mapCookie[this->mapParse["Cookie"]].getSessionID() << " :-: " << this->monitor.mapCookie[this->mapParse["Cookie"]].getUserID() << std::endl;
     this->codeHTTP = 200;
     return ;
 }

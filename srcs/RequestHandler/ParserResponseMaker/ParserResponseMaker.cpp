@@ -22,7 +22,9 @@ std::vector<std::string> RequestIn::GetResponse( void /* ParseConfig& config */ 
         this->codeHTTP = 403;
     if (this->codeHTTP == 200 || this->codeHTTP / 100 == 3) {
         if (isDirectory(catFile)) {
-            catFile = catFile + "/index.html"; /* Change to config.getDefaultPage */
+            if (catFile[catFile.size() - 1] != '/')
+                catFile += "/";
+            catFile = catFile + "index.html"; /* Change to config.getDefaultPage */
             if (!(isFile(catFile))) {
                 if (AutoIndexToRemove == false)
                     this->codeHTTP = 403;
@@ -55,22 +57,41 @@ std::vector<std::string> RequestIn::GetResponse( void /* ParseConfig& config */ 
     vectorCodeGenerate.push_back(500);// change to get with config
 
     std::map<int, std::string> mapCodeHtml;
-    mapCodeHtml[404] = "./html/errors_400/error_404.html";
-    mapCodeHtml[400] = "./html/errors_400/error_400.html";
-    mapCodeHtml[500] = "./html/errors_500/error_500.html";
+    mapCodeHtml[404] = "./html/conect/errors/errors_400/error_404.html";
+    mapCodeHtml[400] = "./html/conect/errors/errors_400/error_400.html";
+    mapCodeHtml[500] = "./html/conect/errors/errors_500/error_500.html";
 
     if (this->codeHTTP - 400 >= 0) {
         std::string htmlResponse;
         if (vectorCodeGenerate == this->codeHTTP)
             htmlResponse = loadPage(mapCodeHtml[this->codeHTTP]);
         else
-            htmlResponse = "";
+            htmlResponse = makeTheSample(intToString(this->codeHTTP), this->stringCode, "./html/conect/errors/errors_sample/error_sample.html");
 
+    	std::cout << "Code: " << this->codeHTTP << "\nhtmlResponse: "<< htmlResponse << std::endl;
 
         vectorElems.push_back("Content-Type: text/html\r\n");
         vectorElems.push_back("Content-Length: ");
         vectorElems.push_back(intToString(static_cast<int>(htmlResponse.size()) - 1));
         vectorElems.push_back("\r\n");
+        std::cout << this->mapParse["Cookie"] << std::endl;
+        if (this->mapParse.find("Cookie") == this->mapParse.end() || this->monitor.mapCookie.find(this->mapParse["Cookie"]) == this->monitor.mapCookie.end()) {
+            std::string str = "00000000-00000000-00000000-00000000";
+            std::string str2 = generateSessionId();
+            Cookie user(str, str2);
+            this->monitor.mapCookie["SessionID=" + user.getSessionID()] = user;
+            std::cout << "SessionID=" + user.getSessionID() << " : " << this->monitor.mapCookie[user.getSessionID()].getUserID() <<std::endl;
+            this->mapParse["Cookie"] = user.getSessionID();
+            vectorElems.push_back("Set-Cookie: SessionID=");
+            vectorElems.push_back(this->mapParse["Cookie"]);
+            vectorElems.push_back("\r\n");
+            std::cout << this->monitor.mapCookie[this->mapParse["Cookie"]].getSessionID() << " :: " <<  this->monitor.mapCookie[this->mapParse["Cookie"]].getUserID() <<std::endl;
+        }
+        else {
+            vectorElems.push_back("Cookie: ");
+            vectorElems.push_back(this->mapParse["Cookie"]);
+            vectorElems.push_back("\r\n");
+        }
         vectorElems.push_back("Connection: ");
         vectorElems.push_back("close\r\n");
         vectorElems.push_back("Date: ");
@@ -85,8 +106,27 @@ std::vector<std::string> RequestIn::GetResponse( void /* ParseConfig& config */ 
         vectorElems.push_back(this->mimeAccept);
         vectorElems.push_back("\r\n");
         vectorElems.push_back("Content-Length: ");
-        vectorElems.push_back("Content-Length: ");
         vectorElems.push_back(intToString(static_cast<int>(htmlResponse.size()) - 1));
+        vectorElems.push_back("\r\n");
+        if (this->mapParse.find("Cookie") == this->mapParse.end() || this->monitor.mapCookie.find(this->mapParse["Cookie"]) == this->monitor.mapCookie.end()) {
+            std::string str = "00000000-00000000-00000000-00000000";
+            std::string str2 = "NoneID";
+            Cookie user(str, str2);
+            this->monitor.mapCookie["SessionID=" + user.getSessionID()] = user;
+            std::cout << "SessionID=" + user.getSessionID() << " : " << this->monitor.mapCookie[user.getSessionID()].getUserID() <<std::endl;
+            this->mapParse["Cookie"] = user.getSessionID();
+            vectorElems.push_back("Set-Cookie: SessionID=");
+            vectorElems.push_back(this->mapParse["Cookie"]);
+            vectorElems.push_back("\r\n");
+            std::cout << this->monitor.mapCookie[this->mapParse["Cookie"]].getSessionID() << " :: " <<  this->monitor.mapCookie[this->mapParse["Cookie"]].getUserID() <<std::endl;
+        }
+        else {
+            vectorElems.push_back("Cookie: ");
+            vectorElems.push_back(this->mapParse["Cookie"]);
+            vectorElems.push_back("\r\n");
+        }
+        vectorElems.push_back("Cookie: ");
+        vectorElems.push_back(this->mapParse["Cookie"]);
         vectorElems.push_back("\r\n");
         vectorElems.push_back("Connection: ");
         vectorElems.push_back("close\r\n");
@@ -97,7 +137,6 @@ std::vector<std::string> RequestIn::GetResponse( void /* ParseConfig& config */ 
     }
     return vectorElems;
 }
-
 
 // std::vector<std::string> RequestIn::PushResponse( void /* ParseConfig& config */ ) {
 //     std::map<int, std::string> mapCode = initCodeMap();

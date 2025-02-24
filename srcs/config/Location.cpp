@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 15:19:17 by sbarbe            #+#    #+#             */
-/*   Updated: 2025/02/16 10:50:42 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/21 22:34:36 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Location.hpp"
 #include "config.hpp"
 
-Location::Location() :	 autoindex(false), verifauto(false), client_max_body_size(0)
+Location::Location() :	 autoindex(false), verifauto(false), client_max_body_size(0), passwordDependent(false)
 {
 	op = false;
 }
@@ -34,6 +34,7 @@ Location::Location(const Location &other)
 		this->cgi_ext = other.cgi_ext;
 		this->cgi_path = other.cgi_path;
 		this->retur = other.retur;
+		this->passwordDependent = other.passwordDependent;
 	}
 }
 
@@ -50,6 +51,7 @@ Location& Location::operator=(const Location &other)
 		this->cgi_ext = other.cgi_ext;
 		this->cgi_path = other.cgi_path;
 		this->retur = other.retur;
+		this->passwordDependent = other.passwordDependent;
 	}
 	return (*this);
 }

@@ -17,6 +17,7 @@
 #include "Utils.hpp"
 #include "Webserv.h"
 #include "serveur.hpp"
+#include "Cookie.hpp"
 
 #ifndef BEFORE
 # define BEFORE 1
@@ -42,7 +43,7 @@ class RequestIn {
         int codeHTTP;
         std::string boundary;
 
-        int clientRequest; // Move into client class
+        monitoring& monitor;
 
         int port; // Move into parserClass
         
@@ -50,7 +51,7 @@ class RequestIn {
         RequestIn& operator=(RequestIn& cpy);
 
     public:
-        RequestIn(const std::string& request/* , char **envp */);
+        RequestIn(client& request, monitoring& monitor/* , char **envp */);
         ~RequestIn();
 
         void checkErrorHTTPHeaders( void );
@@ -84,10 +85,13 @@ class RequestIn {
         std::string getMimeAccept( void );
         std::string getBoundary( void );
 
+        monitoring& getMonitor( void );
 
         std::vector<std::string> getVector( void );
         std::vector<std::string> getEnvVector( void );
 
+        /* Setters */
+        
 		/* omar */
 		void 	init_envp(client &cl);
 };

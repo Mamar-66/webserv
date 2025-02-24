@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/23 23:51:32 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/24 13:01:06 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 	#define CLIENT_HPP
 
 	#include "serveur.hpp"
+	#include "Utils.hpp"
+	#include "Cookie.hpp"
 
 	#include <sys/socket.h>
 	#include <unistd.h>
@@ -52,6 +54,7 @@
 			std::string 	output;
 			bool			is_cgi;
 
+
 		public:
 			client(int fdsocket, int fdFather);
 			~client();
@@ -62,20 +65,21 @@
 			size_t		content_real;
 
 						/* GETTER */
-			const int			&getFD(void);
-			const int 			&getFDFather();
-			const std::time_t	&getStartTime();
-			const std::string	&getInput(void);
-			const std::string	&getOutput(void);
-			const bool			&getStatusCgi();
-			const size_t		&getSizeBody();
-			const bool			&getListing();
+			const int				&getFD( void );
+			const int 				&getFDFather( void );
+			const std::time_t		&getStartTime( void );
+			const std::string		&getInput( void );
+			const std::string		&getOutput( void );
+			const bool				&getStatusCgi( void );
+			const size_t			&getSizeBody( void );
+			const bool				&getListing( void );
 
 			/* SETTER */
 			void				setInput(const std::string& str);
 			void				setOutput(const std::string& str);
 			void				setCgiTrue();
 			void				setCgiFalse();
+			void				setActualTime();
 
 			pollfd				clien_pollfd;
 			pollfd				cgi_pollfd_write[2];
@@ -96,5 +100,6 @@
 	void	read_client(monitoring &moni, int &fd, int i);
 	bool	raph(monitoring &moni, client &cl);
 	void 	start_CGI(monitoring &moni, client &cl);
+	bool	time_out(monitoring &moni, int fd, int i);
 
 #endif

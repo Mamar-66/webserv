@@ -4,6 +4,7 @@ import json
 import cgi
 import os
 import time
+
 # from email.mime.text import MIMEText
 # from email.mime.multipart import MIMEMultipart
 
@@ -186,9 +187,9 @@ response += "Connection: close\r\n"  # Connexion fermée après la réponse
 response += "\r\n"  # Ligne vide pour séparer l'en-tête du corps
 
 
+print(response)
 time.sleep(2)
 
-print(response)
   # Corps de la réponse contenant du HTML
 
 # Afficher la réponse complète (en-tête + corps)

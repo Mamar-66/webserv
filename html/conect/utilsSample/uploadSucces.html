@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" href="conect/img/icon.png" type="image/x-icon">
+	<title>Inscription réussie</title>
+	<style>
+		body {
+			font-family: 'Arial', sans-serif;
+			background: linear-gradient(135deg, #3498db, #8e44ad);
+			color: white;
+			margin: 0;
+			padding: 0;
+			height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			text-align: center;
+			animation: fadeIn 2s ease-in-out;
+		}
+
+		@keyframes fadeIn {
+			0% {
+				opacity: 0;
+			}
+
+			100% {
+				opacity: 1;
+			}
+		}
+
+		.container {
+			background-color: rgba(0, 0, 0, 0.7);
+			padding: 40px;
+			border-radius: 15px;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+			animation: slideUp 0.8s ease-out;
+			width: 350px;
+		}
+
+		@keyframes slideUp {
+			0% {
+				transform: translateY(50px);
+				opacity: 0;
+			}
+
+			100% {
+				transform: translateY(0);
+				opacity: 1;
+			}
+		}
+
+		h2 {
+			font-size: 2rem;
+			margin-bottom: 20px;
+			letter-spacing: 2px;
+		}
+
+		p {
+			font-size: 1.2rem;
+			margin-bottom: 30px;
+		}
+
+		button {
+			background-color: #2ecc71;
+			border: none;
+			padding: 15px 30px;
+			color: white;
+			font-size: 1.1rem;
+			border-radius: 25px;
+			cursor: pointer;
+			transition: transform 0.3s ease, background-color 0.3s ease;
+			width: 100%;
+		}
+
+		button:hover {
+			background-color: #27ae60;
+			transform: translateY(-5px);
+		}
+
+		.link-login {
+			margin-top: 10px;
+			display: block;
+			color: #3498db;
+			text-decoration: none;
+			font-size: 14px;
+		}
+
+		.link-login:hover {
+			text-decoration: underline;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<h2>Televersement réussi !</h2>
+		<p>Upload successful!
+		Congratulations, your file has been successfully uploaded. You can now leave this page.</p>
+		<a href="/conect/">
+			<button>Back to hub page</button>
+		</a>
+	</div>
+</body>
+
+</html>

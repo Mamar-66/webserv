@@ -52,3 +52,7 @@ std::vector<std::string> RequestIn::getEnvVector( void ) {
 std::string RequestIn::getBoundary( void ) {
     return this->boundary;
 }
+
+monitoring& RequestIn::getMonitor( void ) {
+    return this->monitor;
+}

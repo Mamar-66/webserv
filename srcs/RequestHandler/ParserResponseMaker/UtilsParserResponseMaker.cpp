@@ -58,13 +58,38 @@ std::string concatenateVectors(std::vector<std::string> vec) {
 std::string loadPage(std::string& catFile) {
     std::string htmlResponse = "";
     std::ifstream file(catFile.c_str());
+    if (!file.is_open())
+    	return "";
     std::string line;
     while (std::getline(file, line)) {
         htmlResponse += line;
         htmlResponse += "\n";
         //htmlResponse += "\r\n";
     }
+    std::cout << "LoadPage: " << htmlResponse << std::endl;
     return htmlResponse;
+}
+
+std::string makeTheSample(std::string code, std::string str, std::string sample) {
+	std::cout << "HEY" << std::endl;
+	std::string page = loadPage(sample);
+    if (page.empty()) {
+        return page;
+    }
+	std::string fromCode = "000";
+	std::string fromStr = "XXX";
+	std::size_t pos = 0;
+	
+	while ((pos = page.find(fromCode, pos)) != std::string::npos) {
+		page.replace(pos, fromCode.length(), code);
+		pos += code.length();
+	}
+	pos = 0;
+	while ((pos = page.find(fromStr, pos)) != std::string::npos) {
+		page.replace(pos, fromStr.length(), str);
+		pos += str.length();
+	}
+	return page;
 }
 
 std::vector<std::string> listDirectory(std::string path) {

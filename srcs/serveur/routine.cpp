@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/23 20:28:34 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/24 12:58:30 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,11 @@ void	monitorin(monitoring &moni)
 		if (readpoll < 0)
 			throw std::runtime_error(RED "Error poll = -1");
 
+		if (!compar(moni.all_all_pollfd[i].fd, moni.all_pollfd_servor))
+		{
+			if (time_out(moni, moni.all_all_pollfd[i].fd, i))
+				continue;
+		}
 		if (compar(moni.all_all_pollfd[i].fd, moni.all_pollfd_servor) && moni.all_all_pollfd[i].revents & POLLIN)
 		{
 			creat_client(moni, moni.all_all_pollfd[i].fd);

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>000 - XXX</title>
+    <style>
+        /* Style général de la page */
+        body {
+            background-color: #121212; /* Fond sombre */
+            color: #f0f0f0; /* Texte clair */
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Animation du texte 404 */
+        h1 {
+            font-size: 120px;
+            font-weight: bold;
+            color: #ff6347; /* Couleur du texte 404 */
+            margin: 0;
+            animation: shake 1.0s ease-in-out infinite;
+        }
+
+        /* Animation du texte de la ressource inexistante */
+        p {
+            font-size: 24px;
+            color: #f8f8f2;
+            margin-top: 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        /* Style du bouton */
+        a {
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: bold;
+            border: 2px solid #ff6347;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 18px;
+            margin-top: 40px;
+            display: inline-block;
+            background-color: #333;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        a:hover {
+            background-color: #ff6347;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Animation du bouton */
+        a:active {
+            transform: scale(0.95);
+        }
+
+        /* Animation shake pour le 404 */
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Animation fadeIn pour le texte */
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div>
+        <h1>000</h1>
+        <p><strong>XXX</strong> - Default Page for code 000</p>
+        <a href="/">Retour à l'accueil</a>
+    </div>
+
+</body>
+</html>
