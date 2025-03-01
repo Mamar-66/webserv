@@ -97,6 +97,17 @@ class MyStack {
         bool operator<(const MyStack<T1>& other) const {
             return this->stack < other.stack; // Utilise la comparaison lexicographique des vecteurs
         }
+
+        T1 reStack( void ) {
+            T1 elem;
+
+            while (!(this->empty()))
+            {
+                elem += this->popTop();
+                elem += "/";
+            }
+            return elem;
+        }
 };
 
 template <typename T1>

@@ -20,76 +20,32 @@ std::map<MyStack<std::string>, std::string> createmapStackRedir(std::map<std::st
     return toReturn;
 }
 
-std::string checkRedir(std::string& ch) { //, ParseConfig& conf) {
-    const MyStack<std::string> stackRedir = create1Stack(ch);
+std::string checkRedir(RequestIn& req) { //, ParseConfig& conf) {
+
+    std::string retour = req.getLoc().getRetur();
+    
+    std::cout << "REtour: " << retour << std::endl;
+    return retour;
+    // const MyStack<std::string> stackRedir = create1Stack(ch);
     
 
-    /* Creation of artificial redirection, need to change with config.getRedir() */
-    std::map<std::string, std::string> mapRedir;
+    // /* Creation of artificial redirection, need to change with config.getRedir() */
+    // std::map<std::string, std::string> mapRedir;
 
-    mapRedir["/d"] = "./";
-    mapRedir["/e"] = "/conect/index.html";
-    mapRedir["/d/d"] = "/exemple2-1";
-    mapRedir["/d/e"] = "/exemple2-2";
-    mapRedir["/e/d"] = "/exemple2-3";
-    mapRedir["/e/e"] = "/exemple2-4";
+    // mapRedir["/d"] = "./";
+    // mapRedir["/e"] = "/exemple1-2";
+    // mapRedir["/d/d"] = "/exemple2-1";
+    // mapRedir["/d/e"] = "/exemple2-2";
+    // mapRedir["/e/d"] = "/exemple2-3";
+    // mapRedir["/e/e"] = "/exemple2-4";
 
-    /* End */
-    std::map<MyStack<std::string>, std::string> mapCorresp = createmapStackRedir(mapRedir);
+    // /* End */
+    // std::map<MyStack<std::string>, std::string> mapCorresp = createmapStackRedir(mapRedir);
 
-    for (std::map<MyStack<std::string>, std::string>::iterator it = mapCorresp.begin(); it != mapCorresp.end(); it++)
-        if (it->first == stackRedir)
-            return it->second;
-    return ch;
-}
-
-std::string concatenateVectors(std::vector<std::string> vec) {
-    std::string toReturn = "";
-
-    for (std::vector<std::string>::iterator it=vec.begin(); it != vec.end(); it++) {
-        toReturn += *it;
-    }
-
-    return toReturn;
-
-
-}
-
-std::string loadPage(std::string& catFile) {
-    std::string htmlResponse = "";
-    std::ifstream file(catFile.c_str());
-    if (!file.is_open())
-    	return "";
-    std::string line;
-    while (std::getline(file, line)) {
-        htmlResponse += line;
-        htmlResponse += "\n";
-        //htmlResponse += "\r\n";
-    }
-    std::cout << "LoadPage: " << htmlResponse << std::endl;
-    return htmlResponse;
-}
-
-std::string makeTheSample(std::string code, std::string str, std::string sample) {
-	std::cout << "HEY" << std::endl;
-	std::string page = loadPage(sample);
-    if (page.empty()) {
-        return page;
-    }
-	std::string fromCode = "000";
-	std::string fromStr = "XXX";
-	std::size_t pos = 0;
-	
-	while ((pos = page.find(fromCode, pos)) != std::string::npos) {
-		page.replace(pos, fromCode.length(), code);
-		pos += code.length();
-	}
-	pos = 0;
-	while ((pos = page.find(fromStr, pos)) != std::string::npos) {
-		page.replace(pos, fromStr.length(), str);
-		pos += str.length();
-	}
-	return page;
+    // for (std::map<MyStack<std::string>, std::string>::iterator it = mapCorresp.begin(); it != mapCorresp.end(); it++)
+    //     if (it->first == stackRedir)
+    //         return it->second;
+    // return ch;
 }
 
 std::vector<std::string> listDirectory(std::string path) {
@@ -107,7 +63,7 @@ std::vector<std::string> listDirectory(std::string path) {
 
 std::vector<std::string> makeBodyIndex( RequestIn& req ) {
     std::vector<std::string> vector;
-    std::string rootedDir = "./html"; /* Change with config.getRootDir() */
+    std::string rootedDir = GenericGetter::findRoot(req); /* Change with config.getRootDir() */
     std::vector<std::string> listDir = listDirectory(rootedDir + req.getURI());
 
     vector.push_back("<!DOCTYPE html>\n<html>\n<head>\n<title>Index of ");
@@ -129,14 +85,14 @@ std::vector<std::string> makeBodyIndex( RequestIn& req ) {
 std::vector<std::string> makeAutoIndex( RequestIn& req ) {
     std::vector<std::string> vector;
 
-    std::string bodyAutoIndex = concatenateVectors(makeBodyIndex(req));
+    std::string bodyAutoIndex = Conversion::vectorToString(makeBodyIndex(req));
 
     vector.push_back("HTTP/1.1 200 OK\r\n");
     vector.push_back("Content-Type: text/html; charset=UTF-8\r\n");
     vector.push_back("Content-Length: ");
-    vector.push_back(intToString(static_cast<int>(bodyAutoIndex.size()) - 1));
+    vector.push_back(Conversion::intToString(static_cast<int>(bodyAutoIndex.size()) - 1));
     vector.push_back("\r\nConnection: close\r\nDate: ");
-    vector.push_back(getHttpDate());
+    vector.push_back(GenericGetter::getHttpDate());
     vector.push_back("\r\n\r\n");
     vector.push_back(bodyAutoIndex);
 
@@ -150,16 +106,3 @@ void addElemToStr(std::string& str, MyStack<std::string>& stack) {
     std::cout << stack.empty() << std::endl;
 }
 
-std::vector<std::string> StrToVector(std::string str) {
-    std::istringstream iss(str);
-    std::string line;
-    std::vector<std::string> toReturn;
-
-
-    while (std::getline( iss, line )) {
-        line += "\n";
-        toReturn.push_back(line);
-    }
-
-    return toReturn;
-}

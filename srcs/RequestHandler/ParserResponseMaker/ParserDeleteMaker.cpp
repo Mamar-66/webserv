@@ -14,7 +14,7 @@
 
 std::vector<std::string> RequestIn::DeleteResponse()
 {
-    std::map<int, std::string> mapCode = initCodeMap();
+    std::map<int, std::string> mapCode = Initer::initCodeMap();
     std::vector<std::string> response;
 
     std::string tempUri = this->uri;
@@ -25,18 +25,18 @@ std::vector<std::string> RequestIn::DeleteResponse()
         tempUri = "." + tempUri;
     std::cout << "Tentative de suppression : " << tempUri << std::endl;
 
-    if (!isFile(tempUri) && !isDirectory(tempUri))
+    if (!Checker::isFile(tempUri) && !Checker::isDirectory(tempUri))
         this->codeHTTP = 404; // Not Found
     else
     {
-        if (isFile(tempUri))
+        if (Checker::isFile(tempUri))
         {
             if (std::remove(tempUri.c_str()) == 0)
                 this->codeHTTP = 204; // No Content (succès)
             else
                 this->codeHTTP = 403; // Forbidden (échec de suppression)
         } 
-        else if (isDirectory(tempUri))
+        else if (Checker::isDirectory(tempUri))
         {
             if (std::system(("rm -r " + tempUri).c_str()) == 0)
                 this->codeHTTP = 204; // Succès
@@ -47,9 +47,9 @@ std::vector<std::string> RequestIn::DeleteResponse()
 
     this->stringCode = mapCode[this->codeHTTP];
 
-    response.push_back("HTTP/1.1 " + intToString(this->codeHTTP) + " " + this->stringCode + "\r\n");
+    response.push_back("HTTP/1.1 " + Conversion::intToString(this->codeHTTP) + " " + this->stringCode + "\r\n");
     response.push_back("Connection: close\r\n");
-    response.push_back("Date: " + getHttpDate() + "\r\n\r\n");
+    response.push_back("Date: " + GenericGetter::getHttpDate() + "\r\n\r\n");
 
     return response;
 }

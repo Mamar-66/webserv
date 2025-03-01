@@ -13,7 +13,7 @@
 #include "Location.hpp"
 #include "config.hpp"
 
-Location::Location() :	 autoindex(false), verifauto(false), client_max_body_size(0), passwordDependent(false)
+Location::Location() :	 autoindex(false), verifauto(false), client_max_body_size(-1)
 {
 	op = false;
 }
@@ -111,7 +111,7 @@ void	Location::initAllow_methods(std::string& fileContent)
 
 void	Location::initClient(std::string& fileContent)
 {
-	if (client_max_body_size != 0)
+	if (client_max_body_size != -1)
 		 throw std::runtime_error("Error : is duplicated, client_max_body_size");
 	if (countWords(fileContent) != 2)
 		throw std::runtime_error("Error : Too much Argument or not Enough, client_max_body_size");
@@ -149,7 +149,7 @@ void	Location::initReturn(std::string& fileContent)
 		throw std::runtime_error("Error : Invalid endline, only ';' accepted, return");
 	retur = fileContent.substr(7, fileContent.length() - 7 - 1);
 	if (retur.empty())
-		throw std::runtime_error("Error : Missing direction, root");
+		throw std::runtime_error("Error : Missing direction, return");
 }
 
 void	Location::initCgi_path(std::string& fileContent)
@@ -241,6 +241,49 @@ void	Location::initAutoindex(std::string& fileContent)
 	}
 }
 
+void Location::initError_page(std::string& fileContent)
+{
+	if (countWords(fileContent) < 3)
+		throw std::runtime_error("Error : Not Enough Argument, error_page");
+	else if (fileContent.compare(fileContent.length() - 1, 3, ";") != 0)
+		throw std::runtime_error("Error : Invalid endline, only ';' accepted, error_page");
+	std::string adjustedContent = fileContent.substr(11);
+	std::vector<std::string> parts = splitt(adjustedContent, ' ');
+	std::vector<int> error_codes;
+	std::string	name;
+	int	k = 0;
+	for (size_t l = 0; l < parts.size() - 1; l++)
+	{
+		if (parts[l].length() != 3)
+			throw std::runtime_error("Error : Second Argument invalid, too short or too long and must be in the range[0;9], error_page");
+		for (size_t i = 0; i < 3; i++)
+		{
+			if (parts[l][i] > '9' || parts[l][i] < '0')
+				throw std::runtime_error("Error : Second Argument must be in the range[0;9], error_page");
+		}
+   	 	int value = std::atoi(parts[l].c_str());
+   	 	if (value < 400 || value > 599)
+		{
+   	         throw std::runtime_error("Error : Second Argument must be in the range [400;599], error_page");
+   		}
+		error_codes.push_back(value);
+		k++;
+	}
+	name = fileContent.substr(11 + (3 * k) + (1 * k), fileContent.length() - (12 + (3 * k) + (1 * k)));
+	for (size_t i = 0; i < error_codes.size(); i++)
+	{
+    error_page[error_codes[i]] = name;
+	}
+
+	if (name.empty())
+		throw std::runtime_error("Error : Missing direction, error_page");
+	// std::cout << "Error Page Mapping:\n";
+	// for (std::map<int, std::string>::iterator it = error_page.begin(); it != error_page.end(); ++it)
+	// {
+	// 	std::cout << "Error Code: " << it->first << " -> File: " << it->second << std::endl;
+	// }
+}
+
 bool Location::getOp() const {
     return op;
 }
@@ -277,6 +320,11 @@ std::vector<std::string> Location::getCgiPath() const {
     return cgi_path;
 }
 
-std::vector<std::string> Location::getCgiExt() const {
+MyVector<std::string> Location::getCgiExt() const {
     return cgi_ext;
+}
+
+std::map<int, std::string> Location::getErrorPage() const
+{
+    return error_page;
 }

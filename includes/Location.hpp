@@ -20,6 +20,7 @@
 #include <cstdlib>
 #include <map>
 #include "config.hpp"
+#include "Utils.hpp"
 
 class Location
 {
@@ -36,9 +37,10 @@ class Location
     	bool 						getAutoindex() const;
     	bool 						getVerifauto() const;
     	int 						getClientMaxBodySize() const;
+		std::map<int, std::string>	getErrorPage() const;
     	std::string 				getRetur() const;
     	std::vector<std::string> 	getCgiPath() const;
-    	std::vector<std::string> 	getCgiExt() const;
+    	MyVector<std::string>	 	getCgiExt() const;
 
 		void	initRoot(std::string& fileContent);
 		void	initIndex(std::string& fileContent);
@@ -48,6 +50,7 @@ class Location
 		void	initCgi_path(std::string& fileContent);
 		void	initCgi_ext(std::string& fileContent);
 		void	initLocation(std::string& fileContent);
+		void	initError_page(std::string& fileContent);
 		void	initPart(std::string& fileContent);
 		void	initContrpart(std::string& fileContent);
 		void	initAutoindex(std::string& fileContent);
@@ -55,18 +58,18 @@ class Location
 		bool						op;
 		std::string					root;
 		std::string					index;
+		std::map<int, std::string>	error_page;
 		std::vector<std::string>	allow_methods;
 		bool						autoindex;
 		bool						verifauto;
 		int							client_max_body_size;
 		std::string					retur;
 		std::vector<std::string>	cgi_path;
-		std::vector<std::string>	cgi_ext;	
+		MyVector<std::string>		cgi_ext;	
 		bool 						passwordDependent;
     protected:
 };
 
-std::map<std::string, Location> parseLocations(const std::vector<std::string>& lines, std::string& current);
 std::vector<std::string> splitLines(const std::string &input);
 std::string normalizeSpaces(const std::string &input);
 void	parsconfigL(std::string& fileContent, std::map<std::string, Location>& location, std::string& current);

@@ -181,27 +181,19 @@ std::string serveur::return_word_after(const std::string &word, const std::strin
 	return str.substr(pos, endPos - pos);
 }
 
-int serveur::stringToInt(const std::string &str)
-{
-	std::istringstream iss(str);
-	int number;
-
-	if (!(iss >> number))
-		throw std::invalid_argument("Invalid input: Not a number");
-
-	return number;
-}
-
 int	monitoring::where_are_fd_pipe(const int &fd)
 {
 	std::map<int, client*>::iterator it = this->clients.begin();
 
-	for (; it != this->clients.end(); ++it)
+	if (fd > 0)
 	{
-		if (fd == it->second->pipe_write[1])
-			return it->first;
-		else if (fd == it->second->pipe_read[0])
-			return it->first;
+		for (; it != this->clients.end(); ++it)
+		{
+			if (fd == it->second->pipe_write[1])
+				return it->first;
+			else if (fd == it->second->pipe_read[0])
+				return it->first;
+		}
 	}
 	return -1;
 }

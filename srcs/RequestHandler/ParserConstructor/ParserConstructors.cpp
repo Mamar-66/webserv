@@ -3,7 +3,7 @@
 #include <unistd.h>
 
 /* Copy Constructor */
-RequestIn::RequestIn(RequestIn& cpy) : monitor(cpy.monitor) {
+RequestIn::RequestIn(RequestIn& cpy) :  monitor(cpy.monitor), cl(cpy.cl) {
     this->mapParse = cpy.mapParse;
     this->mapCount = cpy.mapCount;
 }
@@ -16,20 +16,12 @@ RequestIn& RequestIn::operator=(RequestIn& cpy) {
 }
 
 /* Default Constructor */
-RequestIn::RequestIn(client& request, monitoring& monitor/* , char **envp */) : monitor(monitor) {
+RequestIn::RequestIn(client& request, monitoring& monitor/* , char **envp */) : monitor(monitor), cl(request) {
     std::istringstream stream(request.getInput());
+    this->serv = monitor.servors[request.getFDFather()];
     std::string line;
     std::string key, value;
-    std::vector<std::string> vecEnv;
-    std::string chEnv;
 
-    // for (int i = 0; envp[i] != NULL; i++) {
-    //     chEnv = envp[i];
-    //     vecEnv.push_back(chEnv);
-    // }
-    vecEnv.push_back(chEnv);
-
-    this->envVector = vecEnv;
     this->codeHTTP = 200;
     std::getline(stream, line);
     std::istringstream streamLine(line);

@@ -1,127 +1,5 @@
 #include "../../includes/Parser.hpp"
-
-std::string getHttpDate() {
-    char buffer[100];
-    std::time_t now = std::time(NULL);
-    std::tm* gmt = std::gmtime(&now);
-    std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", gmt);
-    return std::string(buffer);
-}
-std::string intToString(int value) {
-    std::ostringstream oss;
-    oss << value; // Écrit l'entier dans le flux
-    return oss.str(); // Retourne la chaîne
-}
-
-bool isDirectory(const std::string& path) {
-    struct stat pathStat;
-    if (stat(path.c_str(), &pathStat) == 0) {
-        // Vérifie si le type correspond à un répertoire
-        return (pathStat.st_mode & S_IFMT) == S_IFDIR;
-    }
-    return false; // Chemin invalide ou erreur
-}
-
-bool isFile(const std::string& path) {
-    struct stat pathStat;
-    if (stat(path.c_str(), &pathStat) == 0) {
-        // Vérifie si le type correspond à un fichier régulier
-        return (pathStat.st_mode & S_IFMT) == S_IFREG;
-    }
-    return false; // Chemin invalide ou erreur
-}
-
-
-std::map<int, std::string> initCodeMap() {
-    std::map<int, std::string> mapCode;
-
-    mapCode[100] = "Continue";
-    mapCode[101] = "Switching Protocols";
-    mapCode[102] = "Processing";
-    mapCode[103] = "Early Hints";
-
-    mapCode[200] = "OK";
-    mapCode[201] = "Created";
-    mapCode[202] = "Accepted";
-    mapCode[203] = "Non-Authoritative Information";
-    mapCode[204] = "No Content";
-    mapCode[205] = "Reset Content";
-    mapCode[206] = "Partial Content";
-    mapCode[207] = "Multi-Status";
-    mapCode[208] = "Already Reported";
-    mapCode[210] = "Content Different";
-    mapCode[226] = "IM Used";
-
-    mapCode[300] = "Multiple Choices";
-    mapCode[301] = "Moved Permanently";
-    mapCode[302] = "Found";
-    mapCode[303] = "See Other";
-    mapCode[304] = "Not Modified";
-    mapCode[305] = "Use Proxy";
-    mapCode[307] = "Temporary Redirect";
-    mapCode[308] = "Permanent Redirect";
-    mapCode[310] = "Too many Redirects";
-
-    mapCode[400] = "Bad Request";
-    mapCode[401] = "Unauthorized";
-    mapCode[402] = "Payment Required";
-    mapCode[403] = "Forbidden";
-    mapCode[404] = "Not Found";
-    mapCode[405] = "Method Not Allowed";
-    mapCode[406] = "Not Acceptable";
-    mapCode[407] = "Proxy Authentication Required";
-    mapCode[408] = "Request Time-out";
-    mapCode[409] = "Conflict";
-    mapCode[410] = "Gone";
-    mapCode[411] = "Length Required";
-    mapCode[412] = "Precondition Failed";
-    mapCode[413] = "Request Entity Too Large";
-    mapCode[414] = "Request-URI Too Long";
-    mapCode[415] = "Unsupported Media Type";
-    mapCode[416] = "Requested range unsatisfiable";
-    mapCode[417] = "Expectation Failed";
-    mapCode[418] = "I'm a teapot";
-    mapCode[419] = "Page expired";
-    mapCode[421] = "Bad mapping / Misdirected Request";
-    mapCode[422] = "Unprocessable entity";
-    mapCode[423] = "Locked";
-    mapCode[424] = "Method Failure";
-    mapCode[425] = "Too early";
-    mapCode[426] = "Upgrade Required";
-    mapCode[427] = "Invalid digital signature";
-    mapCode[428] = "Precondition Required";
-    mapCode[429] = "Too many request";
-    mapCode[431] = "Request Header Fields Too Large";
-    mapCode[449] = "Retry With";
-    mapCode[450] = "Blocked by Windows Parental Controls";
-    mapCode[451] = "Unavailable For Legal Reasons";
-    mapCode[456] = "Unrecoverable Error";
-
-    mapCode[500] = "Internal Server Error";
-    mapCode[501] = "Not Implemented";
-    mapCode[502] = "Bad Gateway ";
-    mapCode[503] = "Service anavailable";
-    mapCode[504] = "Gateway Timeout";
-    mapCode[505] = "HTTP Version not supported";
-    mapCode[506] = "Variant Also negotiates";
-    mapCode[507] = "Insufficient storage";
-    mapCode[508] = "Loop detected";
-    mapCode[509] = "Bandwidth Limit Exceeded";
-    mapCode[510] = "Not extended";
-    mapCode[511] = "Network authentication required";
-
-    return mapCode;
-}
-
-int compNb(std::string s) {
-    for (int i = 0; i < static_cast<int>(s.size()); i++) {
-        if ((s[i] < '0' || s[i] > '9') && s[i] != '\r' && s[i] != '\n' && s[i] != ' ') {
-            std::cout << "kkkkkkk: " << s[i] << std::endl;
-            return 0;
-        }
-    }
-    return (1);
-}
+#include "config.hpp"
 
 std::vector<std::string> split(const std::string& str, char delimiter) {
     std::vector<std::string> tokens;
@@ -150,3 +28,87 @@ std::vector<std::string> split(const std::string& str, char delimiter) {
 
     return tokens;
 }
+
+std::string removeUriFile(std::string uri, RequestIn& req) {
+    std::string test = GenericGetter::findRoot(req) + uri;
+    //std::cout << uri.substr(0, uri.find_last_of('?')) << Checker::isFile(uri.substr(0, uri.find_last_of('?'))) << std::endl;
+    if (Checker::isFile(test.substr(0, test.find_last_of('?'))) == true)
+    {
+        // std::cout << uri.substr(0, uri.find_last_of('?')).substr(0, uri.find_last_of('/') + 1) << std::endl;
+        return uri.substr(0, uri.find_last_of('?')).substr(0, uri.find_last_of('/') + 1);
+    }
+    return uri;
+}
+
+int countWords(const std::string& str) {
+    std::istringstream stream(str);
+    std::string word;
+    int wordCount = 0;
+
+    while (stream >> word) {
+        wordCount++;
+    }
+    
+    return wordCount;
+}
+
+std::vector<std::string> splitt(const std::string &str, char delimiter) {
+    std::vector<std::string> tokens;
+    std::string::size_type start = 0;
+    std::string::size_type end = str.find(delimiter);
+
+    while (end != std::string::npos) {
+        tokens.push_back(str.substr(start, end - start));
+        start = end + 1;
+        end = str.find(delimiter, start);
+    }
+    tokens.push_back(str.substr(start));
+
+    return tokens;
+}
+
+int count_alloc_env(RequestIn& req, std::map<int, std::string> mapErrorHtml)
+{
+    int i = 2;
+    if (!req.getURI().empty())
+        i++;
+    if (!req.getMethod().empty())
+    {
+        if (req.getMethod().compare(0, 4, "GET") == 0)
+            i += 2;
+        else
+            i++;
+    }
+    i += mapErrorHtml.size();
+    return (i);
+}
+
+char* my_strdup(const std::string& str) {
+    char* copy = new char[str.size() + 1];  // +1 pour '\0'
+    std::strcpy(copy, str.c_str());
+    return copy;
+}
+
+char **creatEnv(RequestIn& req, std::map<int, std::string> mapErrorHtml)
+{
+    int i = 0;
+    size_t pos = req.getURI().find_last_of('?');
+    std::string before = (pos != std::string::npos) ? req.getURI().substr(0, pos) : req.getURI();
+    std::string after = (pos != std::string::npos) ? req.getURI().substr(pos + 1) : "";
+    char **env = new char*[count_alloc_env(req, mapErrorHtml)];
+    std::string root = GenericGetter::findRoot(req);
+    env[i++] = my_strdup(("EXEC=" + root + before).c_str());
+    env[i++] = my_strdup(("URI=" + req.getURI()).c_str());
+    if (!after.empty())
+        env[i++] = my_strdup(("FORM=" + after).c_str());
+    env[i++] = my_strdup(("METHOD=" + req.getMethod()).c_str());
+    for (std::map<int, std::string>::const_iterator it = mapErrorHtml.begin(); it != mapErrorHtml.end(); ++it)
+    {
+        std::string error_entry = "ERROR_PAGE_" + Conversion::intToString(it->first) + "=" + it->second;
+        env[i++] = my_strdup(error_entry.c_str());
+    }
+    env[i] = NULL;
+    //tester ERROR_PAGE vide
+    return (env);
+}
+

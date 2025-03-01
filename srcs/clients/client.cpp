@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/24 17:00:51 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/03/01 16:21:18 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,19 +50,18 @@ int		creat_socket_cgi()
 client::client(int fdsocket, int fdFather) :
 socket_fd(fdsocket), socket_fd_father(fdFather),
 is_cgi(false), content_lenght(0), chunked(false), first_pass(false),
-content_real(0)
+responce_cgi(false),client_close(0), content_real(0) 
 {
+	this->timeout = false;
 	this->startTime = std::time(NULL);
 	if (this->startTime == -1)
 		throw std::runtime_error(RED "Failed to get the current time" RESET);
 
+	this->envp = NULL;
+
 	this->clien_pollfd.fd = this->socket_fd;
 	this->clien_pollfd.events = POLLIN | POLLOUT;
 	this->clien_pollfd.revents = 0;
-
-	int size = (int)sizeof(envp) / sizeof(envp[0]);
-	for (int i = 0; i < size; ++i)
-		this->envp[i] = NULL;
 
 	std::cout << GREEN "creat client fd : " << this->socket_fd << "time = " << this->startTime << RESET << std::endl;
 }
@@ -76,9 +75,12 @@ client::~client()
 
 		if (this->getStatusCgi())
 		{
-			int size = (int)sizeof(envp) / sizeof(envp[0]);
-			for (int i = 0; i < size; ++i)
-				free(this->envp[i]);
+			if (this->envp)
+			{
+				for(int i = 0; this->envp[i]; ++i)
+					delete [] this->envp[i];
+				delete[] this->envp;
+			}
 
 			close(this->pipe_write[0]);
 			close(this->pipe_write[1]);
@@ -125,6 +127,14 @@ const bool &client::getStatusCgi()
 	return this->is_cgi;
 }
 
+const bool	&client::getTimeoutBool( void ) {
+	return this->timeout;
+}
+
+const std::string &client::getGoodLocation( void ) {
+	return this->location;
+}
+
 /* -------------------------------------------------------- */
 /* -------------------- SETTER ---------------------------- */
 /* -------------------------------------------------------- */
@@ -132,11 +142,21 @@ const bool &client::getStatusCgi()
 void	client::setInput(const std::string& str)
 {
 	this->input.append(str);
+	if (str != "\n")
+		this->setActualTime();
+	
+}
+
+void	client::AddInput(const std::string &str)
+{
+	this->input = str;
+	this->setActualTime();
 }
 
 void	client::setOutput(const std::string& str)
 {
-	this->output = str;
+	this->output.append(str);
+	this->setActualTime();
 }
 
 void	client::setCgiTrue()
@@ -153,6 +173,18 @@ void	client::setActualTime()
 	this->startTime = std::time(NULL);
 }
 
+void	client::setEnv(char **env)
+{
+	this->envp = env;
+}
+
+void client::setTimeoutBool( bool state ) {
+	this->timeout = state;
+}
+
+void client::setGoodLocation( std::string Location) {
+	this->location = Location;
+}
 /* --------------------------------------------------- */
 /* --------------------------------------------------- */
 /* --------------------------------------------------- */
@@ -162,30 +194,6 @@ void	delete_client(monitoring &moni, int fd, int i)
 	delete moni.clients[fd];
 	moni.clients.erase(fd);
 	moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
-}
-
-bool	time_out(monitoring &moni, int fd, int i)
-{
-	int tmp_fd = fd;
-	time_t nowTime = std::time(NULL);
-	std::map<int, client*>::iterator it = moni.clients.find(fd);
-
-	if (fd > 0)
-	{
-		if (it == moni.clients.end())
-		{
-			tmp_fd = moni.where_are_fd_pipe(fd);
-			if (tmp_fd == -1)
-				return false;
-		}
-		if (nowTime - moni.clients[tmp_fd]->getStartTime() > 5)
-		{
-			std::cout << "Timeout for client fd : " << tmp_fd << std::endl;
-			delete_client(moni, tmp_fd, i);
-			return true;
-		}
-	}
-	return false;
 }
 
 std::string	client::read_request(const int &fd_client)
@@ -200,6 +208,13 @@ std::string	client::read_request(const int &fd_client)
 		std::memset(buff, 0, sizeof(buff));
 		byte_read = recv(fd_client, buff, sizeof(buff) - 1, MSG_DONTWAIT);
 
+		if (byte_read == 0 )
+		{
+			std::cerr << "sortie recv 0" << std::endl;
+			this->client_close =true;
+			return "";
+		}
+
 		if (byte_read > 0)
 		{
             return_str.append(buff, byte_read);
@@ -208,7 +223,6 @@ std::string	client::read_request(const int &fd_client)
 				content_lenght_pos = return_str.find("Content-Length: ");
 				if (content_lenght_pos != std::string::npos)
 				{
-					
 					content_lenght_pos += 16;
 					size_t end_pos = return_str.find("\r\n\r\n", content_lenght_pos);
 					this->content_lenght = std::atoi(return_str.substr(content_lenght_pos, end_pos - content_lenght_pos).c_str());
@@ -216,14 +230,11 @@ std::string	client::read_request(const int &fd_client)
 					this->content_lenght += end_pos + 4;
 				}
 			}
-			if (this->first_pass)
-				this->content_real += byte_read;
-			this->setActualTime();
+			this->content_real += byte_read;
 		}
-
-		if (byte_read == 0 || byte_read == -1)
+		if (byte_read == -1)
 		{
-			std::cerr << "sortie recv 0" << std::endl;
+			std::cerr << "sortie recv -1" << std::endl;
 			break;
 		}
 
@@ -234,16 +245,10 @@ std::string	client::read_request(const int &fd_client)
 
 std::string	client::read_request_cgi(const int &fd_client)
 {
-	std::string	return_str;
-	char 		buff[4096];
-	short		byte_read;
-	size_t		content_lenght_pos = 0;
-
-	int flags = fcntl(fd_client, F_GETFL, 0);
-	if (flags == -1)
-		std::runtime_error(RED "fcntl F_GETFL");
-	if (fcntl(fd_client, F_SETFL, flags | O_NONBLOCK) == -1)
-		std::runtime_error(RED "fcntl F_SETFL");
+	std::string		return_str;
+	char 			buff[4096];
+	short			byte_read;
+	size_t			content_lenght_pos = 0;
 
 	do
 	{
@@ -258,23 +263,27 @@ std::string	client::read_request_cgi(const int &fd_client)
 				content_lenght_pos = return_str.find("Content-Length: ");
 				if (content_lenght_pos != std::string::npos)
 				{
-
+					this->first_pass = true;
 					content_lenght_pos += 16;
 					size_t end_pos = return_str.find("\r\n\r\n", content_lenght_pos);
 					this->content_lenght = std::atoi(return_str.substr(content_lenght_pos, end_pos - content_lenght_pos).c_str());
-					this->first_pass = true;
 					this->content_lenght += end_pos + 4;
 				}
 			}
-			if (this->first_pass)
-				this->content_real += byte_read;
-			if (byte_read == 0)
-			{
-				std::cerr << "sortie recv 0" << std::endl;
-				break;
-			}
-			if (byte_read == -1)
-				return "-1";
+			this->content_real += byte_read;
+		}
+		if (byte_read == 0)
+		{
+			std::cerr << "sortie read 0" << std::endl;
+			break;
+			// return return_str;
+		}
+		if (byte_read == -1)
+		{
+			std::cerr << "sortie read -1" << std::endl;
+			// return "";
+			break;
+
 		}
 	}
 	while (byte_read > 0);
@@ -310,23 +319,32 @@ void	read_client(monitoring &moni, int &fd, int i)
 		int tmp_fd = moni.where_are_fd_pipe(fd);
 		if (tmp_fd == -1)
 			std::runtime_error(RED "throw error where_are_fd_pipe");
+
 		std::string read_text = moni.clients[tmp_fd]->read_request_cgi(fd);
 
 		std::cout << "client cgi ok read fd " << fd << "tmp : " << tmp_fd << read_text << std::endl;
 
 		moni.clients[tmp_fd]->setOutput(read_text);
-		if (moni.clients[tmp_fd]->content_real >= moni.clients[tmp_fd]->content_lenght)
+
+		if ((moni.clients[tmp_fd]->content_lenght > 0 &&
+		moni.clients[tmp_fd]->content_real >= moni.clients[tmp_fd]->content_lenght))
 		{
-			close((*moni.clients[tmp_fd]).pipe_read[1]);
+			std::cout << RED "close read pipe pipe read fd : " << tmp_fd << RESET << std::endl;
 			close((*moni.clients[tmp_fd]).pipe_read[0]);
 			moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
+			moni.clients[tmp_fd]->responce_cgi = true;
 		}
 	}
 	else
 	{
 		std::string read_text = moni.clients[fd]->read_request(fd);
+		if (moni.clients[fd]->client_close)
+		{
+			delete_client(moni, fd, i);
+			return;
+		}
 		moni.clients[fd]->setInput(read_text);
-		// std::cout << RED "input from read_client  fd : " << moni.clients[fd]->getFD() << " " << read_text << RESET << std::endl;
+		std::cout << RED "input from read_client  fd : " << moni.clients[fd]->getFD() << " " << read_text << RESET << std::endl;
 	}
 }
 
@@ -357,16 +375,28 @@ void	responding(monitoring &moni, int &fd, int i)
 
 		(*moni.clients[tmp_fd]).first_pass = false;
 		(*moni.clients[tmp_fd]).content_real = 0;
+		(*moni.clients[tmp_fd]).content_lenght = 0;
 	}
 	else if (moni.clients[fd]->getStatusCgi() && !moni.clients[fd]->getOutput().empty())
 	{
-		ssize_t bytes_sent = send(fd, moni.clients[fd]->getOutput().c_str(), moni.clients[fd]->getOutput().size(), 0);
-		if (bytes_sent == -1)
-			throw std::runtime_error(RED "Erreur lors de l'envoi des données dans read_client");
-
-		std::cout << "cgie repondu" << std::endl;
-	
-		delete_client(moni, fd, i);
+		if (moni.clients[fd]->responce_cgi)
+		{
+			ssize_t bytes_sent = send(fd, moni.clients[fd]->getOutput().c_str(), moni.clients[fd]->getOutput().size(), 0);
+			if (bytes_sent == 0)
+			{
+				std::cerr << RED "Sending Error socket data close" << std::endl;
+				delete_client(moni, fd, i);
+				return;
+			}
+			else if (bytes_sent == -1)
+			{
+				std::cerr << RED "Send Error CONNECTION" << std::endl;
+				delete_client(moni, fd, i);
+				return;
+			}
+			std::cout << "cgie repondu" << std::endl;
+			delete_client(moni, fd, i);
+		}
 	}
 	else if (!moni.clients[fd]->getStatusCgi())
 	{
@@ -380,10 +410,18 @@ void	responding(monitoring &moni, int &fd, int i)
 			std::cout << ORANGE "Input from responding fd " << (*moni.clients[fd]).getFD() << "= " << BLUE << (*moni.clients[fd]).getInput() << RESET << std::endl;
 
 			ssize_t bytes_sent = send((*moni.clients[fd]).getFD(), (*moni.clients[fd]).getOutput().c_str(), (*moni.clients[fd]).getOutput().size(), 0);
-			if (bytes_sent == -1)
-				throw std::runtime_error(RED "Erreur lors de l'envoi des données dans responding");
-			// std::cout << GREEN "Réponse : OK" RESET << std::endl;
-
+			if (bytes_sent == 0)
+			{
+				std::cerr << RED "Sending Error socket data close" << std::endl;
+				delete_client(moni, fd, i);
+				return;
+			}
+			else if(bytes_sent == -1)
+			{
+				std::cerr << RED "Send Error CONNECTION" << std::endl;
+				delete_client(moni, fd, i);
+				return;
+			}
 			delete_client(moni, fd, i);
 		}
 	}
@@ -391,13 +429,12 @@ void	responding(monitoring &moni, int &fd, int i)
 
 void	error(monitoring &moni, pollfd &poll, int i)
 {
-	// std::cout << "dans error fd : " << poll.fd << std::endl;
 	client *cl = moni.clients[poll.fd];
 	std::map<int, client *>::iterator it = moni.clients.find(poll.fd);
 
 	if (it != moni.clients.end() && cl)
 	{
-		if(compar(cl->getFD(), moni.all_pollfd_servor))
+		if(Checker::compar(cl->getFD(), moni.all_pollfd_servor))
 			std::cout <<RED << "is a servor" << RESET << std::endl;
 	}
 	else if (poll.revents & POLLERR)
@@ -405,7 +442,11 @@ void	error(monitoring &moni, pollfd &poll, int i)
 	else if (poll.revents & POLLHUP)
 		std::cout <<RED << "POLLHUP" << RESET << std::endl;
 	else if (poll.revents & POLLNVAL)
-		std::cout <<RED << "POLLNVAL" << RESET << std::endl;
+		std::cout << RED << "POLLNVAL" << RESET << std::endl;
+	else if (poll.revents & POLLRDHUP)
+		std::cout << RED << "POLLRDHUP" << RESET << std::endl;
+
+	std::cout << "dans error fd : " << poll.fd << std::endl;
 
 	delete_client(moni, poll.fd, i);
 }
@@ -429,24 +470,14 @@ bool	raph(monitoring &moni, client &cl)
         test.parseBody();
         // std::cout << test.getCode() << std::endl;
     }
-	std::string response = test.makeResponse(moni, cl);
+	std::string response = test.makeResponse();
 
-	std::cout << "responce : " << response << std::endl;
+	std::cout << ORANGE << "responce : " << response << RESET << std::endl;
 
-	if (response == "cgi")
-		return true;
-	cl.setOutput(response);
-	return false;
-}
+	if (!cl.getStatusCgi())
+		cl.setOutput(response);
+	else
+		cl.AddInput(response);
 
-bool compar(const int fd, const std::vector<pollfd> &poll_servor)
-{
-
-	for (int i = 0; i < (int)poll_servor.size(); ++i)
-	{
-		if (fd == poll_servor[i].fd)
-			return true;
-	}
-
-	return false;
+	return cl.getStatusCgi();
 }

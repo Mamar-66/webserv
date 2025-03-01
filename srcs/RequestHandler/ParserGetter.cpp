@@ -45,14 +45,18 @@ std::string RequestIn::getMimeAccept( void ) {
     return mimeAccept;
 }
 
-std::vector<std::string> RequestIn::getEnvVector( void ) {
-    return this->envVector;
-}
-
 std::string RequestIn::getBoundary( void ) {
     return this->boundary;
 }
 
 monitoring& RequestIn::getMonitor( void ) {
     return this->monitor;
+}
+
+Location& RequestIn::getLoc( void ) {
+    return this->loc;
+}
+
+serveur* RequestIn::getServ( void ) {
+    return this->serv;
 }

@@ -1,34 +1,15 @@
 #include "../../../includes/Parser.hpp"
 
+std::vector<std::string> RequestIn::holdCGI( std::map<int, std::string> mapCodeHtml ) {
+    std::vector<std::string> vectorElems;
 
-std::string RequestIn::holdCGI( void ) {
-    int pipefd[2];
-    
-    if ( pipe(pipefd)  == -1 )  {
+    char **env = creatEnv(*this, mapCodeHtml);
+
+    this->cl.setEnv(env);
+    if (start_CGI(this->monitor, this->cl) == false){
         this->codeHTTP = 500;
-        return "";
+        return this->GetResponse();
     }
-
-    pid_t pid = fork();
-
-    if (pid < 0) {
-        this->codeHTTP = 500;
-        return "";
-    }
-    else if (pid == 0) {
-        return "";/*
-        dup2(pipefd[1], STDOUT_FILENO);
-        close(pipefd[0]);
-        close(pipefd[1]);
-
-        std::string serverName = "SERVER_NAME=" + "myWebserv.com"; // Change "myWebserv.com" to a #DEFINE variable
-        std::string serverProtocol = "HTTP/1.1";
-        std::string serverPort = static_cast<std::string>(this->port); //change to parserClass
-        std::string scriptName = "kkk"
-
-        this->envVector.push_back();*/
-    }
-    else 
-        return "";
-    
+    vectorElems.push_back(this->body);
+    return vectorElems;
 }

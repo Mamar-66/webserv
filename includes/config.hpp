@@ -48,7 +48,8 @@ class config
     	std::string 							getHost() const;
     	std::string 							getRoot() const;
    		std::string 							getIndex() const;
-    	std::map<std::vector<int>, std::string>	getErrorPage() const;
+		std::string 							getRetur() const;
+    	std::map<int, std::string>				getErrorPage() const;
     	bool 									getAutoindex() const;
     	bool 									getVerifauto() const;
     	int 									getClientMaxBodySize() const;
@@ -59,6 +60,7 @@ class config
 		void	initPort(std::string& fileContent);
 		void	initconfigName(std::string& fileContent);
 		void	initHost(std::string& fileContent);
+		void	initReturn(std::string& fileContent);
 		void	initRoot(std::string& fileContent);
 		void	initIndex(std::string& fileContent);
 		void	initError_page(std::string& fileContent);
@@ -73,7 +75,8 @@ class config
 		std::string								host;
 		std::string								root;
 		std::string								index;
-		std::map<std::vector<int>, std::string>	error_page;
+		std::string								retur;
+		std::map<int, std::string>				error_page;
 		bool									autoindex;
 		bool									verifauto;
 		int										client_max_body_size;
@@ -82,32 +85,9 @@ class config
     protected:
 };
 
-inline int countWords(const std::string& str) {
-    std::istringstream stream(str);
-    std::string word;
-    int wordCount = 0;
+int countWords(const std::string& str);
 
-    while (stream >> word) {
-        wordCount++;
-    }
-    
-    return wordCount;
-}
-
-inline std::vector<std::string> splitt(const std::string &str, char delimiter) {
-    std::vector<std::string> tokens;
-    std::string::size_type start = 0;
-    std::string::size_type end = str.find(delimiter);
-
-    while (end != std::string::npos) {
-        tokens.push_back(str.substr(start, end - start));
-        start = end + 1;
-        end = str.find(delimiter, start);
-    }
-    tokens.push_back(str.substr(start));
-
-    return tokens;
-}
+std::vector<std::string> splitt(const std::string &str, char delimiter);
 
 std::vector<std::string> cut_conf_serv(const int argc, char *configFile);
 

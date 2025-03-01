@@ -6,12 +6,13 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 16:29:52 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/23 11:06:44 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/02/26 09:31:02 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/serveur.hpp"
 #include "../includes/config.hpp"
+#include "../includes/StaticClasses/Initer.hpp"
 
 // docker run --rm -t jstarcher/siege -b -c100 -r200 10.13.5.2:8080 | grep -v "HTTP"
 // valgrind --leak-check=full --track-fds=yes ./Webserv config/default.conf
@@ -33,7 +34,7 @@ void init(int argc, char **argv)
 	monitoring	moni;
 
 	std::vector<std::string> cut_str_serv = cut_conf_serv(argc, argv[1]);
-	creat_servor(cut_str_serv, moni);
+	Initer::creat_servor(cut_str_serv, moni);
 
 	try 
 	{
@@ -62,3 +63,11 @@ int main(int argc, char **argv)
 
 	return 1;
 }
+
+/* REQUEST RECTIONNE 
+	TIMEOUT ERRR CODE
+	COOKIES CORREC
+	CGI CHECK
+	CGI CODE
+	CGI LANCEMENT
+*/

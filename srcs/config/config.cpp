@@ -15,7 +15,7 @@
 #include "config.hpp"
 #include "Location.hpp"
 
-config::config(void) : port(0), config_name("Default"), autoindex(false), verifauto(false), client_max_body_size(0)
+config::config(void) : port(0), config_name("Default"), autoindex(false), verifauto(false), client_max_body_size(-1)
 {
 	op = false;
 }
@@ -157,16 +157,6 @@ void	config::initIndex(std::string& fileContent)
 		throw std::runtime_error("Error : Missing direction, index");
 }
 
-// std::vector<int> getErrorCodesForName(const std::map<std::vector<int>, std::string>& error_page, const std::string& name)
-// {
-//     for (std::map<std::vector<int>, std::string>::const_iterator it = error_page.begin(); it != error_page.end(); ++it) {
-//         const std::vector<int>& key = it->first;
-//         const std::string& value = it->second;
-//         if (value == name)
-//             return key;
-//     }
-//     throw std::runtime_error("Name not found in map");
-// }
 
 void config::initError_page(std::string& fileContent)
 {
@@ -197,9 +187,10 @@ void config::initError_page(std::string& fileContent)
 		k++;
 	}
 	name = fileContent.substr(11 + (3 * k) + (1 * k), fileContent.length() - (12 + (3 * k) + (1 * k)));
-	error_page.insert(std::make_pair(error_codes, (name)));
 	if (name.empty())
 		throw std::runtime_error("Error : Missing direction, error_page");
+	for (int i = 0; i < static_cast<int>(error_codes.size()); i++)
+		error_page[error_codes[i]] =  name;
 	//std::vector<int> found_codes = getErrorCodesForName(error_page, "ClientErrors");
     //     // Affiche tous les codes d'erreur
     //     std::cout << "Found error codes: ";
@@ -235,7 +226,7 @@ void	config::initAutoindex(std::string& fileContent)
 
 void	config::initClient(std::string& fileContent)
 {
-	if (client_max_body_size != 0)
+	if (client_max_body_size != -1)
 		 throw std::runtime_error("Error : is duplicated, client_max_body_size");
 	if (countWords(fileContent) != 2)
 		throw std::runtime_error("Error : Too much Argument or not Enough, client_max_body_size");
@@ -273,6 +264,19 @@ void	config::initPart(std::string& fileContent)
 		throw std::runtime_error("Error : Two '{', {");
 	else
 		op = true;
+}
+
+void	config::initReturn(std::string& fileContent)
+{
+	if (!retur.empty())
+		 throw std::runtime_error("Error : is duplicated, return");
+	if (countWords(fileContent) != 2)
+		throw std::runtime_error("Error : Too much Argment or not enough, return");
+	else if (fileContent.compare(fileContent.length() - 1, 3, ";") != 0)
+		throw std::runtime_error("Error : Invalid endline, only ';' accepted, return");
+	retur = fileContent.substr(7, fileContent.length() - 7 - 1);
+	if (retur.empty())
+		throw std::runtime_error("Error : Missing direction, return");
 }
 
 void	config::initContrpart(std::string& fileContent)
@@ -317,7 +321,7 @@ std::string config::getIndex() const
     return index;
 }
 
-std::map<std::vector<int>, std::string> config::getErrorPage() const
+std::map<int, std::string> config::getErrorPage() const
 {
     return error_page;
 }
@@ -335,4 +339,8 @@ bool config::getVerifauto() const
 int config::getClientMaxBodySize() const
 {
     return client_max_body_size;
+}
+
+std::string config::getRetur() const {
+    return retur;
 }

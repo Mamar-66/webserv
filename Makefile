@@ -29,7 +29,13 @@ SRC	=	main.cpp \
 		RequestHandler/ParserGetter.cpp \
 		Cookie/Cookies.cpp \
 		Cookie/UtilsCookie.cpp \
-		config/Location.cpp
+		config/Location.cpp \
+		timeout/timeout.cpp \
+		utiles/Checkers.cpp \
+		utiles/Conversion.cpp \
+		utiles/GenericGetter.cpp \
+		utiles/Initer.cpp \
+
 
 
 SRCS	=	$(addprefix $(SRC_PATH), $(SRC))
@@ -55,6 +61,8 @@ $(OBJ_PATH):
 			mkdir -p $(OBJ_PATH)/config
 			mkdir -p $(OBJ_PATH)/cgi
 			mkdir -p $(OBJ_PATH)/Cookie
+			mkdir -p $(OBJ_PATH)/timeout
+			mkdir -p $(OBJ_PATH)/utiles
 			mkdir -p json
 			mkdir -p uploadServer
 			touch json/users.json
@@ -75,6 +83,7 @@ $(OBJ_PATH)%.o: $(SRC_PATH)%.cpp
 
 clean:
 		rm -rf $(OBJ_PATH)
+		rm -f json/users.json json/alreadyUsed.txt
 
 fclean: clean
 		rm -rf $(NAME)

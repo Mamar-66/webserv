@@ -19,13 +19,10 @@
 #include "serveur.hpp"
 #include "Cookie.hpp"
 
-#ifndef BEFORE
-# define BEFORE 1
-#endif
-
-#ifndef AFTER
-# define AFTER 2
-#endif
+#include "StaticClasses/Conversion.hpp"
+#include "StaticClasses/Checkers.hpp"
+#include "StaticClasses/Initer.hpp"
+#include "StaticClasses/GenericGetter.hpp"
 
 class RequestIn {
     private:
@@ -39,13 +36,13 @@ class RequestIn {
         std::string body;
         std::string stringCode;
         std::string mimeAccept;
-        std::vector<std::string> envVector;
         int codeHTTP;
         std::string boundary;
 
         monitoring& monitor;
-
-        int port; // Move into parserClass
+        serveur* serv;
+        Location  loc;
+        client& cl;
         
         RequestIn(RequestIn& cpy);
         RequestIn& operator=(RequestIn& cpy);
@@ -57,20 +54,18 @@ class RequestIn {
         void checkErrorHTTPHeaders( void );
         void checkErrorHTTPBody( void );
         void parseBody( void );
-        std::string holdCGI( void );
+        std::vector<std::string> holdCGI(std::map<int, std::string> mapCodeHtml);
 
         std::string getURI(void);
     
         std::map<std::string, std::string> getMap( void );
 
-		std::string makeResponse(monitoring &moni, client &cl);
-		std::string canKeepAlive( void );
+		std::string makeResponse( void );
         int getCode( void );
 
         std::vector<std::string> PushResponse( void /* ParseConfig& config */ );
         std::vector<std::string> GetResponse( void /* ParseConfig& config */ );
         std::vector<std::string> DeleteResponse();
-        std::vector<std::string> PostResponse(const std::string& input);
 
 
         /* Getters */
@@ -85,6 +80,8 @@ class RequestIn {
         std::string getMimeAccept( void );
         std::string getBoundary( void );
 
+        Location& getLoc( void );
+        serveur* getServ( void );
         monitoring& getMonitor( void );
 
         std::vector<std::string> getVector( void );
@@ -93,5 +90,5 @@ class RequestIn {
         /* Setters */
         
 		/* omar */
-		void 	init_envp(client &cl);
 };
+        char **creatEnv(RequestIn& req, std::map<int, std::string> mapErrorHtml);

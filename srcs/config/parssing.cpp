@@ -113,6 +113,8 @@ void	config::parsconfig(std::string& fileContent, std::map<std::string, Location
 		this->initIndex(fileContent);
 	else if (fileContent.compare(0, 11, "error_page ") == 0)
 		this->initError_page(fileContent);
+	else if (fileContent.compare(0, 7, "return ") == 0)
+		this->initReturn(fileContent);
 	else if (fileContent.compare(0, 10, "autoindex ") == 0)
 		this->initAutoindex(fileContent);
 	else if (fileContent.compare(0, 21, "client_max_body_size ") == 0)
@@ -161,6 +163,8 @@ void	parsconfigL(std::string& fileContent, std::map<std::string, Location>& loca
 		location[current].initCgi_path(fileContent);
 	else if (fileContent.compare(0, 8, "cgi_ext ") == 0)
 		location[current].initCgi_ext(fileContent);
+	else if (fileContent.compare(0, 11, "error_page ") == 0)
+		location[current].initError_page(fileContent);
 	else if (fileContent.compare(0, 9, "location ") == 0)
 	{
 			if (countWords(fileContent) != 3)
@@ -188,27 +192,52 @@ void	parsconfigL(std::string& fileContent, std::map<std::string, Location>& loca
 
 std::vector<std::string> splitconfigs(const std::string &fileContent)
 {
-	if (fileContent.compare(0, 8, "server {") != 0)
-		throw std::runtime_error("Error : No block of configuration 'server' find at debut.");
+    if (fileContent.compare(0, 8, "server {") != 0)
+        throw std::runtime_error("Error : No block of configuration 'server' found at start.");  
     std::vector<std::string> configs;
     size_t pos = 0;
-    size_t configStart = 0;
+	size_t extractedSize = 0;
 
-    while ((configStart = fileContent.find("server {", pos)) != std::string::npos) {
-        size_t configEnd = fileContent.find("\nserver {", configStart + 1);
+    while ((pos = fileContent.find("server {", pos)) != std::string::npos) {
+        size_t configStart = pos;
+        size_t configEnd = std::string::npos;
+        int bracketCount = 1;
 
-        if (configEnd == std::string::npos) {
-            configs.push_back(fileContent.substr(configStart));
-            break;
-        } else {
-            configs.push_back(fileContent.substr(configStart, configEnd - configStart));
-            pos = configEnd;
+        for (size_t i = configStart + 8; i < fileContent.size(); ++i) {
+            if (fileContent[i] == '{')
+			{
+				if (fileContent[i - 2] == 'r')
+				{
+					configEnd = i - 7;
+					break;
+				}
+                bracketCount++;
+			}
+            else if (fileContent[i] == '}') {
+                bracketCount--;
+                if (bracketCount == 0) {
+                    configEnd = i + 1;
+                    break;
+                }
+            }
         }
+        if (configEnd == std::string::npos)
+            configEnd = fileContent.size();
+
+        std::string serverBlock = fileContent.substr(configStart, configEnd - configStart);
+        configs.push_back(serverBlock);
+		extractedSize += serverBlock.size() + 1;
+        pos = configEnd;
     }
-	if (configs.empty())
-        throw std::runtime_error("Error : No block of configuration 'server' find.");
+	if (extractedSize != fileContent.size())
+        throw std::runtime_error("Error: Configuration contains lines outside of any 'server' block.");
+    if (configs.empty())
+        throw std::runtime_error("Error : No block of configuration 'server' found.");
+
+
     return configs;
 }
+
 
 void config::parseLocations(const std::vector<std::string>& lines, std::string& current)
 {
@@ -245,7 +274,7 @@ std::vector<std::string> cut_conf_serv(const int argc, char *configFile)
 	std::ifstream file(filename.c_str());
 	if (!file.is_open())
 	{
-		throw std::runtime_error("Error: Impossible d'ouvrir le fichier " + filename);
+		throw std::runtime_error("Error: unable to open file " + filename);
 	}
 	std::string fileContent;
 	std::string line;

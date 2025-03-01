@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:06:45 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/23 12:10:54 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/03/01 18:11:04 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@
 	extern std::time_t	newnext;
 
 	#define MAX_CLIENTS 10000
+	#define TIMEOUT 5
 
 	/* COLOR */
 	#define RED "\033[31m"
@@ -68,7 +69,6 @@
 			pollfd					pfd;
 			std::vector<pollfd>		all_pollfd;
 			std::string				return_word_after(const std::string &word, const std::string &str);
-			int						stringToInt(const std::string &str);
 	};
 
 	class monitoring
@@ -92,7 +92,5 @@
 	};
 
 	void		routine_servor(monitoring &moni);
-	void		creat_servor(std::vector<std::string> &cut_str_serv, monitoring &moni);
-	bool 		compar(const int fd, const std::vector<pollfd> &poll_servor);
 
 #endif

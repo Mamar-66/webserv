@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/24 13:01:06 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/03/01 15:52:17 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@
 	class	monitoring;
 	class	cgi;
 
-
 	class client
 	{
 		private:
@@ -53,7 +52,8 @@
 			std::string 	input;
 			std::string 	output;
 			bool			is_cgi;
-
+			bool			timeout;
+			std::string		location;
 
 		public:
 			client(int fdsocket, int fdFather);
@@ -62,6 +62,8 @@
 			size_t		content_lenght;
 			bool		chunked;
 			bool		first_pass;
+			bool		responce_cgi;
+			bool		client_close;
 			size_t		content_real;
 
 						/* GETTER */
@@ -71,8 +73,8 @@
 			const std::string		&getInput( void );
 			const std::string		&getOutput( void );
 			const bool				&getStatusCgi( void );
-			const size_t			&getSizeBody( void );
-			const bool				&getListing( void );
+			const bool				&getTimeoutBool( void );
+			const std::string		&getGoodLocation( void );
 
 			/* SETTER */
 			void				setInput(const std::string& str);
@@ -80,13 +82,18 @@
 			void				setCgiTrue();
 			void				setCgiFalse();
 			void				setActualTime();
+			void				setTimeoutBool( bool state );
+			void				setEnv(char **env);
+			void				setGoodLocation( std::string Location);
+
+			void				AddInput(const std::string &str);
 
 			pollfd				clien_pollfd;
 			pollfd				cgi_pollfd_write[2];
 			pollfd				cgi_pollfd_read[2];
 			bool 				write;
 
-			char 				*envp[4];
+			char 				**envp;
 			int					pipe_write[2];
 			int					pipe_read[2];
 
@@ -99,7 +106,6 @@
 	void	error(monitoring &servor, pollfd &poll, int i);
 	void	read_client(monitoring &moni, int &fd, int i);
 	bool	raph(monitoring &moni, client &cl);
-	void 	start_CGI(monitoring &moni, client &cl);
-	bool	time_out(monitoring &moni, int fd, int i);
+	bool	start_CGI(monitoring &moni, client &cl);
 
 #endif
