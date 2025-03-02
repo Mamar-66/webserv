@@ -6,7 +6,7 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/03/01 15:52:17 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/03/02 14:15:56 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@
 			bool		first_pass;
 			bool		responce_cgi;
 			bool		client_close;
+			bool		client_close_cgi;
 			size_t		content_real;
 
 						/* GETTER */
@@ -87,6 +88,7 @@
 			void				setGoodLocation( std::string Location);
 
 			void				AddInput(const std::string &str);
+			void				AddOutput(const std::string &str);
 
 			pollfd				clien_pollfd;
 			pollfd				cgi_pollfd_write[2];

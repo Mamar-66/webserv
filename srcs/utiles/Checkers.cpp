@@ -186,7 +186,6 @@ bool Checker::time_out(monitoring &moni, int fd, int i)
 	int tmp_fd = fd;
     std::map<int, std::string> mapCodeHtml;
     std::map<int, std::string> mapCodeLocation;
-   // std::cerr << "tmp: " << tmp_fd << " fd: " << fd << std::endl;
 	time_t nowTime = std::time(NULL);
     if (moni.clients.find(fd) != moni.clients.end()) {
         mapCodeHtml = moni.servors[moni.clients[fd]->getFDFather()]->getErrorPage();

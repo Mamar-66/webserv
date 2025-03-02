@@ -11,6 +11,7 @@ SRC	=	main.cpp \
 		serveur/routine.cpp \
 		serveur/creat_servors.cpp \
 		clients/client.cpp \
+		clients/read.cpp \
 		cgi/start_cgi.cpp \
 		config/config.cpp \
 		config/parssing.cpp \

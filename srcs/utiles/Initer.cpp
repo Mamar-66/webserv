@@ -189,3 +189,17 @@ serveur *Initer::malloc_serv(std::string &str)
 
 	return servor;
 }
+
+std::map<int, std::string> Initer::initMapConfig(monitoring& moni, int fd) {
+    std::map<int, std::string> mapCodeHtml;
+    std::map<int, std::string> mapCodeLocation;
+
+    if (moni.clients.find(fd) != moni.clients.end()) {
+        mapCodeHtml = moni.servors[moni.clients[fd]->getFDFather()]->getErrorPage();
+        mapCodeLocation = moni.servors[moni.clients[fd]->getFDFather()]->location[moni.clients[fd]->getGoodLocation()].getErrorPage();
+    }
+    for (std::map<int, std::string>::iterator ite = mapCodeLocation.begin(); ite != mapCodeLocation.end(); ite++) {
+        mapCodeHtml[ite->first] = ite->second;
+    }
+    return mapCodeHtml;
+}

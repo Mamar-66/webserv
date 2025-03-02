@@ -99,8 +99,9 @@ def response_http(status_code, message, redirect_url=None):
 	response += f"Content-Type: text/html\r\n"
 	response += f"Content-Length: {len(html_content)}\r\n"
 	response += "Connection: close\r\n\r\n"
-	response += html_content
+	# response += html_content
 	print(response)
+	print(html_content)
 
 # Vérifier et creer l'ID
 def generateID():
@@ -135,7 +136,6 @@ def get_form_data():
 		line = sys.stdin.read()
 	elif (os.getenv("METHOD") == "GET") :
 		line = os.getenv("FORM")
-	
 
 	if line is None:
 		return None, None, None, None
@@ -156,8 +156,8 @@ sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering=1)
 user_name, user_email, user_password, userID = get_form_data()
 
 if user_name and user_email and user_password and userID:
-	while True:
-		sleep(1)
+	# while True:
+		# sleep(2)
 	send_confirmation_email(user_email, user_name, user_password, userID)
 else:
 	response_http(500, "")

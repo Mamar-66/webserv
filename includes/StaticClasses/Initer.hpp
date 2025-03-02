@@ -25,4 +25,5 @@ class Initer {
         static std::string makeTheSample(std::string code, std::string str, std::string sample);
         static void		creat_servor(std::vector<std::string> &cut_str_serv, monitoring &moni);
         static serveur *malloc_serv(std::string &str);
+        static std::map<int, std::string> initMapConfig(monitoring& moni, int fd);
 };

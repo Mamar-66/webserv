@@ -154,7 +154,7 @@ void RequestIn::checkErrorHTTPHeaders( void /* ParseConfig& config */) {
             return ;
         }
     }
-    if ((this->mapParse.find("Cookie") == this->mapParse.end() && (this->uri.find("/conect") != std::string::npos)) || (this->uri.find("/conect") != std::string::npos && this->mapParse.find("Cookie") != this->mapParse.end() && this->monitor.mapCookie.find(this->mapParse["Cookie"].substr(1)) == this->monitor.mapCookie.end())) {
+    if ((this->mapParse.find("Cookie") == this->mapParse.end() && (this->uri.find("/cot") != std::string::npos)) || (this->uri.find("/conect") != std::string::npos && this->mapParse.find("Cookie") != this->mapParse.end() && this->monitor.mapCookie.find(this->mapParse["Cookie"].substr(1)) == this->monitor.mapCookie.end())) {
         this->codeHTTP = 401;
         return ;
     }
