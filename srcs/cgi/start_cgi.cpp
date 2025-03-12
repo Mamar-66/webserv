@@ -6,12 +6,11 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/14 16:58:02 by omfelk            #+#    #+#             */
-/*   Updated: 2025/03/02 14:36:58 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/03/04 17:18:48 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include	"../../includes/client.hpp"
-#include	"../../includes/Parser.hpp"
+#include	"../../includes/Webserv.h"
 
 
 #include <sys/wait.h>
@@ -21,8 +20,8 @@ void	config_cgi(monitoring &moni, client &cl)
 	if (pipe(cl.pipe_write) == -1 || pipe(cl.pipe_read) == -1)
 		throw std::runtime_error("Erreur de pipe");
 
-	std::cout << BLUE "client fd = " << cl.getFD() << " " << "pipe fd == " << cl.pipe_write[0] << " " << cl.pipe_write[1] << RESET << std::endl;
-	std::cout << BLUE "client fd = " << cl.getFD() << " " << "pipe fd == " << cl.pipe_read[0] << " " << cl.pipe_read[1] << RESET << std::endl;
+	// std::cout << BLUE "client fd = " << cl.getFD() << " " << "pipe fd == " << cl.pipe_write[0] << " " << cl.pipe_write[1] << RESET << std::endl;
+	// std::cout << BLUE "client fd = " << cl.getFD() << " " << "pipe fd == " << cl.pipe_read[0] << " " << cl.pipe_read[1] << RESET << std::endl;
 
 	cl.cgi_pollfd_write[0].fd = cl.pipe_write[0];
 	cl.cgi_pollfd_write[0].events = POLLIN | POLLOUT;
@@ -69,17 +68,13 @@ void	config_cgi(monitoring &moni, client &cl)
 		std::string envp_string =cl.envp[0];
 		std::string path =  envp_string.substr(envp_string.find('=') + 1);
 
-		//std::string tmp = "FD=" + Conversion::intToString(cl.pipe_read[1]) + "/" + Conversion::intToString(cl.pipe_read[0]);
-		//cl.envp[3] = strdup(tmp.c_str());
-
-		// std::cout << "envvv " << cl.envp[3] << std::endl;
-
-		 if (execve(path.c_str(), cl.envp, cl.envp) == -1)
+		if (execve(path.c_str(), cl.envp, cl.envp) == -1)
 			throw std::runtime_error(BLUE "exerve failled");
 	}
 	else
 	{
 		close(cl.pipe_read[1]);
+		cl.pid_child = pid;
 		std::cout << "finifinifnififniffin" << std::endl;
 	}
 }

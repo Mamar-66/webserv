@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/config.hpp"
+#include "../../includes/Webserv.h"
 
 void removeComments(std::string& content)
 {
@@ -159,8 +159,6 @@ void	parsconfigL(std::string& fileContent, std::map<std::string, Location>& loca
 		location[current].initReturn(fileContent);
 	else if (fileContent.compare(0, 6, "index ") == 0)
 		location[current].initIndex(fileContent);
-	else if (fileContent.compare(0, 9, "cgi_path ") == 0)
-		location[current].initCgi_path(fileContent);
 	else if (fileContent.compare(0, 8, "cgi_ext ") == 0)
 		location[current].initCgi_ext(fileContent);
 	else if (fileContent.compare(0, 11, "error_page ") == 0)
@@ -227,7 +225,7 @@ std::vector<std::string> splitconfigs(const std::string &fileContent)
         std::string serverBlock = fileContent.substr(configStart, configEnd - configStart);
         configs.push_back(serverBlock);
 		extractedSize += serverBlock.size() + 1;
-        pos = configEnd;
+         pos = configEnd;
     }
 	if (extractedSize != fileContent.size())
         throw std::runtime_error("Error: Configuration contains lines outside of any 'server' block.");
@@ -241,11 +239,9 @@ std::vector<std::string> splitconfigs(const std::string &fileContent)
 
 void config::parseLocations(const std::vector<std::string>& lines, std::string& current)
 {
-    //std::map<std::string, Location> locations;
-    int locationCount = 0;
+    size_t locationCount = 0;
 	std::string	chiant;
 
-	//std::cout <<  << std::endl;
    for (std::vector<std::string>::const_iterator it = lines.begin(); it != lines.end(); ++it) {
         const std::string& line = *it;
 
@@ -261,6 +257,8 @@ void config::parseLocations(const std::vector<std::string>& lines, std::string& 
             }
         }
     }
+	if (locationCount != location.size() && current.empty() == 0)
+			throw std::runtime_error("Error : same location");
 }
 
 std::vector<std::string> cut_conf_serv(const int argc, char *configFile)

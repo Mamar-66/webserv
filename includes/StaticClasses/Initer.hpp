@@ -5,7 +5,6 @@
 #include <iostream>
 #include <vector>
 
-#include "../Utils.hpp"
 #include "../Webserv.h"
 
 #include <sys/stat.h>
@@ -26,4 +25,5 @@ class Initer {
         static void		creat_servor(std::vector<std::string> &cut_str_serv, monitoring &moni);
         static serveur *malloc_serv(std::string &str);
         static std::map<int, std::string> initMapConfig(monitoring& moni, int fd);
+        static Cookie initCookie(std::string& response);
 };

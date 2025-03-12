@@ -9,19 +9,15 @@ OBJ_PATH	=	objs/
 SRC	=	main.cpp \
 		serveur/serveur.cpp \
 		serveur/routine.cpp \
-		serveur/creat_servors.cpp \
 		clients/client.cpp \
 		clients/read.cpp \
 		cgi/start_cgi.cpp \
 		config/config.cpp \
 		config/parssing.cpp \
 		RequestHandler/ParserCGI/ParserCGI.cpp \
-		RequestHandler/ParserCGI/UtilsParserCGI.cpp \
 		RequestHandler/ParserConstructor/ParserConstructors.cpp \
 		RequestHandler/ParserErrorChecker/ParserErrorChecker.cpp \
-		RequestHandler/ParserErrorChecker/UtilsParserErrorChecker.cpp \
 		RequestHandler/ParserResponseMaker/ParserDeleteMaker.cpp \
-		RequestHandler/ParserResponseMaker/UtilsParserDeleteMaker.cpp \
 		RequestHandler/ParserResponseMaker/ParserResponseMaker.cpp \
 		RequestHandler/ParserResponseMaker/UtilsParserPostMaker.cpp \
 		RequestHandler/ParserResponseMaker/ParserPostMaker.cpp \
@@ -29,13 +25,13 @@ SRC	=	main.cpp \
 		RequestHandler/generalUtils.cpp \
 		RequestHandler/ParserGetter.cpp \
 		Cookie/Cookies.cpp \
-		Cookie/UtilsCookie.cpp \
 		config/Location.cpp \
 		timeout/timeout.cpp \
 		utiles/Checkers.cpp \
 		utiles/Conversion.cpp \
 		utiles/GenericGetter.cpp \
 		utiles/Initer.cpp \
+		utiles/Modifier.cpp \
 
 
 
@@ -68,6 +64,7 @@ $(OBJ_PATH):
 			mkdir -p uploadServer
 			touch json/users.json
 			touch json/alreadyUsed.txt
+			touch html/conect/commentaire.txt
 
 $(NAME): $(OBJS)
 	@echo "\033[0;33m\nCOMPILING \033[31m Webserv \033[0;33m ...\n"
@@ -84,12 +81,22 @@ $(OBJ_PATH)%.o: $(SRC_PATH)%.cpp
 
 clean:
 		rm -rf $(OBJ_PATH)
-		rm -f json/users.json json/alreadyUsed.txt
 
 fclean: clean
 		rm -rf $(NAME)
 		rm -rf $(CGI_tester)
 
 re: fclean all
+
+init: $(OBJ_PATH)
+	@echo "\033[34m\nIniting every file/repertory \033[0m"
+
+restart:
+	@echo "\033[34m\nCleaning uploadServer Repertory and removing content of jsons. \033[0m"
+	rm -rf uploadServer/*
+	rm -rf json/users.json json/alreadyUsed.txt
+	touch json/users.json
+	touch json/alreadyUsed.txt
+	@echo "\033[34m\n Webserv Restarted \033[0m"
 
 .PHONY: all clean fclean re

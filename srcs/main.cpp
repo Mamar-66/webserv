@@ -6,13 +6,11 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 16:29:52 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/26 09:31:02 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/03/12 14:02:09 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/serveur.hpp"
-#include "../includes/config.hpp"
-#include "../includes/StaticClasses/Initer.hpp"
+#include "../includes/Webserv.h"
 
 // docker run --rm -t jstarcher/siege -b -c100 -r200 10.13.5.2:8080 | grep -v "HTTP"
 // valgrind --leak-check=full --track-fds=yes ./Webserv config/default.conf
@@ -63,11 +61,3 @@ int main(int argc, char **argv)
 
 	return 1;
 }
-
-/* REQUEST RECTIONNE 
-	TIMEOUT ERRR CODE
-	COOKIES CORREC
-	CGI CHECK
-	CGI CODE
-	CGI LANCEMENT
-*/

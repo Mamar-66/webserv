@@ -1,4 +1,4 @@
-#include "../../../includes/Parser.hpp"
+#include "../../../includes/Webserv.h"
 #include <iostream>
 #include <unistd.h>
 
@@ -8,7 +8,7 @@ RequestIn::RequestIn(RequestIn& cpy) :  monitor(cpy.monitor), cl(cpy.cl) {
     this->mapCount = cpy.mapCount;
 }
 
-/* Assigne;ent operator */
+/* Assignement operator */
 RequestIn& RequestIn::operator=(RequestIn& cpy) {
     this->mapParse = cpy.mapParse;
     this->mapCount = cpy.mapCount;
@@ -16,7 +16,8 @@ RequestIn& RequestIn::operator=(RequestIn& cpy) {
 }
 
 /* Default Constructor */
-RequestIn::RequestIn(client& request, monitoring& monitor/* , char **envp */) : monitor(monitor), cl(request) {
+RequestIn::RequestIn(client& request, monitoring& monitor) : monitor(monitor), cl(request) {
+    this->locSet = false;
     std::istringstream stream(request.getInput());
     this->serv = monitor.servors[request.getFDFather()];
     std::string line;
@@ -43,6 +44,7 @@ RequestIn::RequestIn(client& request, monitoring& monitor/* , char **envp */) : 
         std::getline(streamLine, key, ':');
         if (key.find('\n') != std::string::npos) {
             this->codeHTTP = 400;
+            std::cerr << "A1" << std::endl;
             return ;
         }
         std::getline(streamLine, value);
@@ -58,7 +60,6 @@ RequestIn::RequestIn(client& request, monitoring& monitor/* , char **envp */) : 
     std::istreambuf_iterator<char> eos;
     std::string s(std::istreambuf_iterator<char>(stream), eos);
     this->body = s;
-    std::cout << ORANGE << "----------------------------------------------------------_>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " << this->body << "<<<<<<<<" << RESET << std::endl; 
 }
 
 RequestIn::~RequestIn() {}

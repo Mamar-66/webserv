@@ -1,5 +1,4 @@
-#include "../../includes/Parser.hpp"
-#include "config.hpp"
+#include "../../includes/Webserv.h"
 
 std::vector<std::string> split(const std::string& str, char delimiter) {
     std::vector<std::string> tokens;
@@ -31,10 +30,15 @@ std::vector<std::string> split(const std::string& str, char delimiter) {
 
 std::string removeUriFile(std::string uri, RequestIn& req) {
     std::string test = GenericGetter::findRoot(req) + uri;
-    //std::cout << uri.substr(0, uri.find_last_of('?')) << Checker::isFile(uri.substr(0, uri.find_last_of('?'))) << std::endl;
+    if (req.getMethod() == "DELETE") {
+        if (!(Checker::isDirectory(req.getURI()))) {
+            return (uri.substr(0, uri.find_last_of('?')).substr(0, uri.find_last_of('/') + 1));
+        }
+    }
+    //std::cerr << uri.substr(0, uri.find_last_of('?')) << Checker::isFile(uri.substr(0, uri.find_last_of('?'))) << std::endl;
     if (Checker::isFile(test.substr(0, test.find_last_of('?'))) == true)
     {
-        // std::cout << uri.substr(0, uri.find_last_of('?')).substr(0, uri.find_last_of('/') + 1) << std::endl;
+        // std::cerr << uri.substr(0, uri.find_last_of('?')).substr(0, uri.find_last_of('/') + 1) << std::endl;
         return uri.substr(0, uri.find_last_of('?')).substr(0, uri.find_last_of('/') + 1);
     }
     return uri;
@@ -84,7 +88,7 @@ int count_alloc_env(RequestIn& req, std::map<int, std::string> mapErrorHtml)
 }
 
 char* my_strdup(const std::string& str) {
-    char* copy = new char[str.size() + 1];  // +1 pour '\0'
+    char* copy = new char[str.size() + 1];
     std::strcpy(copy, str.c_str());
     return copy;
 }
@@ -108,7 +112,6 @@ char **creatEnv(RequestIn& req, std::map<int, std::string> mapErrorHtml)
         env[i++] = my_strdup(error_entry.c_str());
     }
     env[i] = NULL;
-    //tester ERROR_PAGE vide
     return (env);
 }
 

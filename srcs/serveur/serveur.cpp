@@ -1,6 +1,5 @@
 
-#include "../../includes/serveur.hpp"
-#include "Location.hpp"
+#include "../../includes/Webserv.h"
 
 monitoring::monitoring()
 {
@@ -30,6 +29,14 @@ monitoring::~monitoring()
 /* -------------------------------------------------------- */
 /* --------------- CONSTRUCTOR / DESTRUCTOR --------------- */
 /* -------------------------------------------------------- */
+
+serveur::serveur(serveur& cpy) {
+	(void)cpy;
+}
+serveur& serveur::operator=(serveur& cpy) {
+	(void)cpy;
+	return *this;
+}
 
 int	serveur::creatSocket(const int &port)
 {
@@ -69,7 +76,7 @@ int	serveur::creatSocket(const int &port)
 	this->pfd.events = POLLIN;
 	this->pfd.revents = 0;
 
-	std::cout << ORANGE "hello constructor from serveur " << this->config_name << " FD = " << return_socket << RESET << std::endl;
+	// std::cerr << ORANGE "hello constructor from serveur " << this->config_name << " FD = " << return_socket << RESET << std::endl;
 
 	return return_socket;
 }
@@ -79,7 +86,8 @@ void serveur::addConfig(const std::string &strConfig)
 		std::string current;
 		std::vector<std::string> lines = splitLines(strConfig);
 		parseLocations(lines, current);
-
+		std::vector<std::string> locationNames;
+		
    		for (size_t i = 0; i < lines.size(); ++i)
 		{
 			lines[i] = normalizeSpaces(lines[i]);
@@ -127,7 +135,7 @@ void serveur::bind_port()
 	}
 
 	if (this->servor_socket.empty())
-		std::runtime_error("Error servor no creat");
+		throw std::runtime_error("Error servor no creat");
 }
 
 serveur::serveur(const std::string &strConfig)
@@ -142,13 +150,12 @@ serveur::serveur(const std::string &strConfig)
 		throw;
 	}
 
-
-	// std::cout << ORANGE "hello constructor from serveur FD = " <<  RESET << std::endl;
+	// std::cerr << ORANGE "hello constructor from serveur FD = " <<  RESET << std::endl;
 }
 
 serveur::~serveur()
 {
-	std::cout << ORANGE "destructor serveur" << RESET << std::endl;
+	// std::cerr << ORANGE "destructor serveur" << RESET << std::endl;
 	int size = this->servor_socket.size();
 	for (int i = 0; i < size; i++)
 		close(this->servor_socket[i]);
@@ -189,10 +196,13 @@ int	monitoring::where_are_fd_pipe(const int &fd)
 	{
 		for (; it != this->clients.end(); ++it)
 		{
-			if (fd == it->second->pipe_write[1])
-				return it->first;
-			else if (fd == it->second->pipe_read[0])
-				return it->first;
+			if (it->second->getStatusCgi())
+			{
+				if (fd == it->second->pipe_write[1])
+					return it->first;
+				else if (fd == it->second->pipe_read[0])
+					return it->first;
+			}
 		}
 	}
 	return -1;

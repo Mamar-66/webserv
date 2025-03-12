@@ -1,4 +1,4 @@
-#include "../../includes/Parser.hpp"
+#include "../../includes/Webserv.h"
 
 std::string RequestIn::getURI( void ) {
     return this->uri;
@@ -59,4 +59,24 @@ Location& RequestIn::getLoc( void ) {
 
 serveur* RequestIn::getServ( void ) {
     return this->serv;
+}
+
+std::string& RequestIn::getsessionId( void ) {
+    return this->sessionId;
+}
+
+bool    &RequestIn::getLocSet( void ) {
+    return this->locSet;
+}
+
+void    RequestIn::setCode( int code ) {
+    this->codeHTTP = code;
+}
+
+void    RequestIn::setUri( std::string uri) {
+    this->uri = uri;
+}
+
+void    RequestIn::setLoc( Location& loc ) {
+    this->loc = loc;
 }

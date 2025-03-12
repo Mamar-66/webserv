@@ -1,4 +1,4 @@
-#include "../../../includes/Parser.hpp"
+#include "../../../includes/Webserv.h"
 
 MyStack<std::string> create1Stack(const std::string& ch) {
     std::istringstream iss(ch);
@@ -20,50 +20,41 @@ std::map<MyStack<std::string>, std::string> createmapStackRedir(std::map<std::st
     return toReturn;
 }
 
-std::string checkRedir(RequestIn& req) { //, ParseConfig& conf) {
+std::string checkRedir(RequestIn& req, int n) { //, ParseConfig& conf) {
+
+    if (n >= 15) {
+        req.setCode(310);
+        return "";
+    }
 
     std::string retour = req.getLoc().getRetur();
-    
-    std::cout << "REtour: " << retour << std::endl;
-    return retour;
-    // const MyStack<std::string> stackRedir = create1Stack(ch);
-    
-
-    // /* Creation of artificial redirection, need to change with config.getRedir() */
-    // std::map<std::string, std::string> mapRedir;
-
-    // mapRedir["/d"] = "./";
-    // mapRedir["/e"] = "/exemple1-2";
-    // mapRedir["/d/d"] = "/exemple2-1";
-    // mapRedir["/d/e"] = "/exemple2-2";
-    // mapRedir["/e/d"] = "/exemple2-3";
-    // mapRedir["/e/e"] = "/exemple2-4";
-
-    // /* End */
-    // std::map<MyStack<std::string>, std::string> mapCorresp = createmapStackRedir(mapRedir);
-
-    // for (std::map<MyStack<std::string>, std::string>::iterator it = mapCorresp.begin(); it != mapCorresp.end(); it++)
-    //     if (it->first == stackRedir)
-    //         return it->second;
-    // return ch;
+    // std::cerr << n << "-" << req.getServ()->location.find(retour)->first << "|" << req.getServ()->location.find(retour)->second.getAutoindex() << "<>" << retour << std::endl;
+    if (retour == "" || req.getServ()->location.find(retour) == req.getServ()->location.end() || req.getServ()->location[retour].getRetur().empty())
+    {
+        // std::cerr << retour << std::endl;
+        return retour;
+    }
+    req.setUri(retour);
+    req.setLoc(req.getServ()->location[removeUriFile(req.getURI(), req)]);
+    return checkRedir(req, n+1);
 }
 
 std::vector<std::string> listDirectory(std::string path) {
     std::vector<std::string> vector;
-    DIR* dir = opendir(path.c_str());  // Ouvre le répertoire
+    DIR* dir = opendir(path.c_str());
 
     struct dirent* entry;
-    while ((entry = readdir(dir)) != NULL) {  // Parcourt chaque entrée
-        vector.push_back(entry->d_name);  // Affiche le nom du fichier/dossier
+    while ((entry = readdir(dir)) != NULL) {
+        vector.push_back(entry->d_name);
     }
 
-    closedir(dir);  // Ferme le répertoire
+    closedir(dir);
     return vector;
 }
 
 std::vector<std::string> makeBodyIndex( RequestIn& req ) {
     std::vector<std::string> vector;
-    std::string rootedDir = GenericGetter::findRoot(req); /* Change with config.getRootDir() */
+    std::string rootedDir = GenericGetter::findRoot(req);
     std::vector<std::string> listDir = listDirectory(rootedDir + req.getURI());
 
     vector.push_back("<!DOCTYPE html>\n<html>\n<head>\n<title>Index of ");
@@ -90,7 +81,7 @@ std::vector<std::string> makeAutoIndex( RequestIn& req ) {
     vector.push_back("HTTP/1.1 200 OK\r\n");
     vector.push_back("Content-Type: text/html; charset=UTF-8\r\n");
     vector.push_back("Content-Length: ");
-    vector.push_back(Conversion::intToString(static_cast<int>(bodyAutoIndex.size()) - 1));
+    vector.push_back(Conversion::intToString(static_cast<int>(bodyAutoIndex.size())));// - (!(bodyAutoIndex.empty()) - 1)));
     vector.push_back("\r\nConnection: close\r\nDate: ");
     vector.push_back(GenericGetter::getHttpDate());
     vector.push_back("\r\n\r\n");
@@ -103,6 +94,5 @@ void addElemToStr(std::string& str, MyStack<std::string>& stack) {
     std::string elem = stack.popTop();
     str += "/";
     str += elem;
-    std::cout << stack.empty() << std::endl;
+    // std::cerr << stack.empty() << std::endl;
 }
-

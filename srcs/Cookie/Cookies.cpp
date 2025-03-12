@@ -10,22 +10,23 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/Cookie.hpp"
+#include "../../includes/Webserv.h"
 
-Cookie::Cookie(const Cookie& cpy) : userID(cpy.userID), sessionID(cpy.sessionID), timestampLastUsed(cpy.timestampLastUsed) {}
+Cookie::Cookie(const Cookie& cpy) : userID(cpy.userID), sessionID(cpy.sessionID), username(cpy.username), timestampLastUsed(cpy.timestampLastUsed) {}
 
 Cookie& Cookie::operator=(const Cookie& cpy) {
     if (this != &cpy) {
         this->userID = cpy.userID;
         this->sessionID = cpy.sessionID;
+        this->username = cpy.username;
         this->timestampLastUsed = cpy.timestampLastUsed;
     }
     return *this;
 }
 
-Cookie::Cookie() : userID("NoneID"), sessionID("NoneID"), timestampLastUsed(0) {}
+Cookie::Cookie() : userID("NoneID"), sessionID("NoneID"), username("NoneUsr"),timestampLastUsed(0) {}
 
-Cookie::Cookie(std::string& u, std::string& s) : userID(u), sessionID(s), timestampLastUsed(0) {}
+Cookie::Cookie(std::string u, std::string s, std::string usr) : userID(u), sessionID(s), username(usr), timestampLastUsed(0) {}
 
 Cookie::~Cookie() {}
 
@@ -58,16 +59,23 @@ bool Cookie::isSessionStillUp(long timestamp, long timeToExpire) {
 
 
 /* Getters */
-std::string Cookie::getUserID( void ) {
+std::string& Cookie::getUserID( void ) {
     return this->userID;
 }
 
-std::string Cookie::getSessionID( void ) {
+std::string& Cookie::getSessionID( void ) {
     return this->sessionID;
 }
 
-long Cookie::getTimestamp( void ) {
+std::string& Cookie::getUsername( void ) {
+    return this->username;
+}
+
+long& Cookie::getTimestamp( void ) {
     return this->timestampLastUsed;
 }
 
+std::string Cookie::getRepertory( void ) {
+    return (this->username + "_" + this->userID);
+}
 

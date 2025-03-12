@@ -6,16 +6,14 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:07:36 by omfelk            #+#    #+#             */
-/*   Updated: 2025/03/02 14:15:56 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/03/03 15:31:59 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 	#define CLIENT_HPP
 
-	#include "serveur.hpp"
-	#include "Utils.hpp"
-	#include "Cookie.hpp"
+	#include "Webserv.h"
 
 	#include <sys/socket.h>
 	#include <unistd.h>
@@ -54,6 +52,8 @@
 			bool			is_cgi;
 			bool			timeout;
 			std::string		location;
+			client(client& cpy);
+			client& operator=(client& cpy);
 
 		public:
 			client(int fdsocket, int fdFather);
@@ -64,8 +64,8 @@
 			bool		first_pass;
 			bool		responce_cgi;
 			bool		client_close;
-			bool		client_close_cgi;
 			size_t		content_real;
+			pid_t		pid_child;
 
 						/* GETTER */
 			const int				&getFD( void );

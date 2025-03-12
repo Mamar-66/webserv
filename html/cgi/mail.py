@@ -14,6 +14,8 @@ from time import sleep
 
 # Fonction pour envoyer un email de confirmation
 def send_confirmation_email(user_email, user_name, user_password, userID):
+	print(os.getcwd(), file=sys.stderr)
+	os.mkdir(f"./uploadServer/{user_name}_{userID}")
 	sender_email = "omarsimonraphfbm@gmail.com"
 	sender_password = "kesobgtdxzoyyujm"
 	subject = "Confirmation d'ajout à la liste des utilisateurs"
@@ -45,9 +47,9 @@ def send_confirmation_email(user_email, user_name, user_password, userID):
 		server.quit()
 
 		add_user_to_json(user_name, user_email, user_password, userID)
-		response_http(200, f"")
+		response_http(200, f"", userID, user_name)
 	except Exception as e:
-		response_http(500, f"")
+		response_http(500, f"", userID, user_name)
 
 # Fonction pour ajouter un utilisateur au fichier JSON
 def add_user_to_json(user_name, user_email, user_password, userID):
@@ -74,11 +76,11 @@ def add_user_to_json(user_name, user_email, user_password, userID):
 			json.dump(users, file, indent=4)
 
 	except Exception as e:
-		response_http(500, f"")
+		response_http(500, f"", userID, user_name)
 
 
 # Fonction pour répondre en HTTP
-def response_http(status_code, message, redirect_url=None):
+def response_http(status_code, message, userID, user_name, redirect_url=None,):
 	html_content = ""
 	status_messages = {
 		200: "OK",
@@ -98,7 +100,8 @@ def response_http(status_code, message, redirect_url=None):
 		response += ""
 	response += f"Content-Type: text/html\r\n"
 	response += f"Content-Length: {len(html_content)}\r\n"
-	response += "Connection: close\r\n\r\n"
+	response += "Connection: close\r\n"
+	response += "Set-Cookie: " + user_name + "|" + userID + "\r\n\r\n"
 	# response += html_content
 	print(response)
 	print(html_content)
@@ -129,9 +132,6 @@ def get_form_data():
 	user_password = None
 	userID = generateID()
 
-	# while True:
-	#	 sleep(1)
-
 	if (os.getenv("METHOD") == "POST") :
 		line = sys.stdin.read()
 	elif (os.getenv("METHOD") == "GET") :
@@ -139,8 +139,8 @@ def get_form_data():
 
 	if line is None:
 		return None, None, None, None
+
 	parsed_data = urllib.parse.parse_qs(line)
-	print(parsed_data, file=sys.stderr)
 	if ("email" in parsed_data) :
 		user_email = urllib.parse.unquote(parsed_data.get("email", [""])[0])
 	if ("username" in parsed_data) :
@@ -157,7 +157,7 @@ user_name, user_email, user_password, userID = get_form_data()
 
 if user_name and user_email and user_password and userID:
 	# while True:
-		# sleep(2)
+	# 	sleep(2)
 	send_confirmation_email(user_email, user_name, user_password, userID)
 else:
-	response_http(500, "")
+	response_http(500, "", userID, user_name)

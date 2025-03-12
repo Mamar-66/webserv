@@ -19,8 +19,7 @@
 #include <sstream>
 #include <cstdlib>
 #include <map>
-#include "config.hpp"
-#include "Utils.hpp"
+#include "Webserv.h"
 
 class Location
 {
@@ -39,7 +38,6 @@ class Location
     	int 						getClientMaxBodySize() const;
 		std::map<int, std::string>	getErrorPage() const;
     	std::string 				getRetur() const;
-    	std::vector<std::string> 	getCgiPath() const;
     	MyVector<std::string>	 	getCgiExt() const;
 
 		void	initRoot(std::string& fileContent);
@@ -47,7 +45,6 @@ class Location
 		void	initAllow_methods(std::string& fileContent);
 		void	initClient(std::string& fileContent);
 		void	initReturn(std::string& fileContent);
-		void	initCgi_path(std::string& fileContent);
 		void	initCgi_ext(std::string& fileContent);
 		void	initLocation(std::string& fileContent);
 		void	initError_page(std::string& fileContent);
@@ -64,7 +61,6 @@ class Location
 		bool						verifauto;
 		int							client_max_body_size;
 		std::string					retur;
-		std::vector<std::string>	cgi_path;
 		MyVector<std::string>		cgi_ext;	
 		bool 						passwordDependent;
     protected:

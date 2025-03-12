@@ -14,16 +14,6 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
-#include "Utils.hpp"
-#include "Webserv.h"
-#include "serveur.hpp"
-#include "Cookie.hpp"
-
-#include "StaticClasses/Conversion.hpp"
-#include "StaticClasses/Checkers.hpp"
-#include "StaticClasses/Initer.hpp"
-#include "StaticClasses/GenericGetter.hpp"
-
 class RequestIn {
     private:
         std::map<std::string, std::string> mapParse;
@@ -38,7 +28,10 @@ class RequestIn {
         std::string mimeAccept;
         int codeHTTP;
         std::string boundary;
+        std::string sessionId;
+        std::string typeRequestGen;
 
+        bool locSet;
         monitoring& monitor;
         serveur* serv;
         Location  loc;
@@ -72,7 +65,7 @@ class RequestIn {
         std::map<std::string, int> getMapCount( void );
 
         int getLength( void );
-        
+        bool        &getLocSet( void );
         std::string getMethod( void );
         std::string getProtocol( void );
         std::string getStringCode( void );
@@ -85,10 +78,14 @@ class RequestIn {
         monitoring& getMonitor( void );
 
         std::vector<std::string> getVector( void );
-        std::vector<std::string> getEnvVector( void );
+        
+        std::string& getsessionId( void );
 
         /* Setters */
         
+        void setCode( int code );
+        void setUri( std::string uri );
+        void setLoc(Location& loc);
 		/* omar */
 };
         char **creatEnv(RequestIn& req, std::map<int, std::string> mapErrorHtml);

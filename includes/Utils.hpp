@@ -26,6 +26,7 @@ class MyTriple {
             this->third = cpy.third;
             return *this;
         }
+        ~MyTriple() {}
 
         MyTriple& operator()(T1 f, T2 s, T3 t) {
             this->first = f;

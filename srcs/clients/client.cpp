@@ -6,16 +6,23 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/03/02 14:34:48 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/03/03 15:31:50 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/client.hpp"
-#include "../../includes/Parser.hpp"
+#include "../../includes/Webserv.h"
 
 /* -------------------------------------------------------- */
 /* --------------CONSTRUCTOR / DESTRUCTOR------------------ */
 /* -------------------------------------------------------- */
+
+client::client(client& cpy) {
+	(void)cpy;
+}
+client& client::operator=(client& cpy) {
+	(void)cpy;
+	return *this;
+}
 
 int		creat_socket_cgi()
 {
@@ -40,9 +47,9 @@ int		creat_socket_cgi()
 	socklen_t addr_len = sizeof(addr);
 	if (getsockname(return_socket, (struct sockaddr *)&addr, &addr_len) == -1)
 		throw std::runtime_error("Error get port");
-	unsigned short	port = ntohs(addr.sin_port);
+	// unsigned short	port = ntohs(addr.sin_port);
 
-	std::cout << "CGI Port : " << port << " fd : " << return_socket << std::endl;
+	// std::cerr << "CGI Port : " << port << " fd : " << return_socket << std::endl;
 
 	return return_socket;
 }
@@ -50,7 +57,7 @@ int		creat_socket_cgi()
 client::client(int fdsocket, int fdFather) :
 socket_fd(fdsocket), socket_fd_father(fdFather),
 is_cgi(false), content_lenght(0), chunked(false), first_pass(false),
-responce_cgi(false), client_close(0), client_close_cgi(0), content_real(0) 
+responce_cgi(false), client_close(0), content_real(0), pid_child(0)
 {
 	this->timeout = false;
 	this->startTime = std::time(NULL);
@@ -63,7 +70,7 @@ responce_cgi(false), client_close(0), client_close_cgi(0), content_real(0)
 	this->clien_pollfd.events = POLLIN | POLLOUT;
 	this->clien_pollfd.revents = 0;
 
-	std::cout << GREEN "creat client fd : " << this->socket_fd << "time = " << this->startTime << RESET << std::endl;
+	std::cerr << GREEN "creat client fd : " << this->socket_fd << "time = " << this->startTime << RESET << std::endl; /* To keep */
 }
 
 client::~client()
@@ -71,7 +78,7 @@ client::~client()
 	if (this->socket_fd != -1)
 	{
 		close(this->socket_fd);
-		std::cout << RED "delete client whith close fd : " << this->socket_fd << RESET << std::endl;
+		std::cerr << RED "delete client whith close fd : " << this->socket_fd << RESET << std::endl; /* To keep */
 
 		if (this->getStatusCgi())
 		{
@@ -89,7 +96,7 @@ client::~client()
 		}
 	}
 	else
-		std::cout << RED "delete client warning don't close fd : " << this->socket_fd << RESET << std::endl;
+		std::cerr << RED "delete client warning don't close fd : " << this->socket_fd << RESET << std::endl; /* To keep */
 }
 
 /* -------------------------------------------------------- */
@@ -208,7 +215,7 @@ void	creat_client(monitoring &moni, int &fd)
 		std::cerr << RED "error from accept" RESET << std::endl;
 	else
 	{
-		// std::cout << ORANGE "creat client fd : " << tmp_fd_client << " from serveur : " << fd <<  RESET << std::endl;
+		// std::cerr << ORANGE "creat client fd : " << tmp_fd_client << " from serveur : " << fd <<  RESET << std::endl; /* Remove if you want to see which server created the connexion */
 
 		new_client = new client(tmp_fd_client, fd);
 		if (!new_client)
@@ -230,12 +237,12 @@ void	responding(monitoring &moni, int &fd, int i)
 
 	if (it == moni.clients.end())
 	{
-		// std::cout << "client cgi ok write fd " << fd << std::endl;
+		// std::cerr << "client cgi ok write fd " << fd << std::endl;
 		int tmp_fd = moni.where_are_fd_pipe(fd);
 		if (tmp_fd == -1)
 			std::cerr << RED "error tmp_fd where_are_fd_pipe" RESET << std::endl;
 
-		std::cout << "tmp : " << tmp_fd << "input : " << (*moni.clients[tmp_fd]).getInput() << std::endl;
+		// std::cerr << "tmp : " << tmp_fd << "\ninput : " << (*moni.clients[tmp_fd]).getInput() << std::endl; /* Uncomment if you want to see the request */ 
 
 		(*moni.clients[tmp_fd]).setInput("\n");
 
@@ -258,7 +265,7 @@ void	responding(monitoring &moni, int &fd, int i)
 		}
 		else
 		{
-			std::cout << RED "write ok dans pipe" RESET << std::endl;
+			// std::cerr << RED "write ok dans pipe" RESET << std::endl;
 
 			(*moni.clients[tmp_fd]).first_pass = false;
 			(*moni.clients[tmp_fd]).content_real = 0;
@@ -273,6 +280,8 @@ void	responding(monitoring &moni, int &fd, int i)
 	{
 		if (moni.clients[fd]->responce_cgi)
 		{
+			// std::cerr << GREEN << moni.clients[fd]->getOutput() << RESET << std::endl;
+			Modifier::modifyMapCookies(moni, const_cast<std::string&>(moni.clients[fd]->getOutput()));
 			ssize_t bytes_sent = send(fd, moni.clients[fd]->getOutput().c_str(), moni.clients[fd]->getOutput().size(), 0);
 			if (bytes_sent == 0)
 			{
@@ -286,7 +295,7 @@ void	responding(monitoring &moni, int &fd, int i)
 				delete_client(moni, fd, i);
 				return;
 			}
-			std::cout << "cgie repondu" << std::endl;
+			// std::cerr << "cgie repondu" << std::endl;
 			delete_client(moni, fd, i);
 		}
 	}
@@ -299,7 +308,7 @@ void	responding(monitoring &moni, int &fd, int i)
 		}
 		if (!(*moni.clients[fd]).getStatusCgi() && !(*moni.clients[fd]).getOutput().empty())
 		{
-			// std::cout << ORANGE "Input from responding fd " << (*moni.clients[fd]).getFD() << "= " << BLUE << (*moni.clients[fd]).getInput() << RESET << std::endl;
+			// std::cerr << ORANGE "Input from responding fd " << (*moni.clients[fd]).getFD() << "= " << BLUE << (*moni.clients[fd]).getInput() << RESET << std::endl;
 
 			ssize_t bytes_sent = send((*moni.clients[fd]).getFD(), (*moni.clients[fd]).getOutput().c_str(), (*moni.clients[fd]).getOutput().size(), 0);
 			if (bytes_sent == 0)
@@ -327,48 +336,40 @@ void	error(monitoring &moni, pollfd &poll, int i)
 	if (it != moni.clients.end() && cl)
 	{
 		if(Checker::compar(cl->getFD(), moni.all_pollfd_servor))
-			std::cout <<RED << "is a servor" << RESET << std::endl;
+			std::cerr <<RED << "is a servor" << RESET << std::endl;
 	}
 	else if (poll.revents & POLLERR)
-		std::cout <<RED << "POLLERR" << RESET << std::endl;
+		std::cerr <<RED << "POLLERR" << RESET << std::endl;
 	else if (poll.revents & POLLHUP)
-		std::cout <<RED << "POLLHUP" << RESET << std::endl;
+		std::cerr <<RED << "POLLHUP" << RESET << std::endl;
 	else if (poll.revents & POLLNVAL)
-		std::cout << RED << "POLLNVAL" << RESET << std::endl;
+		std::cerr << RED << "POLLNVAL" << RESET << std::endl;
 	else if (poll.revents & POLLRDHUP)
-		std::cout << RED << "POLLRDHUP" << RESET << std::endl;
+		std::cerr << RED << "POLLRDHUP" << RESET << std::endl;
 
-	std::cout << "dans error fd : " << poll.fd << std::endl;
+	std::cerr << "in fd number : " << poll.fd << std::endl;
 	delete_client(moni, poll.fd, i);
 }
 
 bool	raph(monitoring &moni, client &cl)
 {
 	/* reponce */
+	// std::cerr << cl.getInput() << std::endl;
 	RequestIn test(cl, moni);
-    // std::cout << test.getCode() << std::endl;
-    // std::cout << "---------------" << std::endl;
-    if (test.getCode() == 200) {
+    if (test.getCode() == 200)
         test.checkErrorHTTPHeaders();
-        // std::cout << test.getCode() << std::endl;
-    }
-    // std::cout << test.getCode() << std::endl;
-    if (test.getCode() == 200) {
+    if (test.getCode() == 200)
         test.checkErrorHTTPBody();
-        // std::cout << test.getCode() << std::endl;
-    }
-    if (test.getCode() == 200) {
+    if (test.getCode() == 200){
         test.parseBody();
-        // std::cout << test.getCode() << std::endl;
-    }
+	}
 	std::string response = test.makeResponse();
 
-	// std::cout << ORANGE << "responce : " << response << RESET << std::endl;
+	// std::cerr << ORANGE << "response : " << response << RESET << std::endl; /* remove if you want to see the output */
 
 	if (!cl.getStatusCgi())
 		cl.setOutput(response);
 	else
 		cl.AddInput(response);
-
 	return cl.getStatusCgi();
 }

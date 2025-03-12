@@ -1,5 +1,5 @@
-#include "../../includes/StaticClasses/Checkers.hpp"
-#include "../../includes/StaticClasses/GenericGetter.hpp"
+#include "../../includes/Webserv.h"
+
 
 Checker::Checker() {}
 Checker::~Checker() {}
@@ -14,19 +14,17 @@ Checker& Checker::operator=(Checker& cpy) {
 bool Checker::isDirectory(const std::string& path) {
     struct stat pathStat;
     if (stat(path.c_str(), &pathStat) == 0) {
-        // Vérifie si le type correspond à un répertoire
         return (pathStat.st_mode & S_IFMT) == S_IFDIR;
     }
-    return false; // Chemin invalide ou erreur
+    return false;
 }
 
 bool Checker::isFile(const std::string& path) {
     struct stat pathStat;
     if (stat(path.c_str(), &pathStat) == 0) {
-        // Vérifie si le type correspond à un fichier régulier
         return (pathStat.st_mode & S_IFMT) == S_IFREG;
     }
-    return false; // Chemin invalide ou erreur
+    return false;
 }
 
 int Checker::compNb(std::string s) {
@@ -125,10 +123,10 @@ int Checker::parseJson(std::string& body) {
     return Checker::AnalyseStacks(stackElem, stackComa);
 }
 
-int Checker::parseCatFile(std::string f, RequestIn& req) { //, ParseConfig& conf) {
+int Checker::parseCatFile(std::string f, RequestIn& req) {
     std::istringstream iss(f);
     std::string root = GenericGetter::findRoot(req);
-    std::istringstream is2(root); // Change to conf.getRoot()
+    std::istringstream is2(root);
 
     MyStack<std::string> stackRepo;
     MyStack<std::string> stackDefault;
@@ -172,7 +170,7 @@ bool	Checker::if_close_pipe(monitoring &moni, int fd, int i)
 {
 	if (moni.all_all_pollfd[i].revents & POLLHUP)
 	{
-		std::cout << RED "close read pipe pipe read fd : " << fd << RESET << std::endl;
+		// std::cerr << RED "close read pipe pipe read fd : " << fd << RESET << std::endl;
 		close((*moni.clients[fd]).pipe_read[0]);
 		moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
 		moni.clients[fd]->responce_cgi = true;
@@ -185,18 +183,12 @@ bool Checker::time_out(monitoring &moni, int fd, int i)
 {
 	int tmp_fd = fd;
     std::map<int, std::string> mapCodeHtml;
-    std::map<int, std::string> mapCodeLocation;
 	time_t nowTime = std::time(NULL);
-    if (moni.clients.find(fd) != moni.clients.end()) {
-        mapCodeHtml = moni.servors[moni.clients[fd]->getFDFather()]->getErrorPage();
-        mapCodeLocation = moni.servors[moni.clients[fd]->getFDFather()]->location[moni.clients[fd]->getGoodLocation()].getErrorPage();
-    }
 	std::map<int, client*>::iterator it = moni.clients.find(fd);
-    for (std::map<int, std::string>::iterator ite = mapCodeLocation.begin(); ite != mapCodeLocation.end(); ite++) {
-        mapCodeHtml[ite->first] = ite->second;
-    }
+
 	if (fd > 0)
 	{
+
 		if (it == moni.clients.end())
 		{
 			tmp_fd = moni.where_are_fd_pipe(fd);
@@ -205,6 +197,9 @@ bool Checker::time_out(monitoring &moni, int fd, int i)
 			if (Checker::if_close_pipe(moni, tmp_fd, i))
 				return true;
 		}
+        else {
+            mapCodeHtml = Initer::initMapConfig(moni, fd);
+        }
 		if (nowTime - moni.clients[tmp_fd]->getStartTime() >= TIMEOUT)
 		{
 			if (moni.all_all_pollfd[i].revents & POLLOUT)
@@ -217,18 +212,16 @@ bool Checker::time_out(monitoring &moni, int fd, int i)
 				std::string response = timeout(*moni.clients[tmp_fd], moni, str, mapCodeHtml);
 				ssize_t bytes_sent = send(tmp_fd, response.c_str(), response.size(), 0);
 				if (bytes_sent == 0)
-				{
 					std::cerr << RED "Sending Error socket data close" << std::endl;
-					delete_client(moni, tmp_fd, i);
-					return true;
-				}
 				else if (bytes_sent == -1)
-				{
 					std::cerr << RED "Send Error CONNECTION" << std::endl;
-					delete_client(moni, tmp_fd, i);
-					return true;
+				else
+					std::cerr << "conection close (timeout) " << tmp_fd << ":" << fd << std::endl;
+				if (moni.clients[tmp_fd]->pid_child > 0)
+				{
+					kill(moni.clients[tmp_fd]->pid_child, SIGKILL);
+					std::cerr << RED "kill cgi " RESET << std::endl;
 				}
-				std::cout << "conection close (timeout) " << tmp_fd << ":" << fd << std::endl;
 				delete_client(moni, tmp_fd, i);
 				return true;
 			}

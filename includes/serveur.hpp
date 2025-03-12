@@ -6,17 +6,12 @@
 /*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 19:06:45 by omfelk            #+#    #+#             */
-/*   Updated: 2025/03/01 18:11:04 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/03/12 13:47:11 by omfelk           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVEUR_HPP
-#define SERVEUR_HPP
-
-	#include "client.hpp"
-	#include "config.hpp"
-	#include "Location.hpp"
-	#include "Cookie.hpp"
+# define SERVEUR_HPP
 
 	#include <netinet/in.h>
 	#include <unistd.h>
@@ -26,6 +21,7 @@
 	#include <string>
 	#include <cstring>
 	#include <map>
+	#include <vector>
 	#include <set>
 	#include <errno.h>
 	#include <sstream>
@@ -33,12 +29,15 @@
 
 	#include <ctime>
 	
+	// #include "config.hpp"
+	#include "Webserv.h"
+
 	extern bool 		running;
 	extern std::time_t	start;
 	extern std::time_t	newnext;
 
 	#define MAX_CLIENTS 10000
-	#define TIMEOUT 5
+	#define TIMEOUT 10
 
 	/* COLOR */
 	#define RED "\033[31m"
@@ -61,6 +60,9 @@
 			int				listen_port(const int &port);
 			void			bind_port();
 
+			serveur(serveur& cpy);
+			serveur& operator=(serveur& cpy);
+
 		public:
 			serveur(const std::string &strConfig);
 			virtual ~serveur();
@@ -78,8 +80,6 @@
 		public :
 			monitoring();
 			~monitoring();
-
-
 
 			std::vector<pollfd>		all_pollfd_servor;
 			std::vector<pollfd>		all_all_pollfd;

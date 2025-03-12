@@ -1,4 +1,4 @@
-#include "../../includes/StaticClasses/Conversion.hpp"
+#include "../../includes/Webserv.h"
 
 Conversion::Conversion() {}
 Conversion::~Conversion() {}

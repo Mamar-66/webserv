@@ -1,4 +1,4 @@
-#include "../../includes/StaticClasses/Initer.hpp"
+#include "../../includes/Webserv.h"
 
 Initer::Initer() {}
 
@@ -104,7 +104,6 @@ std::string Initer::loadPage(std::string& catFile) {
     while (std::getline(file, line)) {
         htmlResponse += line;
         htmlResponse += "\n";
-        //htmlResponse += "\r\n";
     }
     return htmlResponse;
 }
@@ -113,13 +112,16 @@ std::string Initer::generateSessionId() {
     std::string str = "";
     std::string base = "0123456789abcdef";
 
-    return "TO DO";
-    // for (int i = 0; i < 4; ++i) {
-    //     for (int j = 0; j < 8; ++j) {
-            
-    //     }
-    // }
+    std::srand(std::time(NULL));
 
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            str += base[std::rand() % 16];            
+        }
+        str += "-";
+    }
+    // std::cerr << str.substr(0, 35) << std::endl;
+    return (str.substr(0, 35));
 }
 
 std::string Initer::makeTheSample(std::string code, std::string str, std::string sample) {
@@ -155,6 +157,7 @@ void	Initer::creat_servor(std::vector<std::string> &cut_str_serv, monitoring &mo
 
 	for (std::vector<std::string>::iterator it = cut_str_serv.begin(); it != cut_str_serv.end(); ++it)
 	{
+		servor = NULL;
 		if (i >= size)
 			break;
 
@@ -175,7 +178,7 @@ serveur *Initer::malloc_serv(std::string &str)
 {
 	serveur *servor = NULL;
 
-	std::cout << str << std::endl;
+	std::cerr << GREEN << str << RESET << std::endl;
 
 	try
 	{
@@ -203,3 +206,14 @@ std::map<int, std::string> Initer::initMapConfig(monitoring& moni, int fd) {
     }
     return mapCodeHtml;
 }
+
+Cookie Initer::initCookie(std::string& response) {
+   // std::cerr << response.substr(response.find("Set-Cookie: ") + 12, response.substr(response.find("Set-Cookie: ") + 12).find("\r\n")) << std::endl;
+    std::string CookieString = response.substr(response.find("Set-Cookie: ") + 12, response.substr(response.find("Set-Cookie: ") + 12).find("\r\n"));
+    std::vector<std::string> vectorData = split(CookieString, '|');
+    std::string stringId = Initer::generateSessionId();
+    response.replace(response.find(CookieString), CookieString.size(), "sessionID=" + stringId + "; Path=/");
+    Cookie cookieTemp(vectorData[1], stringId, vectorData[0]);
+    return cookieTemp;
+}
+

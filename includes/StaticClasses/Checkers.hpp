@@ -5,7 +5,6 @@
 #include <iostream>
 #include <vector>
 
-#include "../Utils.hpp"
 #include "../Webserv.h"
 
 #include <sys/stat.h>

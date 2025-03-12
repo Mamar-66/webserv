@@ -10,10 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/config.hpp"
-
-#include "config.hpp"
-#include "Location.hpp"
+#include "../../includes/Webserv.h"
 
 config::config(void) : port(0), config_name("Default"), autoindex(false), verifauto(false), client_max_body_size(-1)
 {
@@ -191,15 +188,6 @@ void config::initError_page(std::string& fileContent)
 		throw std::runtime_error("Error : Missing direction, error_page");
 	for (int i = 0; i < static_cast<int>(error_codes.size()); i++)
 		error_page[error_codes[i]] =  name;
-	//std::vector<int> found_codes = getErrorCodesForName(error_page, "ClientErrors");
-    //     // Affiche tous les codes d'erreur
-    //     std::cout << "Found error codes: ";
-    //     for (std::vector<int>::iterator it = found_codes.begin(); it != found_codes.end(); ++it) {
-    // int code = *it;
-    // // Traitement
-    //         std::cout << code << " ";
-    //     }
-    //     std::cout << std::endl;
 }
 
 void	config::initAutoindex(std::string& fileContent)

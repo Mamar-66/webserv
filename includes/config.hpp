@@ -21,7 +21,7 @@
 	#include <string>
 	#include <climits>
 	#include <fstream>
-	#include "Location.hpp"
+	#include "Webserv.h"
 
 		/* COLOR */
 	#define RED "\033[31m"

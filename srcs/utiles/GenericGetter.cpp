@@ -1,4 +1,16 @@
-#include "../../includes/StaticClasses/GenericGetter.hpp"
+#include "../../includes/Webserv.h"
+
+GenericGetter::GenericGetter() {
+}
+GenericGetter::GenericGetter(GenericGetter& cpy) {
+    (void)cpy;
+}
+GenericGetter& GenericGetter::operator=(GenericGetter& cpy) {
+    (void)cpy;
+    return *this;
+}
+GenericGetter::~GenericGetter() {
+}
 
 std::string GenericGetter::getHttpDate() {
     char buffer[100];
@@ -17,13 +29,17 @@ std::string GenericGetter::postGetBoundary(std::string& str) {
 std::string GenericGetter::getLittleInBig(std::string& input, std::string& delim, std::string& deli2) {
 	size_t beg = input.find(delim) + delim.size();
 	size_t end = input.find(deli2, beg);
-
 	std::string subs = input.substr(beg, end - beg);
+    
 	return subs;
 }
 
 std::string GenericGetter::findRoot(RequestIn& req) {
-    std::string root = req.getLoc().getRoot();
+
+    std::string root = "";
+    std::cerr << ORANGE << req.getLocSet() << RESET << std::endl;
+    if (req.getLocSet())
+        root = req.getLoc().getRoot();
     if (root.empty()) 
         root = req.getServ()->getRoot();
     if (root.empty())

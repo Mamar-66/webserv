@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <map>
 
-#include "Utils.hpp"
+#include "Webserv.h"
 
 class Cookie {
     private:
@@ -14,12 +14,13 @@ class Cookie {
 
         std::string userID;
         std::string sessionID;
+        std::string username;
         long timestampLastUsed;
 
     public:
         /* Constructors */
         Cookie();
-        Cookie(std::string& u, std::string& s);
+        Cookie(std::string u, std::string s, std::string usr);
         ~Cookie();
         Cookie(const Cookie& cpy);
         Cookie& operator=(const Cookie& cpy);
@@ -35,8 +36,10 @@ class Cookie {
         bool isSessionStillUp(long timestamp, long timeToExpire);
 
         /* Getters */
-        std::string getUserID( void );
-        std::string getSessionID( void );
-        long getTimestamp( void );
+        std::string& getUserID( void );
+        std::string& getSessionID( void );
+        std::string& getUsername( void );
+        long& getTimestamp( void );
 
+        std::string getRepertory( void );
 };

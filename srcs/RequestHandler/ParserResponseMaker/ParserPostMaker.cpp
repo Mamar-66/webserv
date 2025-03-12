@@ -1,36 +1,75 @@
-#include "../../../includes/Parser.hpp"
+#include "../../../includes/Webserv.h"
+#include <fstream>
+#include <iostream>
 
 std::vector<std::string> RequestIn::PushResponse( void /* ParseConfig& config */ ) {
     std::map<int, std::string> mapCode = Initer::initCodeMap();
-    std::string rootedDir = GenericGetter::findRoot(*this); // CHANGE WITH CONF
+    std::string rootedDir = GenericGetter::findRoot(*this);
     std::vector<std::string> vectorElems;
     std::string sample201 = "./html/conect/utilsSample/uploadSucces.html";
+    std::string sample201T = "./html/conect/utilsSample/commentSuccess.html";
     std::string catFile = rootedDir + this->uri;
+    std::string ComPage = "./html/conect/commentaires.txt";
+    bool type = false;
+    std::fstream file(ComPage.c_str(), std::ios::out | std::ios::app);
+    std::map<int, std::string> mapCodeHtml = Initer::initMapConfig(this->monitor, this->cl.getFD());
 
-    std::map<int, std::string> mapCodeHtml = this->serv->getErrorPage();
-    std::map<int, std::string> mapCodeLocation = this->loc.getErrorPage();
-    for (std::map<int, std::string>::iterator it = mapCodeLocation.begin(); it != mapCodeLocation.end(); it++)
-        mapCodeHtml[it->first] = it->second;
+    if (!(file.is_open())) 
+        this->codeHTTP = 500;
     
     if (this->codeHTTP - 400 < 0) {
-        MyTriple<std::string, std::string, bool> fileToSave = makeFilePost(*this);
-        std::cout << ORANGE << (Checker::isFile(catFile.substr(0, catFile.find_last_of('?'))) && this->loc.getCgiExt() == catFile.substr(0, catFile.find_last_of('?')).substr(catFile.find_last_of('.')) && access(catFile.substr(0, catFile.find_last_of('?')).c_str(), X_OK) == 0) << std::endl;
-        if (Checker::isFile(catFile.substr(0, catFile.find_last_of('?'))) && this->loc.getCgiExt() == catFile.substr(0, catFile.find_last_of('?')).substr(catFile.find_last_of('.')) && access(catFile.substr(0, catFile.find_last_of('?')).c_str(), X_OK) == 0)  {
-            return this->holdCGI(mapCodeHtml);
+        std::cerr << GREEN << this->typeRequestGen << RESET << std::endl;
+        if (this->typeRequestGen != "multipart/form-data;") {
+            // std::cerr << ORANGE << (Checker::isFile(catFile.substr(0, catFile.find_last_of('?'))) && this->loc.getCgiExt() == catFile.substr(0, catFile.find_last_of('?')).substr(catFile.find_last_of('.')) && access(catFile.substr(0, catFile.find_last_of('?')).c_str(), X_OK) == 0) << std::endl;
+            if (Checker::isFile(catFile.substr(0, catFile.find_last_of('?'))) && this->locSet && this->loc.getCgiExt() == catFile.substr(0, catFile.find_last_of('?')).substr(catFile.find_last_of('.')) && access(catFile.substr(0, catFile.find_last_of('?')).c_str(), X_OK) == 0)  {
+                return this->holdCGI(mapCodeHtml);
+            }
+            if (this->mapParse["Content-Type"] == " text/plain") {
+                file << this->monitor.mapCookie[this->sessionId].getUsername() << " has posted a comment on " << GenericGetter::getHttpDate() << ":\n" << this->body << "\n\n";
+                type = true;
+            }
+            if (this->locSet && this->loc.getCgiExt() == catFile.substr(0, catFile.find_last_of('?')).substr(catFile.find_last_of('.')))
+            {
+                this->codeHTTP = 404;
+                return this->GetResponse();
+            }
+            else {
+                this->codeHTTP = 204;
+                this->stringCode = mapCode[this->codeHTTP];
+                std::vector<std::string> vectoNoChanges;
+                vectoNoChanges.push_back("HTTP/1.1 ");
+                vectoNoChanges.push_back(Conversion::intToString(this->codeHTTP));
+                vectoNoChanges.push_back(" ");
+                vectoNoChanges.push_back(this->stringCode);
+                vectoNoChanges.push_back("\r\n");
+                vectoNoChanges.push_back("Content-Type: text/html\r\n");
+                vectoNoChanges.push_back("Content-Length: ");
+                vectoNoChanges.push_back("0");// - (!(htmlResponse.empty()) - 1)));
+                vectoNoChanges.push_back("\r\n");
+                vectoNoChanges.push_back("Connexion: ");
+                vectoNoChanges.push_back("close\r\n");
+                vectoNoChanges.push_back("Date: ");
+                vectoNoChanges.push_back(GenericGetter::getHttpDate());
+                vectoNoChanges.push_back("\r\n\r\n");
+                return vectoNoChanges;
+            }
         }
-        createFile(fileToSave);
+        MyTriple<std::string, std::string, bool> fileToSave = makeFilePost(*this);
+        createFile(fileToSave, *this);
 
-        if (fileToSave.third == false)
+        if (fileToSave.third == false || type == true)
             this->codeHTTP = 201;
-        else
+        else if (type == false)
             this->codeHTTP = 204;
         this->stringCode = mapCode[this->codeHTTP];
-        
+
 
         std::string htmlResponse;
         if (this->codeHTTP == 201) {
-            htmlResponse = Initer::loadPage(sample201);
-            std::cout << GREEN << htmlResponse << RESET << std::endl;
+            if (type)
+                htmlResponse = Initer::loadPage(sample201T);
+            else
+                htmlResponse = Initer::loadPage(sample201);
         }
         else
             htmlResponse = "";
@@ -41,7 +80,7 @@ std::vector<std::string> RequestIn::PushResponse( void /* ParseConfig& config */
         vectorElems.push_back("\r\n");
         vectorElems.push_back("Content-Type: text/html\r\n");
         vectorElems.push_back("Content-Length: ");
-        vectorElems.push_back(Conversion::intToString(static_cast<int>(htmlResponse.size()) - 1));
+        vectorElems.push_back(Conversion::intToString(static_cast<int>(htmlResponse.size())));// - (!(htmlResponse.empty()) - 1)));
         vectorElems.push_back("\r\n");
         vectorElems.push_back("Connexion: ");
         vectorElems.push_back("close\r\n");
@@ -51,8 +90,10 @@ std::vector<std::string> RequestIn::PushResponse( void /* ParseConfig& config */
         vectorElems.push_back(htmlResponse);
     }
     else {
+        std::map<int, std::string> mapCodeLocation;
         std::map<int, std::string> mapCodeHtml = this->serv->getErrorPage();
-        std::map<int, std::string> mapCodeLocation = this->loc.getErrorPage();
+        if (this->locSet)
+            mapCodeLocation = this->loc.getErrorPage();
         for (std::map<int, std::string>::iterator it = mapCodeLocation.begin(); it != mapCodeLocation.end(); it++)
             mapCodeHtml[it->first] = it->second;
         MyVector<int> vectorCodeGenerate;
@@ -64,8 +105,7 @@ std::vector<std::string> RequestIn::PushResponse( void /* ParseConfig& config */
         if (vectorCodeGenerate == this->codeHTTP)
             htmlResponse = Initer::loadPage(mapCodeHtml[this->codeHTTP]);
         else
-            htmlResponse = "";
-
+            htmlResponse = Initer::makeTheSample(Conversion::intToString(this->codeHTTP), mapCode[this->codeHTTP], "./html/conect/errors/errors_sample/error_sample.html");
 
         vectorElems.push_back("HTTP/1.1 ");
         vectorElems.push_back(Conversion::intToString(this->codeHTTP));
@@ -74,7 +114,7 @@ std::vector<std::string> RequestIn::PushResponse( void /* ParseConfig& config */
         vectorElems.push_back("\r\n");
         vectorElems.push_back("Content-Type: text/html\r\n");
         vectorElems.push_back("Content-Length: ");
-        vectorElems.push_back(Conversion::intToString(static_cast<int>(htmlResponse.size()) - 1));
+        vectorElems.push_back(Conversion::intToString(static_cast<int>(htmlResponse.size()))) ;// - (!(htmlResponse.empty()) - 1)));
         vectorElems.push_back("\r\n");
         vectorElems.push_back("Connection: ");
         vectorElems.push_back("close\r\n");

@@ -10,11 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Location.hpp"
-#include "config.hpp"
+#include "../../includes/Webserv.h"
 
-Location::Location() :	 autoindex(false), verifauto(false), client_max_body_size(-1)
+Location::Location() :	 autoindex(false), client_max_body_size(-1)
 {
+	verifauto = false;
 	op = false;
 }
 
@@ -25,6 +25,7 @@ Location::Location(const Location &other)
 {
 	if (this != &other)
 	{
+		this->verifauto = other.verifauto;
 		this->op = other.op;
 		this->root = other.root;
 		this->index = other.index;
@@ -32,7 +33,6 @@ Location::Location(const Location &other)
 		this->client_max_body_size = other.client_max_body_size;
 		this->allow_methods = other.allow_methods;
 		this->cgi_ext = other.cgi_ext;
-		this->cgi_path = other.cgi_path;
 		this->retur = other.retur;
 		this->passwordDependent = other.passwordDependent;
 	}
@@ -42,6 +42,7 @@ Location& Location::operator=(const Location &other)
 {
 	if (this != &other)
 	{
+		this->verifauto = other.verifauto;
 		this->op = other.op;
 		this->root = other.root;
 		this->index = other.index;
@@ -49,7 +50,6 @@ Location& Location::operator=(const Location &other)
 		this->client_max_body_size = other.client_max_body_size;
 		this->allow_methods = other.allow_methods;
 		this->cgi_ext = other.cgi_ext;
-		this->cgi_path = other.cgi_path;
 		this->retur = other.retur;
 		this->passwordDependent = other.passwordDependent;
 	}
@@ -152,20 +152,6 @@ void	Location::initReturn(std::string& fileContent)
 		throw std::runtime_error("Error : Missing direction, return");
 }
 
-void	Location::initCgi_path(std::string& fileContent)
-{
-	std::vector<std::string> parts = splitt(fileContent, ' ');
-	for (size_t i = 1; i < parts.size(); ++i)
-	{
-		if (i + 1 == parts.size())
-			cgi_path.push_back(parts[i].substr(0, parts[i].length() - 1));
-		else
-   			cgi_path.push_back(parts[i]);
-	}
-	if (cgi_path[0].empty())
-		throw std::runtime_error("Error : Missing varible, cgi_path");
-}
-
 void	Location::initCgi_ext(std::string& fileContent)
 {
 	std::vector<std::string> parts = splitt(fileContent, ' ');
@@ -221,7 +207,7 @@ void	Location::initContrpart(std::string& fileContent)
 
 void	Location::initAutoindex(std::string& fileContent)
 {
-	if (autoindex == true)
+	if (verifauto == true)
 		 throw std::runtime_error("Error : is duplicated, autoindex");
 	if (countWords(fileContent) != 2)
 		throw std::runtime_error("Error : Too much Argument or not Enough, autoindex");
@@ -233,11 +219,13 @@ void	Location::initAutoindex(std::string& fileContent)
 	{
 		verifauto = true;
 		autoindex = true;
+		std::cerr << "Cas A: " << this->index << " " << verifauto << std::endl;
 	}
 	else if (fileContent.compare(10, 5, "off;") == 0)
 	{
 		verifauto = true;
 		autoindex = false;
+		std::cerr << "Cas B: " << this->index << " " << this->verifauto << std::endl;
 	}
 }
 
@@ -277,11 +265,6 @@ void Location::initError_page(std::string& fileContent)
 
 	if (name.empty())
 		throw std::runtime_error("Error : Missing direction, error_page");
-	// std::cout << "Error Page Mapping:\n";
-	// for (std::map<int, std::string>::iterator it = error_page.begin(); it != error_page.end(); ++it)
-	// {
-	// 	std::cout << "Error Code: " << it->first << " -> File: " << it->second << std::endl;
-	// }
 }
 
 bool Location::getOp() const {
@@ -314,10 +297,6 @@ int Location::getClientMaxBodySize() const {
 
 std::string Location::getRetur() const {
     return retur;
-}
-
-std::vector<std::string> Location::getCgiPath() const {
-    return cgi_path;
 }
 
 MyVector<std::string> Location::getCgiExt() const {
