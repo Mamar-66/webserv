@@ -170,7 +170,6 @@ bool	Checker::if_close_pipe(monitoring &moni, int fd, int i)
 {
 	if (moni.all_all_pollfd[i].revents & POLLHUP)
 	{
-		// std::cerr << RED "close read pipe pipe read fd : " << fd << RESET << std::endl;
 		close((*moni.clients[fd]).pipe_read[0]);
 		moni.all_all_pollfd.erase(moni.all_all_pollfd.begin() + i);
 		moni.clients[fd]->responce_cgi = true;

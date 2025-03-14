@@ -4,18 +4,14 @@ std::string timeout(client& cl, monitoring& monitor, std::string code, std::map<
     std::string response;
     std::map<int, std::string> mapCode = Initer::initCodeMap();
     std::string body;
-    // std::cerr << "code: " << code << std::endl;
     if (map.find(Conversion::stringToInt(code)) != map.end())
     {
         body = Initer::loadPage(monitor.servors[cl.getFDFather()]->getErrorPage()[Conversion::stringToInt(code)]);
-        // std::cerr << "ooooooooooooooooooooooooooooooooooooo" << std::endl;
     }
     else
     {
         body = Initer::makeTheSample(code, mapCode[Conversion::stringToInt(code)], "./html/conect/errors/errors_sample/error_sample.html");
-        // std::cerr << "uuuuuuuuuuuuuuuuuuuuuuuuj" << std::endl;
     }
-    // std::cerr << "TTT: " <<  body << std::endl;
     response = "HTTP/1.1 ";
     response += code;
     response += " ";

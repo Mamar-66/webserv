@@ -20,7 +20,7 @@ std::map<MyStack<std::string>, std::string> createmapStackRedir(std::map<std::st
     return toReturn;
 }
 
-std::string checkRedir(RequestIn& req, int n) { //, ParseConfig& conf) {
+std::string checkRedir(RequestIn& req, int n) {
 
     if (n >= 15) {
         req.setCode(310);
@@ -28,10 +28,8 @@ std::string checkRedir(RequestIn& req, int n) { //, ParseConfig& conf) {
     }
 
     std::string retour = req.getLoc().getRetur();
-    // std::cerr << n << "-" << req.getServ()->location.find(retour)->first << "|" << req.getServ()->location.find(retour)->second.getAutoindex() << "<>" << retour << std::endl;
     if (retour == "" || req.getServ()->location.find(retour) == req.getServ()->location.end() || req.getServ()->location[retour].getRetur().empty())
     {
-        // std::cerr << retour << std::endl;
         return retour;
     }
     req.setUri(retour);
@@ -56,12 +54,16 @@ std::vector<std::string> makeBodyIndex( RequestIn& req ) {
     std::vector<std::string> vector;
     std::string rootedDir = GenericGetter::findRoot(req);
     std::vector<std::string> listDir = listDirectory(rootedDir + req.getURI());
+    std::string add = "";
+
+    if (req.getURI()[req.getURI().size() - 1] != '/')
+        add = "/";
 
     vector.push_back("<!DOCTYPE html>\n<html>\n<head>\n<title>Index of ");
-    vector.push_back(req.getURI());
-    vector.push_back("/</title>\n    <style>\n        body { font-family: Arial, sans-serif; }\n        table { width: 100%; border-collapse: collapse; }\n        th, td { padding: 8px; border-bottom: 1px solid #ddd; }\n    </style>\n</head>\n<body>\n    <h1>Index of ");
-    vector.push_back(req.getURI());
-    vector.push_back("/</h1>\n    <table>\n        <tr><th>Name</th></tr>");
+    vector.push_back(req.getURI() + add);
+    vector.push_back("</title>\n    <style>\n        body { font-family: Arial, sans-serif; }\n        table { width: 100%; border-collapse: collapse; }\n        th, td { padding: 8px; border-bottom: 1px solid #ddd; }\n    </style>\n</head>\n<body>\n    <h1>Index of ");
+    vector.push_back(req.getURI() + add);
+    vector.push_back("</h1>\n    <table>\n        <tr><th>Name</th></tr>");
     for (int i = 0; i < static_cast<int>(listDir.size()); i++) {
         vector.push_back("<tr><td><a href=\"");
         vector.push_back(listDir[i]);
@@ -81,7 +83,7 @@ std::vector<std::string> makeAutoIndex( RequestIn& req ) {
     vector.push_back("HTTP/1.1 200 OK\r\n");
     vector.push_back("Content-Type: text/html; charset=UTF-8\r\n");
     vector.push_back("Content-Length: ");
-    vector.push_back(Conversion::intToString(static_cast<int>(bodyAutoIndex.size())));// - (!(bodyAutoIndex.empty()) - 1)));
+    vector.push_back(Conversion::intToString(static_cast<int>(bodyAutoIndex.size())));
     vector.push_back("\r\nConnection: close\r\nDate: ");
     vector.push_back(GenericGetter::getHttpDate());
     vector.push_back("\r\n\r\n");
@@ -94,5 +96,4 @@ void addElemToStr(std::string& str, MyStack<std::string>& stack) {
     std::string elem = stack.popTop();
     str += "/";
     str += elem;
-    // std::cerr << stack.empty() << std::endl;
 }

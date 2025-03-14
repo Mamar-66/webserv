@@ -120,7 +120,6 @@ std::string Initer::generateSessionId() {
         }
         str += "-";
     }
-    // std::cerr << str.substr(0, 35) << std::endl;
     return (str.substr(0, 35));
 }
 
@@ -178,15 +177,15 @@ serveur *Initer::malloc_serv(std::string &str)
 {
 	serveur *servor = NULL;
 
-	std::cerr << GREEN << str << RESET << std::endl;
-
 	try
 	{
 		servor = new serveur(str);
+        std::cout << GREEN << str << std::endl << "---------------------------------------------------------------" << RESET << std::endl;
 	}
 	catch(const std::exception& e)
 	{
-		std::cerr << RED << e.what() << RESET << std::endl;
+        std::cout << RED << str << std::endl << "---------------------------------------------------------------" << RESET << std::endl;
+		std::cerr << ORANGE << e.what() << RESET << std::endl;
 		return NULL;
 	}
 
@@ -208,7 +207,6 @@ std::map<int, std::string> Initer::initMapConfig(monitoring& moni, int fd) {
 }
 
 Cookie Initer::initCookie(std::string& response) {
-   // std::cerr << response.substr(response.find("Set-Cookie: ") + 12, response.substr(response.find("Set-Cookie: ") + 12).find("\r\n")) << std::endl;
     std::string CookieString = response.substr(response.find("Set-Cookie: ") + 12, response.substr(response.find("Set-Cookie: ") + 12).find("\r\n"));
     std::vector<std::string> vectorData = split(CookieString, '|');
     std::string stringId = Initer::generateSessionId();

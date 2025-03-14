@@ -53,3 +53,15 @@ std::vector<std::string> Conversion::StrToVector(std::string str) {
 
     return toReturn;
 }
+
+unsigned int Conversion::ipToUInt(const std::string& ip) {
+    unsigned int bytes[4] = {0};
+    char dot;
+    std::istringstream iss(ip);
+
+    if (!(iss >> bytes[0] >> dot >> bytes[1] >> dot >> bytes[2] >> dot >> bytes[3])) {
+        return 0;
+    }
+
+    return (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
+}

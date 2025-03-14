@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parssing.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: rmichel- <rmichel-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:04:12 by omfelk            #+#    #+#             */
-/*   Updated: 2025/02/16 10:50:00 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/03/13 09:07:56 by rmichel-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,25 +22,23 @@ void removeComments(std::string& content)
     {
         size_t newlinePos = content.find('\n', commentPos);
 
-        // Si un # est trouvé, on le coupe jusqu'à la fin de la ligne
         if (newlinePos != std::string::npos)
         {
-            result += content.substr(lineStart, commentPos - lineStart);  // Partie avant le #
-            result += "\n";  // Ajouter le saut de ligne
-            lineStart = newlinePos + 1;  // Continuer après le saut de ligne
+            result += content.substr(lineStart, commentPos - lineStart);
+            result += "\n";
+            lineStart = newlinePos + 1;
         }
         else
         {
-            result += content.substr(lineStart, commentPos - lineStart);  // Partie avant le #
-            break;  // Fin du contenu
+            result += content.substr(lineStart, commentPos - lineStart);
+            break;
         }
     }
 
-    // Ajouter le reste du contenu après le dernier # (si présent)
     if (lineStart < content.length())
         result += content.substr(lineStart);
 
-    content = result;  // Mettre à jour le contenu avec la version modifiée
+    content = result;
 }
 
 std::string normalizeSpaces(const std::string &input)

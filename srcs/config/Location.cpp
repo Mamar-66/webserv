@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: rmichel- <rmichel-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 15:19:17 by sbarbe            #+#    #+#             */
-/*   Updated: 2025/02/21 22:34:36 by marvin           ###   ########.fr       */
+/*   Updated: 2025/03/13 11:07:13 by rmichel-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,14 +97,29 @@ void	Location::initAllow_methods(std::string& fileContent)
 	std::vector<std::string> parts = splitt(adjustedContent, ' ');
 	for (size_t i = 0; i < parts.size(); i++)
 	{
-		if (parts[i].compare("GET") != 0 && parts[i].compare("DELETE") != 0 && parts[i].compare("POST") != 0 && parts[i].compare("PUT") != 0 && parts[i].compare("HEAD") != 0 && (i - 1 == parts.size() && parts[i].compare("GET;") != 0 && parts[i].compare("DELETE;") != 0 && parts[i].compare("POST;") != 0 && parts[i].compare("PUT;") != 0 && parts[i].compare("HEAD;") != 0))
-			throw std::runtime_error("Error : only GET, DELETE, POST, PUT, HEAD, allow_methods");
-		else
+		if (i == parts.size() - 1)
 		{
-			if (parts[i].compare(parts[i].length() - 1, 3, ";") == 0)
-				allow_methods.push_back(parts[i].substr(0, parts[i].length() - 1));
+    		if (parts[i] != "GET;" && parts[i] != "DELETE;" && parts[i] != "POST;")
+        		throw std::runtime_error("Error: Last method must be GET;, DELETE; or POST;");
 			else
-				allow_methods.push_back(parts[i].substr());
+				{
+					if (parts[i].compare(parts[i].length() - 1, 3, ";") == 0)
+						allow_methods.push_back(parts[i].substr(0, parts[i].length() - 1));
+					else
+						allow_methods.push_back(parts[i].substr());
+			}
+		}
+		else // Si ce n'est PAS le dernier élément
+		{
+    		if (parts[i] != "GET" && parts[i] != "DELETE" && parts[i] != "POST")
+       			throw std::runtime_error("Error: Only GET, DELETE, POST allowed before the last method");
+			else
+			{
+				if (parts[i].compare(parts[i].length() - 1, 3, ";") == 0)
+					allow_methods.push_back(parts[i].substr(0, parts[i].length() - 1));
+				else
+					allow_methods.push_back(parts[i].substr());
+			}
 		}
 	}
 }
@@ -219,13 +234,11 @@ void	Location::initAutoindex(std::string& fileContent)
 	{
 		verifauto = true;
 		autoindex = true;
-		std::cerr << "Cas A: " << this->index << " " << verifauto << std::endl;
 	}
 	else if (fileContent.compare(10, 5, "off;") == 0)
 	{
 		verifauto = true;
 		autoindex = false;
-		std::cerr << "Cas B: " << this->index << " " << this->verifauto << std::endl;
 	}
 }
 

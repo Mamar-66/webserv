@@ -2,7 +2,7 @@
 #include <fstream>
 #include <iostream>
 
-std::vector<std::string> RequestIn::PushResponse( void /* ParseConfig& config */ ) {
+std::vector<std::string> RequestIn::PushResponse( void ) {
     std::map<int, std::string> mapCode = Initer::initCodeMap();
     std::string rootedDir = GenericGetter::findRoot(*this);
     std::vector<std::string> vectorElems;
@@ -18,13 +18,11 @@ std::vector<std::string> RequestIn::PushResponse( void /* ParseConfig& config */
         this->codeHTTP = 500;
     
     if (this->codeHTTP - 400 < 0) {
-        std::cerr << GREEN << this->typeRequestGen << RESET << std::endl;
         if (this->typeRequestGen != "multipart/form-data;") {
-            // std::cerr << ORANGE << (Checker::isFile(catFile.substr(0, catFile.find_last_of('?'))) && this->loc.getCgiExt() == catFile.substr(0, catFile.find_last_of('?')).substr(catFile.find_last_of('.')) && access(catFile.substr(0, catFile.find_last_of('?')).c_str(), X_OK) == 0) << std::endl;
             if (Checker::isFile(catFile.substr(0, catFile.find_last_of('?'))) && this->locSet && this->loc.getCgiExt() == catFile.substr(0, catFile.find_last_of('?')).substr(catFile.find_last_of('.')) && access(catFile.substr(0, catFile.find_last_of('?')).c_str(), X_OK) == 0)  {
                 return this->holdCGI(mapCodeHtml);
             }
-            if (this->mapParse["Content-Type"] == " text/plain") {
+            if (this->mapParse["Content-Type"] == " plain/text") {
                 file << this->monitor.mapCookie[this->sessionId].getUsername() << " has posted a comment on " << GenericGetter::getHttpDate() << ":\n" << this->body << "\n\n";
                 type = true;
             }
@@ -44,7 +42,7 @@ std::vector<std::string> RequestIn::PushResponse( void /* ParseConfig& config */
                 vectoNoChanges.push_back("\r\n");
                 vectoNoChanges.push_back("Content-Type: text/html\r\n");
                 vectoNoChanges.push_back("Content-Length: ");
-                vectoNoChanges.push_back("0");// - (!(htmlResponse.empty()) - 1)));
+                vectoNoChanges.push_back("0");
                 vectoNoChanges.push_back("\r\n");
                 vectoNoChanges.push_back("Connexion: ");
                 vectoNoChanges.push_back("close\r\n");
@@ -80,7 +78,7 @@ std::vector<std::string> RequestIn::PushResponse( void /* ParseConfig& config */
         vectorElems.push_back("\r\n");
         vectorElems.push_back("Content-Type: text/html\r\n");
         vectorElems.push_back("Content-Length: ");
-        vectorElems.push_back(Conversion::intToString(static_cast<int>(htmlResponse.size())));// - (!(htmlResponse.empty()) - 1)));
+        vectorElems.push_back(Conversion::intToString(static_cast<int>(htmlResponse.size())));
         vectorElems.push_back("\r\n");
         vectorElems.push_back("Connexion: ");
         vectorElems.push_back("close\r\n");
@@ -114,7 +112,7 @@ std::vector<std::string> RequestIn::PushResponse( void /* ParseConfig& config */
         vectorElems.push_back("\r\n");
         vectorElems.push_back("Content-Type: text/html\r\n");
         vectorElems.push_back("Content-Length: ");
-        vectorElems.push_back(Conversion::intToString(static_cast<int>(htmlResponse.size()))) ;// - (!(htmlResponse.empty()) - 1)));
+        vectorElems.push_back(Conversion::intToString(static_cast<int>(htmlResponse.size())));
         vectorElems.push_back("\r\n");
         vectorElems.push_back("Connection: ");
         vectorElems.push_back("close\r\n");

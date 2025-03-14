@@ -1,5 +1,4 @@
 NAME	=	Webserv
-CGI_tester	=	tester
 CC		=	c++
 CFLAGS	=	-Wall -Werror -Wextra -Wpedantic -std=c++98 -g
 
@@ -38,13 +37,12 @@ SRC	=	main.cpp \
 SRCS	=	$(addprefix $(SRC_PATH), $(SRC))
 
 OBJS	=	$(SRCS:$(SRC_PATH)%.cpp=$(OBJ_PATH)%.o)
-OBJS_CGI	=	$(SRCS:cgi/testeur.cpp=$(OBJ_PATH)%.o)
 
 INCS	=	-I ./includes/
 
 CFLAGS_C =	-Wall -Werror -Wextra -g
 
-all: $(OBJ_PATH) $(NAME) $(CGI_tester)
+all: $(OBJ_PATH) $(NAME)
 
 $(OBJ_PATH):
 			mkdir -p $(OBJ_PATH)
@@ -71,10 +69,6 @@ $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
 	@echo "\033[32m ./Webserv created\n"
 
-$(CGI_tester): $(OBJS_CGI)
-	@echo "\033[0;33m\nCOMPILING \033[31m CGI_tester \033[0;33m ...\n"
-	c++ srcs/cgi/testeur.cpp -o $(CGI_tester)
-	@echo "\033[32m ./tester created\n"
 
 $(OBJ_PATH)%.o: $(SRC_PATH)%.cpp
 	$(CC) $(CFLAGS) -c $< -o $@ $(INCS)
@@ -84,7 +78,10 @@ clean:
 
 fclean: clean
 		rm -rf $(NAME)
-		rm -rf $(CGI_tester)
+		
+supclean: fclean restart
+
+supre: restart re
 
 re: fclean all
 
@@ -96,6 +93,7 @@ restart:
 	rm -rf uploadServer/*
 	rm -rf json/users.json json/alreadyUsed.txt
 	touch json/users.json
+	@echo "[]" > json/users.json
 	touch json/alreadyUsed.txt
 	@echo "\033[34m\n Webserv Restarted \033[0m"
 

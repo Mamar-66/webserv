@@ -1,7 +1,6 @@
 #include "../../../includes/Webserv.h"
 
 std::vector<std::string> RequestIn::GetResponse( void ) {
-    std::cout << RED << this->cl.getInput() << RESET << std::endl;
     std::map<int, std::string> mapCode = Initer::initCodeMap();
 
     std::string rootedDir = GenericGetter::findRoot(*this);
@@ -9,7 +8,6 @@ std::vector<std::string> RequestIn::GetResponse( void ) {
     std::vector<std::string> vectorElems;
 
     std::string temp = checkRedir(*this, 0);
-    std::cerr << ORANGE << "|||-> "<< temp << " <-|||" << RESET << std::endl;
     if (temp != this->uri && temp != "" and this->codeHTTP != 310)
         this->codeHTTP = 307;
     if (temp != "")
@@ -19,12 +17,9 @@ std::vector<std::string> RequestIn::GetResponse( void ) {
     bool AutoIndexToRemove = false;
     if (this->locSet)
     {
-        std::cerr << this->loc.getVerifauto() << " " << this->loc.getIndex(); 
         AutoIndexToRemove = this->loc.getAutoindex();
-        std::cerr << " : ???_?_?-_/_/_/_/-_/__?-/-_?_-//--?_?_-?_?--/-/_?-/sf :  " << this->loc.index << std::endl;
     }
     if (!(this->locSet) || (this->locSet && this->loc.verifauto == false)) {
-        std::cerr << "setLoc: " << this->locSet << " : verifAuto: " << this->loc.verifauto << std::endl;
         AutoIndexToRemove = this->serv->getAutoindex();
     }
 
@@ -52,7 +47,6 @@ std::vector<std::string> RequestIn::GetResponse( void ) {
 
         }
     }
-    // std::cerr << GREEN << "code: -> -> -> " << this->codeHTTP << std::endl;
     if (this->codeHTTP == 200) {
         if (!(Checker::isFile(catFile))) {
             if (!(Checker::isFile(catFile.substr(0, catFile.find_last_of('?')))))
@@ -80,13 +74,11 @@ std::vector<std::string> RequestIn::GetResponse( void ) {
         vectorCodeGenerate.push_back(it->first);
     }
 
-    std::cerr << "Code: " << this->codeHTTP << std::endl;
     if (this->codeHTTP - 400 >= 0 || this->codeHTTP == 310) {
 		
 		std::string htmlResponse;
         if (vectorCodeGenerate == this->codeHTTP)
         {
-            std::cerr << ORANGE << mapCodeHtml[this->codeHTTP] << RESET << std::endl;
             htmlResponse = Initer::loadPage(mapCodeHtml[this->codeHTTP]);
         }
         else
@@ -95,7 +87,7 @@ std::vector<std::string> RequestIn::GetResponse( void ) {
 
         vectorElems.push_back("Content-Type: text/html\r\n");
         vectorElems.push_back("Content-Length: ");
-        vectorElems.push_back(Conversion::intToString(static_cast<int>(htmlResponse.size())));// - (!(htmlResponse.empty()) - 1)));
+        vectorElems.push_back(Conversion::intToString(static_cast<int>(htmlResponse.size())));
         vectorElems.push_back("\r\n");
         vectorElems.push_back("Connection: ");
         vectorElems.push_back("close\r\n");
@@ -113,7 +105,6 @@ std::vector<std::string> RequestIn::GetResponse( void ) {
         vectorElems.push_back("\r\n\r\n");
     }
     else if (this->codeHTTP / 100 == 2) {
-        std::cerr << "soihdvdjbfkvhaliufsvjb jladkf.hvkrsdlv kjbxvbafsipjgvb k;d.vmhafjisvb .kxcblvbifb a.;fjhak.B bfhb;jafVB:kFBsjb;fbuV KFJBsghS:" << std::endl;
         if (Checker::isFile(catFile.substr(0, catFile.find_last_of('?'))) && this->locSet && this->loc.getCgiExt() == catFile.substr(0, catFile.find_last_of('?')).substr(catFile.substr(0, catFile.find_last_of('?')).find_last_of('.')) && access(catFile.substr(0, catFile.find_last_of('?')).c_str(), X_OK) == 0)
             return this->holdCGI(mapCodeHtml);
         std::string htmlResponse = Initer::loadPage(catFile);
@@ -121,7 +112,7 @@ std::vector<std::string> RequestIn::GetResponse( void ) {
         vectorElems.push_back(this->mimeAccept);
         vectorElems.push_back("\r\n");
         vectorElems.push_back("Content-Length: ");
-        vectorElems.push_back(Conversion::intToString(static_cast<int>(htmlResponse.size())));// - (!(htmlResponse.empty()) - 1)));
+        vectorElems.push_back(Conversion::intToString(static_cast<int>(htmlResponse.size())));
         vectorElems.push_back("\r\n");
         vectorElems.push_back("Connection: ");
         vectorElems.push_back("close\r\n");
@@ -136,7 +127,6 @@ std::vector<std::string> RequestIn::GetResponse( void ) {
 std::string RequestIn::makeResponse( void ) {
     std::vector<std::string> vectorElems;
 
-    std::cerr << this->cl.getInput() << std::endl;
 	if (this->method == "POST") {
 		vectorElems = this->PushResponse();
 	}

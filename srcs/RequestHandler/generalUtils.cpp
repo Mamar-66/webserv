@@ -12,8 +12,7 @@ std::vector<std::string> split(const std::string& str, char delimiter) {
             token += str[i];
         }
     }
-    
-    // Ajouter le dernier token s'il n'est pas vide
+
     if (!token.empty()) {
         tokens.push_back(token);
     }
@@ -35,10 +34,8 @@ std::string removeUriFile(std::string uri, RequestIn& req) {
             return (uri.substr(0, uri.find_last_of('?')).substr(0, uri.find_last_of('/') + 1));
         }
     }
-    //std::cerr << uri.substr(0, uri.find_last_of('?')) << Checker::isFile(uri.substr(0, uri.find_last_of('?'))) << std::endl;
     if (Checker::isFile(test.substr(0, test.find_last_of('?'))) == true)
     {
-        // std::cerr << uri.substr(0, uri.find_last_of('?')).substr(0, uri.find_last_of('/') + 1) << std::endl;
         return uri.substr(0, uri.find_last_of('?')).substr(0, uri.find_last_of('/') + 1);
     }
     return uri;

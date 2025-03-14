@@ -124,6 +124,7 @@ void	config::initHost(std::string& fileContent)
         }
     }
 	this->host = fileContent.substr(5, fileContent.length() - 5 - 1);
+	this->hostInt = Conversion::ipToUInt(this->host);
 }
 
 void	config::initRoot(std::string& fileContent)

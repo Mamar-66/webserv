@@ -44,7 +44,6 @@ RequestIn::RequestIn(client& request, monitoring& monitor) : monitor(monitor), c
         std::getline(streamLine, key, ':');
         if (key.find('\n') != std::string::npos) {
             this->codeHTTP = 400;
-            std::cerr << "A1" << std::endl;
             return ;
         }
         std::getline(streamLine, value);

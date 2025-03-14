@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: rmichel- <rmichel-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:04:20 by omfelk            #+#    #+#             */
-/*   Updated: 2025/03/01 14:16:45 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/03/13 09:18:22 by rmichel-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@ void	monitorin(monitoring &moni)
 {
 	size_t i = -1;
 
-	// std::cerr << ORANGE "serveur listen . . ." RESET << std::endl;
 	while (++i < moni.all_all_pollfd.size() && running)
 	{
 		for (int i = 0; i < (int)moni.all_all_pollfd.size(); i++)

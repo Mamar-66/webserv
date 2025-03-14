@@ -37,7 +37,6 @@ std::string GenericGetter::getLittleInBig(std::string& input, std::string& delim
 std::string GenericGetter::findRoot(RequestIn& req) {
 
     std::string root = "";
-    std::cerr << ORANGE << req.getLocSet() << RESET << std::endl;
     if (req.getLocSet())
         root = req.getLoc().getRoot();
     if (root.empty()) 

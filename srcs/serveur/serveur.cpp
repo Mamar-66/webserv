@@ -56,7 +56,7 @@ int	serveur::creatSocket(const int &port)
 	memset(&server_addr, 0, sizeof(server_addr));
 
 	server_addr.sin_family = AF_INET;
-	server_addr.sin_addr.s_addr = INADDR_ANY;
+	server_addr.sin_addr.s_addr = htonl(this->hostInt);
 	server_addr.sin_port = htons(port);
 
 	if (bind(return_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
@@ -75,8 +75,6 @@ int	serveur::creatSocket(const int &port)
 	this->pfd.fd = return_socket;
 	this->pfd.events = POLLIN;
 	this->pfd.revents = 0;
-
-	// std::cerr << ORANGE "hello constructor from serveur " << this->config_name << " FD = " << return_socket << RESET << std::endl;
 
 	return return_socket;
 }
@@ -100,6 +98,8 @@ void serveur::addConfig(const std::string &strConfig)
 				throw std::runtime_error("Error : missing '{' or '}'");
 		if (this->config_name.empty() || this->port.empty())
 			throw std::runtime_error("Error : it is mandatory to have the Server Port, server");
+		if (this->getHost().empty())
+			this->hostInt = INADDR_ANY;
 }
 
 int	serveur::listen_port(const int &port)
@@ -149,13 +149,10 @@ serveur::serveur(const std::string &strConfig)
 	{
 		throw;
 	}
-
-	// std::cerr << ORANGE "hello constructor from serveur FD = " <<  RESET << std::endl;
 }
 
 serveur::~serveur()
 {
-	// std::cerr << ORANGE "destructor serveur" << RESET << std::endl;
 	int size = this->servor_socket.size();
 	for (int i = 0; i < size; i++)
 		close(this->servor_socket[i]);

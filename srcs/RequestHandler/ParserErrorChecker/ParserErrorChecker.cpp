@@ -3,49 +3,36 @@
 void RequestIn::checkErrorHTTPHeaders( void ) {
     if (this->vector.size() != 3) {
         this->codeHTTP = 400;
-        std::cerr << "B1" <<std::endl;
         return ;
     }
 
     if (this->mapParse.find("Host") == this->mapParse.end()) {
         this->codeHTTP = 400;
-        std::cerr << "B2" <<std::endl;
         return ;
     }
     this->method = this->vector[0];
     this->uri = this->vector[1];
     this->protocol = this->vector[2];
-    std:: cerr << "JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ: " <<  removeUriFile(this->uri, *this) << std::endl;
     if (this->serv->location.find(removeUriFile(this->uri, *this)) != this->serv->location.end())
     {
         this->loc = this->serv->location[removeUriFile(this->uri, *this)];
         this->cl.setGoodLocation(removeUriFile(this->uri, *this));
         this->locSet = true;
-        std::cerr << "A" << std::endl;
     }
     else if (this->serv->location.find(removeUriFile(this->uri + "/", *this)) != this->serv->location.end())
     {
         this->loc = this->serv->location[removeUriFile(this->uri + "/", *this)];
         this->cl.setGoodLocation(removeUriFile(this->uri + "/", *this));
         this->locSet = true;
-        std::cerr << "B" << std::endl;
     }
-    else if (this->serv->location.find(removeUriFile(this->uri.substr(0, this->uri.length() - 1), *this)) != this->serv->location.end()) {
-        this->loc = this->serv->location[removeUriFile(this->uri.substr(0, this->uri.length() - 1), *this)];
-        this->cl.setGoodLocation(removeUriFile(this->uri.substr(0, this->uri.length() - 1), *this));
+    else if (this->serv->location.find(removeUriFile(this->uri, *this).substr(0, removeUriFile(this->uri, *this).length() - 1)) != this->serv->location.end()) {
+        this->cl.setGoodLocation(removeUriFile(this->uri, *this).substr(0, removeUriFile(this->uri, *this).length() - 1));
+        this->loc = this->serv->location[removeUriFile(this->uri, *this).substr(0, removeUriFile(this->uri, *this).length() - 1)];
         this->locSet = true;
-        std::cerr << "C" << std::endl;
     }
     std::vector<std::string> validMethod;
-    std::cerr << "--------------------------------------------------------------------------------------------------------------------\n";
-    for (std::map<std::string, Location>::iterator it = this->monitor.servors[3]->location.begin(); it != this->monitor.servors[3]->location.end(); ++it) {
-		std::cerr << it->first << " : " << it->second.getVerifauto() << std::endl;
-	}
-    std::cerr << "--------------------------------------------------------------------------------------------------------------------\n";
     if (this->locSet)
-        std::cerr << this->loc.getAutoindex() << std::endl;
-    if (this->locSet)
-        validMethod = this->loc.getAllowMethods();
+        validMethod = this->loc.getAllowMethods(); // allowMethods only in location ? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     if (validMethod.empty()) {
         validMethod.push_back("GET");
         validMethod.push_back("POST");
@@ -69,7 +56,6 @@ void RequestIn::checkErrorHTTPHeaders( void ) {
     /* Check du path */
     if (uri[0] != '/') {
         this->codeHTTP = 400;
-        std::cerr << "B3" <<std::endl;
         return ;
     }
 
@@ -84,15 +70,14 @@ void RequestIn::checkErrorHTTPHeaders( void ) {
     mimeAccepted.push_back("multipart/form-data");
     mimeAccepted.push_back("application/x-www-form-urlencoded");
     mimeAccepted.push_back("text/plain");
+    mimeAccepted.push_back("plain/text");
 
     if (this->mapParse.find("Content-Length") != this->mapParse.end()) {
         std::istringstream stream2(this->mapParse["Content-Length"]);
         stream2 >> this->length;
-        // std::cerr << "---> "<< this->length << std::endl;
         if (Checker::compNb(this->mapParse["Content-Length"]) == 0)
         {
             this->codeHTTP = 400;
-            std::cerr << "B4" <<std::endl;
             return ;
         }
 
@@ -122,7 +107,6 @@ void RequestIn::checkErrorHTTPHeaders( void ) {
         else if (this->mapParse.find("Content-Length") != this->mapParse.end()) {
             std::istringstream stream(this->mapParse["Content-Length"]);
             stream >> this->length;
-            // std::cerr << "---> "<< this->length << std::endl;
 
             if (this->length <= 0) {
                 this->codeHTTP = 411;
@@ -142,7 +126,6 @@ void RequestIn::checkErrorHTTPHeaders( void ) {
                 if (!stringBody.empty()) {
                     if ((lenChunk = Conversion::stringToInt(stringBody)) <= 0) {
                         this->codeHTTP = 400;
-                        std::cerr << "B5" <<std::endl;
                         return ;
                     }
                     for (int k = 0; k < lenChunk && streamBody >> std::noskipws >> c; k++) {
@@ -151,7 +134,6 @@ void RequestIn::checkErrorHTTPHeaders( void ) {
                     totalLength += lenChunk;
                     if (static_cast<int>(newbdy.size()) != totalLength) {
                         this->codeHTTP = 400;
-                        std::cerr << "B6" <<std::endl;
                         return ;
                     }
                 }
@@ -174,7 +156,6 @@ void RequestIn::checkErrorHTTPHeaders( void ) {
 
         if (this->mapParse.find("Content-Type") == this->mapParse.end()) {
             this->codeHTTP = 400;
-            std::cerr << "B7" <<std::endl;
             return ;
         }
 
@@ -182,7 +163,6 @@ void RequestIn::checkErrorHTTPHeaders( void ) {
         streamType >> this->typeRequestGen;
         MyVector<std::string> vectorAccepted(this->typeRequestGen, ','); 
 
-        // std::cerr << ORANGE << this->mapParse["Content-Type"]<<RESET << std::endl;
         std::string chEq = vectorAccepted(mimeAccepted);
         this->boundary = GenericGetter::postGetBoundary(this->mapParse["Content-Type"]);
         if (chEq == "NULL") {
@@ -207,7 +187,6 @@ void RequestIn::checkErrorHTTPBody( void ) {
 	
     if (this->length != static_cast<int>(this->body.size())) {
         this->codeHTTP = 400;
-        std::cerr << "B8" <<std::endl;
         return ;
     }
     
@@ -227,7 +206,6 @@ void RequestIn::checkErrorHTTPBody( void ) {
         streamType >> typeRequest;
         MyVector<std::string> vectorAccepted(typeRequest, ','); 
 
-        // std::cerr << this->mapParse.find("Accept")->second << std::endl;
         std::string chEq = vectorAccepted(mimeAccepted);
         if (chEq == "NULL") {
             this->codeHTTP = 406;
@@ -246,7 +224,6 @@ void RequestIn::parseBody( void ) {
     if (this->mapParse.find("Content-Type") != this->mapParse.end()) {
         if (this->mapParse["Content-Type"] == " application/json") {
             this->codeHTTP = Checker::parseJson(this->body);
-            std::cout << "JSON" << std::endl;
             return ;
         }
     }

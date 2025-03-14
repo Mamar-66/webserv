@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: rmichel- <rmichel-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:27:35 by omfelk            #+#    #+#             */
-/*   Updated: 2025/03/03 15:31:50 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/03/13 09:40:45 by rmichel-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,36 +22,6 @@ client::client(client& cpy) {
 client& client::operator=(client& cpy) {
 	(void)cpy;
 	return *this;
-}
-
-int		creat_socket_cgi()
-{
-	struct sockaddr_in 		serverAddr;
-	struct sockaddr_in		addr;
-
-	int 					return_socket = socket(AF_INET, SOCK_STREAM, 0);
-
-	memset(&serverAddr, 0, sizeof(serverAddr));
-
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_addr.s_addr = INADDR_ANY;
-	serverAddr.sin_port = 0;
-
-	if (bind(return_socket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) == -1)
-		throw std::runtime_error("error constructeur bind cgi");
-
-	if (listen(return_socket, 5) == -1)
-		throw std::runtime_error("error constructeur listen cgi");
-
-	/* recup port choisi par le systeme */
-	socklen_t addr_len = sizeof(addr);
-	if (getsockname(return_socket, (struct sockaddr *)&addr, &addr_len) == -1)
-		throw std::runtime_error("Error get port");
-	// unsigned short	port = ntohs(addr.sin_port);
-
-	// std::cerr << "CGI Port : " << port << " fd : " << return_socket << std::endl;
-
-	return return_socket;
 }
 
 client::client(int fdsocket, int fdFather) :
@@ -237,12 +207,11 @@ void	responding(monitoring &moni, int &fd, int i)
 
 	if (it == moni.clients.end())
 	{
-		// std::cerr << "client cgi ok write fd " << fd << std::endl;
 		int tmp_fd = moni.where_are_fd_pipe(fd);
 		if (tmp_fd == -1)
 			std::cerr << RED "error tmp_fd where_are_fd_pipe" RESET << std::endl;
 
-		// std::cerr << "tmp : " << tmp_fd << "\ninput : " << (*moni.clients[tmp_fd]).getInput() << std::endl; /* Uncomment if you want to see the request */ 
+		// std::cerr << BLUE << "tmp : " << ORANGE << tmp_fd << std::endl << std::endl << BLUE << "input : " std::endl << ORANGE << (*moni.clients[tmp_fd]).getInput() << RESET << std::endl; /* Uncomment if you want to see the request */ 
 
 		(*moni.clients[tmp_fd]).setInput("\n");
 
@@ -265,8 +234,6 @@ void	responding(monitoring &moni, int &fd, int i)
 		}
 		else
 		{
-			// std::cerr << RED "write ok dans pipe" RESET << std::endl;
-
 			(*moni.clients[tmp_fd]).first_pass = false;
 			(*moni.clients[tmp_fd]).content_real = 0;
 			(*moni.clients[tmp_fd]).content_lenght = 0;
@@ -280,7 +247,6 @@ void	responding(monitoring &moni, int &fd, int i)
 	{
 		if (moni.clients[fd]->responce_cgi)
 		{
-			// std::cerr << GREEN << moni.clients[fd]->getOutput() << RESET << std::endl;
 			Modifier::modifyMapCookies(moni, const_cast<std::string&>(moni.clients[fd]->getOutput()));
 			ssize_t bytes_sent = send(fd, moni.clients[fd]->getOutput().c_str(), moni.clients[fd]->getOutput().size(), 0);
 			if (bytes_sent == 0)
@@ -295,7 +261,6 @@ void	responding(monitoring &moni, int &fd, int i)
 				delete_client(moni, fd, i);
 				return;
 			}
-			// std::cerr << "cgie repondu" << std::endl;
 			delete_client(moni, fd, i);
 		}
 	}
@@ -308,8 +273,6 @@ void	responding(monitoring &moni, int &fd, int i)
 		}
 		if (!(*moni.clients[fd]).getStatusCgi() && !(*moni.clients[fd]).getOutput().empty())
 		{
-			// std::cerr << ORANGE "Input from responding fd " << (*moni.clients[fd]).getFD() << "= " << BLUE << (*moni.clients[fd]).getInput() << RESET << std::endl;
-
 			ssize_t bytes_sent = send((*moni.clients[fd]).getFD(), (*moni.clients[fd]).getOutput().c_str(), (*moni.clients[fd]).getOutput().size(), 0);
 			if (bytes_sent == 0)
 			{
@@ -354,7 +317,6 @@ void	error(monitoring &moni, pollfd &poll, int i)
 bool	raph(monitoring &moni, client &cl)
 {
 	/* reponce */
-	// std::cerr << cl.getInput() << std::endl;
 	RequestIn test(cl, moni);
     if (test.getCode() == 200)
         test.checkErrorHTTPHeaders();
@@ -365,7 +327,7 @@ bool	raph(monitoring &moni, client &cl)
 	}
 	std::string response = test.makeResponse();
 
-	// std::cerr << ORANGE << "response : " << response << RESET << std::endl; /* remove if you want to see the output */
+	// std::cerr << BLUE << "response : \n" << ORANGE << response << RESET << std::endl; /* remove if you want to see the output */
 
 	if (!cl.getStatusCgi())
 		cl.setOutput(response);

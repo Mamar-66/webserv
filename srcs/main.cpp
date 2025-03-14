@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: rmichel- <rmichel-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 16:29:52 by omfelk            #+#    #+#             */
-/*   Updated: 2025/03/12 14:02:09 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/03/13 09:44:17 by rmichel-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ bool 			running = true;
 
 void	signalHandler_ctrC(int signal)
 {
-	std::cout << RED "Close servor" RESET << std::endl;
+	std::cerr << RED "Close servor" RESET << std::endl;
 
 	if (signal == SIGINT)
 		running = false;

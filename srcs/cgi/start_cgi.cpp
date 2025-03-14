@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   start_cgi.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: omfelk <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: rmichel- <rmichel-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/14 16:58:02 by omfelk            #+#    #+#             */
-/*   Updated: 2025/03/04 17:18:48 by omfelk           ###   ########.fr       */
+/*   Updated: 2025/03/13 09:44:29 by rmichel-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@ void	config_cgi(monitoring &moni, client &cl)
 	if (pipe(cl.pipe_write) == -1 || pipe(cl.pipe_read) == -1)
 		throw std::runtime_error("Erreur de pipe");
 
-	// std::cout << BLUE "client fd = " << cl.getFD() << " " << "pipe fd == " << cl.pipe_write[0] << " " << cl.pipe_write[1] << RESET << std::endl;
-	// std::cout << BLUE "client fd = " << cl.getFD() << " " << "pipe fd == " << cl.pipe_read[0] << " " << cl.pipe_read[1] << RESET << std::endl;
+	// std::cerr << BLUE "client fd = " << cl.getFD() << " " << "pipe fd == " << cl.pipe_write[0] << " " << cl.pipe_write[1] << RESET << std::endl; /* Uncomment if you want to see which client created a pipe (can create conditional jump if you uncomment !!! Not our fault, no guardrail there) */ 
+	// std::cerr << BLUE "client fd = " << cl.getFD() << " " << "pipe fd == " << cl.pipe_read[0] << " " << cl.pipe_read[1] << RESET << std::endl;   /* Uncomment if you want to see which client created a pipe (can create conditional jump if you uncomment !!! Not our fault, no guardrail there) */
 
 	cl.cgi_pollfd_write[0].fd = cl.pipe_write[0];
 	cl.cgi_pollfd_write[0].events = POLLIN | POLLOUT;
@@ -75,7 +75,6 @@ void	config_cgi(monitoring &moni, client &cl)
 	{
 		close(cl.pipe_read[1]);
 		cl.pid_child = pid;
-		std::cout << "finifinifnififniffin" << std::endl;
 	}
 }
 

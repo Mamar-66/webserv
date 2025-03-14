@@ -14,7 +14,6 @@ from time import sleep
 
 # Fonction pour envoyer un email de confirmation
 def send_confirmation_email(user_email, user_name, user_password, userID):
-	print(os.getcwd(), file=sys.stderr)
 	os.mkdir(f"./uploadServer/{user_name}_{userID}")
 	sender_email = "omarsimonraphfbm@gmail.com"
 	sender_password = "kesobgtdxzoyyujm"

@@ -17,4 +17,5 @@ class Conversion {
 		static std::string	intToString(int value);
 		static std::string vectorToString(std::vector<std::string> vec);
 		static std::vector<std::string> StrToVector(std::string str);
+		static unsigned int ipToUInt(const std::string& ip);
 };
