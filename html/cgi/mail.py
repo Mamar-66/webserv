@@ -34,10 +34,10 @@ def send_confirmation_email(user_email, user_name, user_password, userID):
 	msg.attach(MIMEText(body, 'plain'))
 	
 	try:
-		with open('homer.gif', 'rb') as img_file:
-			img = MIMEImage(img_file.read(), _subtype='gif')
-			img.add_header('Content-ID', '<image1>')
-			msg.attach(img)
+		# with open('homer.gif', 'rb') as img_file:
+		# 	img = MIMEImage(img_file.read(), _subtype='gif')
+		# 	img.add_header('Content-ID', '<image1>')
+		# 	msg.attach(img)
 
 		server = smtplib.SMTP('smtp.gmail.com', 587)
 		server.starttls()
