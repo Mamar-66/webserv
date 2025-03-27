@@ -1,11 +1,9 @@
-# WebServ
+# WEBSERV
 
 ## Table des matières
 - [Introduction](#introduction)
 - [Règles à suivre](#règles-à-suivre)
 - [Configuration d'un serveur](#configuration-dun-serveur)
-- [Fonctionnement du projet](#fonctionnement-du-projet)
-- [License](#license)
 
 ## Introduction
 
@@ -30,7 +28,7 @@ Tu peux copier ce fichier directement et le personnaliser selon tes besoins.
 
 ---
 
-```json
+```text
 {
 	server {
 		listen 8080;
