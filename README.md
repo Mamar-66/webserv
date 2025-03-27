@@ -119,5 +119,5 @@ Le serveur WebServ fonctionne en suivant une architecture modulaire et un proces
 
 La gestion des connexions multiples grâce à `poll` permet au serveur d'être hautement performant et capable de traiter simultanément un grand nombre de requêtes sans perte de réactivité.
 
-![Logique du serveur WebServ](./path_to_your_image.png)
+![Logique du serveur WebServ](./img_readme/schema_webserv.png)
 
